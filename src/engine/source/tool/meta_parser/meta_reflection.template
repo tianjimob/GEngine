@@ -1,0 +1,62 @@
+#pragma once
+
+#include "{{ headfile_name }}"
+
+## for meta_register in meta_registers
+namespace GEngine {
+namespace Reflection {
+namespace Register {
+class Register{{ meta_register.meta_name_without_namespace }} {
+public:
+  void operator()() {
+{% if meta_register.type == "Enum" %}
+    ::GEngine::Reflection::EnumDescriptorBuilder enumBuilder{"{{ meta_register.meta_name }}"};
+    enumBuilder
+## for entry_name in meta_register.entry_names
+        .addEnum("{{ entry_name }}", static_cast<int64_t>(::{{ meta_register.meta_name }}::{{ entry_name }}))
+## endfor
+    ;
+
+    REGISTER_ENUM(enumBuilder);
+{% else if meta_register.type == "Class" %}
+    ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"{{ meta_register.meta_name }}"};
+    classBuilder
+## for entry in meta_register.entries
+{% if entry.type == "Field" %}
+        .addField("{{ entry.field_name }}", "{{ entry.field_type_name }}", & ::{{ meta_register.meta_name }}::{{ entry.field_name }}, {{ entry.is_enum }})
+{% else if entry.type == "CArrayField" %}
+        .addField("{{ entry.field_name }}", "{{ entry.field_type_name }}", & ::{{ meta_register.meta_name }}::{{ entry.field_name }}, "{{ entry.element_type_name }}",
+                  [](const void * instance) -> size_t { return {{ entry.size }}; },
+                  [](void *instance, void *value, size_t index) {
+                    static_cast<{{ meta_register.meta_name }} *>(instance) -> {{ entry.field_name }}[index] =
+                        *static_cast<{{ entry.element_type_name }} *>(value);
+                  },
+                  [](void *instance, size_t index) -> void * {
+                    return static_cast<void *>(
+                        &static_cast<{{ meta_register.meta_name }} *>(instance)->{{ entry.field_name }}[index]);
+                  }, {{ entry.is_enum }})
+{% else if entry.type == "SizeArrayField" %}
+        .addField("{{ entry.field_name }}", "{{ entry.field_type_name }}", & ::{{ meta_register.meta_name }}::{{ entry.field_name }}, "{{ entry.element_type_name }}",
+                  [](const void * instance) -> size_t { return  static_cast<const ::{{ meta_register.meta_name }}*>(instance)->{{ entry.field_name }}.size(); },
+                  [](void *instance, void *value, size_t index) {
+                    static_cast< ::{{ meta_register.meta_name }} *>(instance) ->{{ entry.field_name }}[index] =
+                        *static_cast<{{ entry.element_type_name }} *>(value);
+                  },
+                  [](void *instance, size_t index) -> void * {
+                    return static_cast<void *>(
+                        &static_cast< ::{{ meta_register.meta_name }} *>(instance)->{{ entry.field_name }}[index]);
+                  }, {{ entry.is_enum }})
+{% else if entry.type == "Method" %}
+        .addMethod("{{ entry.method_name }}", & ::{{ meta_register.meta_name }}::{{ entry.method_name }})
+{% endif %}
+## endfor
+    ;
+
+    REGISTER_CLASS(classBuilder);
+{% endif %}
+  }
+};
+} // namespace Register
+} // namespace Reflection
+} // namespace GEngine
+## endfor

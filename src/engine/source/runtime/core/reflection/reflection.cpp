@@ -1,0 +1,167 @@
+#include "reflection.h"
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
+
+namespace GEngine {
+
+namespace Reflection {
+
+const std::string &Field::getFieldName() const { return m_fieldName; }
+
+const std::string &Field::getFieldTypeName() const { return m_fieldTypeName; }
+
+void Field::set(void *instance, void *value) const { m_setter(instance, value); }
+
+void *Field::get(void *instance) const { return m_getter(instance); }
+
+bool Field::isEnum() const
+{
+  return m_isEnum;
+}
+
+bool Field::isArray() const { return m_isArray; }
+
+size_t Field::getOffsetInClass() const {
+  return m_offsetInClass;
+}
+
+const std::string& Field::getElementTypeName() const
+{
+  return m_elementTypeName;
+}
+
+void Field::setElement(void *instance, void *value, size_t index) const
+{
+  m_arraySetter(instance, value, index);
+}
+
+void* Field::getElement(void *instance, size_t index) const
+{
+  return m_arrayGetter(instance, index);
+}
+
+size_t Field::getSize(void *instance) const
+{
+  return m_arraySizeGetter(instance);
+}
+
+const std::string &Method::getMethodName() const { return m_methodName; }
+
+ClassDescriptor::ClassDescriptor(const std::string &className)
+    : m_className(className) {}
+
+const std::string &ClassDescriptor::getClassName() const { return m_className; }
+
+const std::vector<Field> &ClassDescriptor::getFieldsList() const {
+  return m_fields;
+}
+
+const std::vector<Method> &ClassDescriptor::getMethodsList() const {
+  return m_methods;
+}
+
+std::optional<Field> ClassDescriptor::getFieldByName(const std::string &name) {
+  auto it = std::find_if(
+      m_fields.begin(), m_fields.end(),
+      [&name](const Field &field) { return name == field.getFieldName(); });
+  if (it != m_fields.end())
+    return *it;
+  else
+    return {};
+}
+
+std::optional<Method>
+ClassDescriptor::getMethodByName(const std::string &name) {
+  auto it = std::find_if(
+      m_methods.begin(), m_methods.end(),
+      [&name](const Method &method) { return name == method.getMethodName(); });
+  if (it != m_methods.end())
+    return *it;
+  else
+    return {};
+}
+
+EnumDescriptor::EnumDescriptor(const std::string &enumName)
+    : m_enumName(enumName) {}
+
+const std::string &EnumDescriptor::getEnumName() const { return m_enumName; }
+
+const std::vector<std::pair<std::string, int64_t>> &
+EnumDescriptor::getEnumsList() const {
+  return m_enums;
+}
+
+std::optional<std::string> EnumDescriptor::getNameByValue(int64_t value) const {
+  auto it = std::find_if(m_enums.begin(), m_enums.end(),
+                         [value](const std::pair<std::string, int64_t> &e) {
+                           return e.second == value;
+                         });
+  if (it != m_enums.end())
+    return (*it).first;
+  else
+    return {};
+}
+
+std::optional<int64_t>
+EnumDescriptor::getValueByName(const std::string &name) const {
+  auto it = std::find_if(m_enums.begin(), m_enums.end(),
+                         [&name](const std::pair<std::string, int64_t> &e) {
+                           return e.first == name;
+                         });
+  if (it != m_enums.end())
+    return (*it).second;
+  else
+    return {};
+}
+
+ClassDescriptorBuilder::ClassDescriptorBuilder(const std::string &name)
+    : m_classDescriptor(std::make_unique<ClassDescriptor>(name)) {}
+
+std::unique_ptr<ClassDescriptor> &ClassDescriptorBuilder::getClassDescriptor() {
+  return m_classDescriptor;
+}
+
+EnumDescriptorBuilder::EnumDescriptorBuilder(const std::string &name)
+    : m_enumDescriptor(std::make_unique<EnumDescriptor>(name)) {}
+
+EnumDescriptorBuilder &EnumDescriptorBuilder::addEnum(const std::string &name,
+                                                      int64_t value) {
+  m_enumDescriptor->m_enums.emplace_back(name, value);
+  return *this;
+}
+
+std::unique_ptr<EnumDescriptor>& EnumDescriptorBuilder::getEnumDescriptor()
+{
+  return m_enumDescriptor;
+}
+
+Registry &Registry::instance() {
+  static Registry instance;
+  return instance;
+}
+
+void Registry::registerClass(std::unique_ptr<ClassDescriptor> classDescriptor) {
+  auto name = classDescriptor->getClassName();
+  m_classMap[name] = std::move(classDescriptor);
+}
+
+void Registry::registerEnum(std::unique_ptr<EnumDescriptor> enumDescriptor)
+{
+  auto name = enumDescriptor->getEnumName();
+  m_enumMap[name] = std::move(enumDescriptor);
+}
+
+ClassDescriptor &Registry::getClass(const std::string &name) {
+  return *m_classMap[name];
+}
+
+EnumDescriptor& Registry::getEnum(const std::string &name)
+{
+  return *m_enumMap[name];
+}
+
+} // namespace Reflection
+
+} // namespace GEngine

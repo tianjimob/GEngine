@@ -1,0 +1,11 @@
+## for reflection in reflections
+#include "{{ reflection.filename }}"
+## endfor
+
+void ::GEngine::Reflection::autoRegisterAll() {
+## for reflection in reflections
+## for meta_name in reflection.meta_names
+    ::GEngine::Reflection::Register::Register{{ meta_name }}()();
+## endfor
+## endfor
+}
