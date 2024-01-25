@@ -1,6 +1,6 @@
 .cache/
 .vscode/
-bin/
+/bin/
 src/engine/source/runtime/_generated/
 compile_commands.json
 
