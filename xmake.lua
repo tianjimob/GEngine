@@ -9,14 +9,15 @@ end
 
 target("meta_parser")
     set_kind("binary")
-    add_links("libclang")
     add_includedirs(join_third_party_dir("libclang/include"), join_third_party_dir("inja/include"))
     if is_os("windows") then
         add_rpathdirs(join_third_party_dir("libclang/bin/windows"))
+        add_links("libclang")
         add_linkdirs(join_third_party_dir("libclang/lib/windows"))
     elseif  is_os("linux") then 
         add_rpathdirs(join_third_party_dir("libclang/bin/linux"))
-        add_linkdirs(join_third_party_dir("libclang/lib/linux"))
+        add_links("clang", "m", "stdc++")
+        add_linkdirs(join_third_party_dir("libclang/bin/linux"))
     end 
     add_files("src/engine/source/tool/meta_parser/**.cpp")
     after_build(function (target)
