@@ -40,7 +40,7 @@ namespace GEngine
     [ m[3][0]  m[3][1]  m[3][2]  m[3][3] ]   {1}
     </pre>
     */
-    CLASS(Matrix4x4_)
+    CLASS(Matrix4x4_) : public GObject
     {
         REFLECTION_BODY(Matrix4x4_);
 

@@ -83,6 +83,14 @@ ClassDescriptor::getMethodByName(const std::string &name) {
     return {};
 }
 
+const std::string &ClassDescriptor::getSuperClassName() const {
+  return m_superClassName;
+}
+
+ClassDescriptor *ClassDescriptor::getSuperClass() {
+  return m_superClass;
+}
+
 EnumDescriptor::EnumDescriptor(const std::string &enumName)
     : m_enumName(enumName) {}
 
@@ -123,6 +131,12 @@ std::unique_ptr<ClassDescriptor> &ClassDescriptorBuilder::getClassDescriptor() {
   return m_classDescriptor;
 }
 
+ClassDescriptorBuilder &
+ClassDescriptorBuilder::setSuperClassName(const std::string &superClassName) {
+  m_classDescriptor->m_superClassName = superClassName;
+  return *this;
+}
+
 EnumDescriptorBuilder::EnumDescriptorBuilder(const std::string &name)
     : m_enumDescriptor(std::make_unique<EnumDescriptor>(name)) {}
 
@@ -153,13 +167,41 @@ void Registry::registerEnum(std::unique_ptr<EnumDescriptor> enumDescriptor)
   m_enumMap[name] = std::move(enumDescriptor);
 }
 
-ClassDescriptor &Registry::getClass(const std::string &name) {
-  return *m_classMap[name];
+// ClassDescriptor &Registry::getClass(const std::string &name) {
+//   return *m_classMap[name];
+// }
+
+ClassDescriptor &Registry::getClass(std::string_view name) {
+  return *m_classMap[name.data()];
 }
 
 EnumDescriptor& Registry::getEnum(const std::string &name)
 {
   return *m_enumMap[name];
+}
+
+void autoSetupSuperClassInfo() {
+  // register GEngine::GObject class
+  ClassDescriptorBuilder classBuilder{"GEngine::GObject"};
+  REGISTER_CLASS(classBuilder);
+
+  auto &classMap = Registry::instance().m_classMap;
+  for (auto &classPair : classMap) {
+    auto &thisClass = classPair.second;
+    auto &superClassName = thisClass->getSuperClassName();
+
+    if (superClassName.empty()) {
+      thisClass->m_superClass = nullptr;
+      continue;
+    }
+
+    auto itSuperClass = classMap.find(superClassName);
+    if (itSuperClass == classMap.end()) {
+      thisClass->m_superClass = nullptr;
+    } else {
+      thisClass->m_superClass = itSuperClass->second.get();
+    }
+  }
 }
 
 } // namespace Reflection

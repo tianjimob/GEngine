@@ -21,6 +21,9 @@ public:
 {% else if meta_register.type == "Class" %}
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"{{ meta_register.meta_name }}"};
     classBuilder
+{% if meta_register.has_super_class %}
+        .setSuperClassName("{{ meta_register.super_class_name }}")
+{% endif %}
 ## for entry in meta_register.entries
 {% if entry.type == "Field" %}
         .addField("{{ entry.field_name }}", "{{ entry.field_type_name }}", & ::{{ meta_register.meta_name }}::{{ entry.field_name }}, {{ entry.is_enum }})

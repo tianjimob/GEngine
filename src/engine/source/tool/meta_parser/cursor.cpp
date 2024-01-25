@@ -59,6 +59,20 @@ bool Cursor::hasAnnotateAttr(const std::string &attr) {
   return data.first;
 }
 
+bool Cursor::isAnnotateAttr() const
+{
+  if (clang_isAttribute(getKind()))
+    return true;
+  return false;
+}
+
+bool Cursor::hasAttributes() const
+{
+  if (clang_Cursor_hasAttrs(m_handle))
+    return true;
+  return false;
+}
+
 Cursor::List Cursor::getChildren(void) const {
   List children;
 

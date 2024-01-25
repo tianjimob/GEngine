@@ -8,6 +8,9 @@
 namespace GEngine {
 
 CLASS(Player) : public GObject {
+
+  REFLECTION_BODY(Player)
+  
 public:
   virtual void switchController(
       std::shared_ptr<PlayerController> playerController);

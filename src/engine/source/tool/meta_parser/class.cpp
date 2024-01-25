@@ -1,4 +1,5 @@
 #include "class.h"
+#include <cassert>
 
 
 Class::Class(const Cursor& cursor):m_className(cursor.getType().GetDisplayName())
@@ -6,7 +7,10 @@ Class::Class(const Cursor& cursor):m_className(cursor.getType().GetDisplayName()
   for (auto &child : cursor.getChildren()) {
     switch (child.getKind()) {
     case CXCursor_CXXBaseSpecifier:
-      m_baseClassNames.emplace_back(child.getType().GetDisplayName());
+      if(m_superClassName.empty())
+        m_superClassName = child.getType().GetDisplayName();
+      else
+       assert(0 && "meta parser cannot support multiple inheritance");
       break;
     case CXCursor_FieldDecl:
       if(child.hasAnnotateAttr("meta-field"))
@@ -35,4 +39,9 @@ const std::vector<Field>& Class::getFieldsList() const
 const std::vector<Method>& Class::getMethodsList() const
 {
     return m_methods;
+}
+
+const std::string& Class::getSuperClassName() const
+{
+  return m_superClassName;
 }

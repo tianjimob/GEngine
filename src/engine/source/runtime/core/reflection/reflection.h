@@ -7,12 +7,13 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -56,7 +57,10 @@
   ENUM_ARGS(enumName, #__VA_ARGS__)
 
 #define REFLECTION_BODY(className)                                             \
-  friend class ::GEngine::Reflection::Register::Register##className;
+  friend class ::GEngine::Reflection::Register::Register##className;           \
+public:                                                                        \
+  static  ::GEngine::Reflection::ClassDescriptor& getClass();                  \
+  virtual std::string_view getClassName() override;                            
 
 #define REGISTER_CLASS(classDescriptorBuilder)                                 \
   ::GEngine::Reflection::Registry::instance().registerClass(                   \
@@ -247,12 +251,20 @@ public:
   std::optional<Field> getFieldByName(const std::string &name);
   std::optional<Method> getMethodByName(const std::string &name);
 
-private:
+  const std::string &getSuperClassName() const;
+  ClassDescriptor* getSuperClass();
+
+ private:
   friend class ClassDescriptorBuilder;
+  friend void autoSetupSuperClassInfo();
+  
 
   std::string m_className;
   std::vector<Field> m_fields;
   std::vector<Method> m_methods;
+
+  std::string m_superClassName;
+  ClassDescriptor* m_superClass;
 };
 
 class EnumDescriptor {
@@ -292,6 +304,8 @@ public:
   template <typename Method>
   ClassDescriptorBuilder &addMethod(const std::string &methodName,
                                     Method method);
+
+  ClassDescriptorBuilder &setSuperClassName(const std::string &superClassName);
 
   std::unique_ptr<ClassDescriptor> &getClassDescriptor();
 
@@ -353,15 +367,20 @@ public:
 
   void registerClass(std::unique_ptr<ClassDescriptor> classDescriptor);
   void registerEnum(std::unique_ptr<EnumDescriptor> enumDescriptor);
-  ClassDescriptor &getClass(const std::string &name);
+  // ClassDescriptor &getClass(const std::string &name);
+  ClassDescriptor &getClass(std::string_view name);
   EnumDescriptor &getEnum(const std::string &name);
 
-public:
-  std::map<std::string, std::unique_ptr<ClassDescriptor>> m_classMap;
-  std::map<std::string, std::unique_ptr<EnumDescriptor>> m_enumMap;
+private:
+  friend void autoSetupSuperClassInfo();
+
+  std::unordered_map<std::string, std::unique_ptr<ClassDescriptor>> m_classMap;
+  std::unordered_map<std::string, std::unique_ptr<EnumDescriptor>> m_enumMap;
 };
 
 void autoRegisterAll();
+
+void autoSetupSuperClassInfo();
 
 } // namespace Reflection
 

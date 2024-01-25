@@ -7,7 +7,7 @@
 
 namespace GEngine
 {
-    CLASS(AxisAlignedBox)
+    CLASS(AxisAlignedBox) : public GObject
     {
         REFLECTION_BODY(AxisAlignedBox)
     public:

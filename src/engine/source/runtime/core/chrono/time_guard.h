@@ -19,8 +19,8 @@ public:
       : m_start(std::chrono::high_resolution_clock::now()),
         m_logCategory(logCategory) {}
   ~TimeGuard() {
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_start);
-    LOG_INFO(m_logCategory, "elapsed {}ms", elapsed.count());
+    auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_start);
+    LOG_INFO(m_logCategory, "elapsed {}us", elapsed.count());
   }
 
 private:

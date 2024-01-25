@@ -2,15 +2,16 @@
 
 #include "core/math/math.h"
 #include "core/reflection/reflection.h"
+#include "function/framework/object/object.h"
 
 #include <cassert>
 #include <cmath>
 
 namespace GEngine
 {
-    CLASS(Vector2)
+    CLASS(Vector2) : public GObject
     {
-        REFLECTION_BODY(Vector2);
+        REFLECTION_BODY(Vector2)
 
     public:
         float x {0.f}, y {0.f};

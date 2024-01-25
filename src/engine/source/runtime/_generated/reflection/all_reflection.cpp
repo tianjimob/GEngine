@@ -5,6 +5,7 @@
 #include "_generated/reflection/vector2.gen.h"
 #include "_generated/reflection/vector3.gen.h"
 #include "_generated/reflection/vector4.gen.h"
+#include "_generated/reflection/reflection_example.gen.h"
 #include "_generated/reflection/actor.gen.h"
 #include "_generated/reflection/controller.gen.h"
 #include "_generated/reflection/player_controller.gen.h"
@@ -32,6 +33,10 @@ void ::GEngine::Reflection::autoRegisterAll() {
     ::GEngine::Reflection::Register::RegisterVector2()();
     ::GEngine::Reflection::Register::RegisterVector3()();
     ::GEngine::Reflection::Register::RegisterVector4()();
+    ::GEngine::Reflection::Register::RegisterReflectionExample()();
+    ::GEngine::Reflection::Register::RegisterReflectionExampleA()();
+    ::GEngine::Reflection::Register::RegisterReflectionExampleB()();
+    ::GEngine::Reflection::Register::RegisterReflectionExampleU()();
     ::GEngine::Reflection::Register::RegisterActor()();
     ::GEngine::Reflection::Register::RegisterController()();
     ::GEngine::Reflection::Register::RegisterPlayerController()();

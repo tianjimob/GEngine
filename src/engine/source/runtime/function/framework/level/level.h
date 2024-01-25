@@ -12,6 +12,9 @@
 namespace GEngine {
 
 CLASS(Level) : public GObject {
+
+  REFLECTION_BODY(Level)
+  
 public:
   void tick(float deltaTime);
 

@@ -9,9 +9,9 @@
 namespace GEngine
 {
 
-    CLASS(Vector3)
+    CLASS(Vector3) : public GObject
     {
-        REFLECTION_BODY(Vector3);
+        REFLECTION_BODY(Vector3)
 
     public:
         float x {0.f};

@@ -1,6 +1,7 @@
 .cache/
 .vscode/
 bin/
+src/engine/source/runtime/_generated/
 compile_commands.json
 
 # Xmake cache

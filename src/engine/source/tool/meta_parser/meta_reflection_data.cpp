@@ -51,6 +51,10 @@ void MetaReflectionData::registerClass(const Class &c) {
   meta_register["meta_name_without_namespace"] = nameWithoutNamespace;
   meta_register["meta_name"] = c.getClassName();
   meta_register["type"] = "Class";
+  const auto &superClassName = c.getSuperClassName();
+  meta_register["has_super_class"] = !superClassName.empty();
+  if (!superClassName.empty())
+    meta_register["super_class_name"] = superClassName;
   meta_register["entries"] = inja::json::array();
   auto &fields = c.getFieldsList();
   auto &methods = c.getMethodsList();

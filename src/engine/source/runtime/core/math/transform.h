@@ -6,9 +6,9 @@
 
 namespace GEngine
 {
-    CLASS(Transform)
+    CLASS(Transform) : public GObject
     {
-        REFLECTION_BODY(Transform);
+        REFLECTION_BODY(Transform)
 
     public:
         Vector3    m_position {Vector3::ZERO};

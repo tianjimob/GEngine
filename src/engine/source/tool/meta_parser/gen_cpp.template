@@ -1,0 +1,12 @@
+#include "{{ headfile_name }}"
+
+## for meta_register in meta_registers
+::GEngine::Reflection::ClassDescriptor& ::{{ meta_register.meta_name }}::getClass() {
+    static ::GEngine::Reflection::ClassDescriptor& classDesc = ::GEngine::Reflection::Registry::instance().getClass("{{ meta_register.meta_name }}");
+    return classDesc;
+}
+
+std::string_view {{ meta_register.meta_name }}::getClassName() {
+    return "{{ meta_register.meta_name }}";
+}
+##endfor

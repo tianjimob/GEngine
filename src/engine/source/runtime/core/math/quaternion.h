@@ -2,6 +2,7 @@
 
 #include "core/math/math.h"
 #include "core/reflection/reflection.h"
+#include "function/framework/object/object.h"
 
 #include <cassert>
 
@@ -10,9 +11,9 @@ namespace GEngine
     class Matrix3x3;
     class Vector3;
 
-    CLASS(Quaternion)
+    CLASS(Quaternion) : public GObject
     {
-        REFLECTION_BODY(Quaternion);
+        REFLECTION_BODY(Quaternion)
 
     public:
         float w {1.f}, x {0.f}, y {0.f}, z {0.f};

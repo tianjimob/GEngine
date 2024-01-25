@@ -7,6 +7,9 @@
 namespace GEngine {
 
 CLASS(GameViewportClient) : public GObject {
+
+  REFLECTION_BODY(GameViewportClient);
+  
 public:
   bool inputKey(InputEvent event, ModifierKey mod, VirtualCode key);
 };

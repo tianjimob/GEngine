@@ -1,4 +1,4 @@
-add_rules("mode.debug", "mode.release")
+add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 set_languages("c99", "c++17")
 
@@ -42,7 +42,7 @@ target("GEngineRuntime")
     add_includedirs("src/engine/source/third_party")
     add_includedirs(join_third_party_dir("spdlog/include"), join_third_party_dir("SDL2/include"), join_third_party_dir("VulkanSDK/include"), join_third_party_dir("glad/include"))
 
-    if is_mode("debug") then 
+    if is_mode("debug") or is_mode("releasedbg") then 
         add_defines("VULKAN_DEBUG_ENABLE", "VULKAN_VALIDATION_ENABLE")
     end 
 

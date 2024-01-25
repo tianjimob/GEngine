@@ -25,7 +25,9 @@ public:
 
     CursorType getType(void) const;
 
-    bool hasAnnotateAttr(const std::string& attr);
+    bool hasAnnotateAttr(const std::string &attr);
+    bool isAnnotateAttr() const;
+    bool hasAttributes() const; // if true has any annotate attribute
 
     List getChildren(void) const;
     void visitChildren(Visitor visitor, void* data = nullptr);

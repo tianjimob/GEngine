@@ -9,6 +9,9 @@
 namespace GEngine {
 
 CLASS(LocalPlayer) : public Player {
+
+  REFLECTION_BODY(LocalPlayer)
+  
 public:
   std::shared_ptr<World> getWorld();
 private:

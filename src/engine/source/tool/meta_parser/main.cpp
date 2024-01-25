@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <inja.hpp>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -31,6 +32,7 @@ int main(int argc, char **argv) {
   fs::path includePath = std::string{argv[4]};
   std::string includeArg = std::string{"-I"} + includePath.string();
   fs::path refSaveDir = saveDir / "_generated" / "reflection";
+  fs::path workPath = fs::current_path();
 
   if (fs::exists(projectDir)) {
     arguments.emplace_back(includeArg.c_str());
@@ -56,10 +58,19 @@ int main(int argc, char **argv) {
     }
   }
 
+  // {
+  //   std::ofstream metaHead{workPath / "meta_head.h"};
+  //   for (auto &include : includes) {
+  //     metaHead << "#include " << std::quoted(include.string()) << '\n';
+  //   }
+  // }
+
   auto index = clang_createIndex(0, 0);
 
   inja::Environment env;
-  inja::Template tempMeta = env.parse_template("src/engine/source/tool/meta_parser/meta_reflection.template");
+  inja::Template tempMeta = env.parse_template(
+      "src/engine/source/tool/meta_parser/meta_reflection.template");
+  inja::Template tempCpp = env.parse_template("src/engine/source/tool/meta_parser/gen_cpp.template");
 
   struct RegisterEntry {
     std::string filename;
@@ -139,10 +150,14 @@ int main(int argc, char **argv) {
     std::string filename = include.filename().string();
     auto pos = filename.find_last_of(".");
     filename.replace(pos, filename.size() - pos, ".gen.h");
+    std::string filenameCpp = filename;
+    filenameCpp.replace(pos, filename.size() - pos, ".gen.cpp");
     entry.filename = "_generated/reflection/" + filename;
     std::ofstream of{refSaveDir / filename};
+    std::ofstream ofCpp{refSaveDir / filenameCpp};
     try {
       env.render_to(of, tempMeta, data);
+      env.render_to(ofCpp, tempCpp, data);
     } catch (std::exception &e) {
       std::cerr << e.what() << std::endl;
     }
