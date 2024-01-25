@@ -1,6 +1,7 @@
 #pragma once
 
 #include <any>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -252,14 +253,18 @@ public:
   std::optional<Method> getMethodByName(const std::string &name);
 
   const std::string &getSuperClassName() const;
-  ClassDescriptor* getSuperClass();
+  ClassDescriptor *getSuperClass();
+
+  uint32_t getClassID() const { return m_classId; }
 
  private:
   friend class ClassDescriptorBuilder;
   friend void autoSetupSuperClassInfo();
-  
+
+  static std::atomic_uint32_t s_classId;
 
   std::string m_className;
+  uint32_t m_classId;
   std::vector<Field> m_fields;
   std::vector<Method> m_methods;
 

@@ -1,5 +1,6 @@
 #include "reflection.h"
 #include <algorithm>
+#include <atomic>
 #include <memory>
 #include <string>
 #include <utility>
@@ -49,8 +50,10 @@ size_t Field::getSize(void *instance) const
 
 const std::string &Method::getMethodName() const { return m_methodName; }
 
+std::atomic_uint32_t ClassDescriptor::s_classId{0};
+
 ClassDescriptor::ClassDescriptor(const std::string &className)
-    : m_className(className) {}
+    : m_className(className), m_classId(s_classId++) {}
 
 const std::string &ClassDescriptor::getClassName() const { return m_className; }
 

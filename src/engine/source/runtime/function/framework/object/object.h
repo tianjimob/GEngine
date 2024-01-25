@@ -27,7 +27,7 @@ template <typename T> bool GObject::isA() {
   Reflection::ClassDescriptor *thisClass = &getClass();
   
   for (auto *curr = thisClass; curr != nullptr; curr = curr->getSuperClass()) {
-    if (curr == otherClass)
+    if (curr->getClassID() == otherClass->getClassID())
       return true;
   }
   return false;
