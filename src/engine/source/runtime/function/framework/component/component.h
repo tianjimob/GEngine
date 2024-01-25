@@ -15,7 +15,7 @@ CLASS(ActorComponent) : public GObject {
 public:
   virtual ~ActorComponent() = default;
 
-  virtual void tick(float deltaTime);
+  virtual void tick(float deltaTime) {}
 
 private:
   std::weak_ptr<Actor> m_owner;

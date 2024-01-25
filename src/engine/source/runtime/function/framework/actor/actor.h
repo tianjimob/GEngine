@@ -20,7 +20,7 @@ CLASS(Actor) : public GObject {
 
 public:
   virtual ~Actor() = default;
-  virtual void tick(float deltaTime);
+  virtual void tick(float deltaTime) {}
 
   META_FUNCTION()
   const Transform &getTransform() const {return {};}
