@@ -47,12 +47,12 @@ target("GEngineRuntime")
         add_defines("VULKAN_DEBUG_ENABLE", "VULKAN_VALIDATION_ENABLE")
     end 
 
-    add_links("SDL2main", "SDL2", "vulkan-1")
+    add_links("SDL2main", "SDL2")
     if is_os("windows") then 
-        add_links("Advapi32")
+        add_links("Advapi32", "vulkan-1")
         add_linkdirs(join_third_party_dir("SDL2/lib/windows"), join_third_party_dir("VulkanSDK/lib/windows"))
     elseif is_os("linux") then 
-        add_linkdirs(join_third_party_dir("SDL2/lib/linux"), join_third_party_dir("VulkanSDK/lib/linux"))
+        add_links("vulkan", "m", "stdc++")
     end
 
     add_files("src/engine/source/runtime/**.cpp")

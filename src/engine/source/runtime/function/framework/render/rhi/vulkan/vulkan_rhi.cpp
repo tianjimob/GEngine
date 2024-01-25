@@ -1,6 +1,6 @@
 #include "vulkan_rhi.h"
 
-#include "SDL2/SDL_Vulkan.h"
+#include "SDL2/SDL_vulkan.h"
 #include "core/log/logger.h"
 #include "function/framework/engine/engine.h"
 #include "function/framework/engine/game_engine/game_engine.h"
