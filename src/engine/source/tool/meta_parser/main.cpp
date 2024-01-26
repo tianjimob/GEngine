@@ -79,8 +79,10 @@ int main(int argc, char **argv) {
 
   std::vector<RegisterEntry> entries;
   std::cout<<"start generating meta reflection ..."<<std::endl;
+  int count = 1;
   for (auto &include : includes) {
-    std::cout << "parsing file " << include << std::endl;
+    std::cout << "[ " << count++ << "/"
+              << includes.size() << " ] " << "parsing file " << include  << std::endl;
 
     auto translator = clang_parseTranslationUnit(
         index, include.string().c_str(), arguments.data(),

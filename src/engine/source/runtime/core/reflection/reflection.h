@@ -253,7 +253,7 @@ public:
   std::optional<Method> getMethodByName(const std::string &name);
 
   const std::string &getSuperClassName() const;
-  ClassDescriptor *getSuperClass();
+  inline ClassDescriptor *getSuperClass() { return m_superClass; }
 
   uint32_t getClassID() const { return m_classId; }
 

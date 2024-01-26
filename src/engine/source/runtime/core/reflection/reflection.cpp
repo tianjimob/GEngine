@@ -90,10 +90,6 @@ const std::string &ClassDescriptor::getSuperClassName() const {
   return m_superClassName;
 }
 
-ClassDescriptor *ClassDescriptor::getSuperClass() {
-  return m_superClass;
-}
-
 EnumDescriptor::EnumDescriptor(const std::string &enumName)
     : m_enumName(enumName) {}
 
