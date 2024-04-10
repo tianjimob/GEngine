@@ -5,18 +5,44 @@
 #include "function/framework/level/level.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace GEngine {
 
 class GameInstance;
+class GameViewportClient;
+
+STRUCT(WorldInitializer) : public GObject {
+
+  REFLECTION_BODY(WorldInitializer)
+
+  META_FIELD()
+  std::string name;
+
+  META_FIELD()
+  std::vector<std::string> levelUrls;
+
+  META_FIELD()
+  std::string defautLevelUrl;
+};
 
 CLASS(World) : public GObject {
 
   REFLECTION_BODY(World)
 
 public:
+  void init(const WorldInitializer& worldInitializer, GameInstance* gameInstance);
   void tick(float deltaTime);
+
+  void addLevel(std::shared_ptr<Level> & level) {
+    m_levels.emplace_back(level);
+  }
+
+  bool setCurrentLevel(const std::string &levelUrl);
+  void setGameViewport(GameViewportClient * gameViewport) {
+    m_gameViewport = gameViewport;
+  }
 
 private:
   META_FIELD()
@@ -24,10 +50,11 @@ private:
 
   std::weak_ptr<Level> m_currentLevel;
 
-  META_FIELD()
-  std::shared_ptr<Level> m_persistentLevel;
+  // pointer to GameInstance created this world
+  GameInstance *m_owingGameInstance;
 
-  std::weak_ptr<GameInstance> m_owingGameInstance;
+  // pointer to GameViewportClient created by GameInstance who's belong to GameEngine
+  GameViewportClient* m_gameViewport;
 
   // std::shared_ptr<GameMode> m_gameMode;
 

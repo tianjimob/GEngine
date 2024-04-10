@@ -54,5 +54,6 @@ void ::GEngine::Reflection::autoRegisterAll() {
     ::GEngine::Reflection::Register::RegisterLevel()();
     ::GEngine::Reflection::Register::RegisterLocalPlayer()();
     ::GEngine::Reflection::Register::RegisterPlayer()();
+    ::GEngine::Reflection::Register::RegisterWorldInitializer()();
     ::GEngine::Reflection::Register::RegisterWorld()();
 }

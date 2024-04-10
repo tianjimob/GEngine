@@ -11,6 +11,9 @@ public:
 
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::PlayerController"};
     classBuilder
+
+        .setSuperClassName("GEngine::Controller")
+
     ;
 
     REGISTER_CLASS(classBuilder);

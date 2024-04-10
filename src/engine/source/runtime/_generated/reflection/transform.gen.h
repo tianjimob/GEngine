@@ -11,6 +11,9 @@ public:
 
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::Transform"};
     classBuilder
+
+        .setSuperClassName("GEngine::GObject")
+
     ;
 
     REGISTER_CLASS(classBuilder);

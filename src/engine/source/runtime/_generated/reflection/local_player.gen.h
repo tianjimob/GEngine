@@ -11,6 +11,9 @@ public:
 
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::LocalPlayer"};
     classBuilder
+
+        .setSuperClassName("GEngine::Player")
+
     ;
 
     REGISTER_CLASS(classBuilder);

@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace GEngine {
-
+  
 CLASS(Level) : public GObject {
 
   REFLECTION_BODY(Level)
@@ -18,9 +18,15 @@ CLASS(Level) : public GObject {
 public:
   void tick(float deltaTime);
 
+  const std::string& getLevelUrl() const { return m_path; }
+  void setLevelPath(const std::string &path) {
+    m_path = path;
+  }
+
 private:
   std::string m_path;
-  
+
+  META_FIELD()
   std::vector<std::shared_ptr<Actor>> m_actors;
 
   // META_FIELD()

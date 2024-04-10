@@ -23,7 +23,8 @@
   namespace Register {                                                         \
   class Register##className;                                                   \
   }                                                                            \
-  };
+  };                                                                           \
+  class Serializer;
 #define REFLECTION_STRUCT(structName) REFLECTION_CLASS(structName)
 #define REFLECTION_ENUM(enumName)
 
@@ -59,6 +60,7 @@
 
 #define REFLECTION_BODY(className)                                             \
   friend class ::GEngine::Reflection::Register::Register##className;           \
+  friend class ::GEngine::Serializer;                                          \
 public:                                                                        \
   static  ::GEngine::Reflection::ClassDescriptor& getClass();                  \
   virtual std::string_view getClassName() override;                            

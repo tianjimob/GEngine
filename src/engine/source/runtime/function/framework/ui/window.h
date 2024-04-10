@@ -27,7 +27,9 @@ public:
   void exit();
   bool shouldClose() const;
 
-  void setGameViewportClient(std::shared_ptr<GameViewportClient> client);
+  void setGameViewport(SceneViewport *sceneViewport) {
+    m_sceneViewport = sceneViewport;
+  }
 
   void* getNativeHandle() { return m_sdlWindow; }
 
@@ -36,9 +38,12 @@ private:
   
   SDL_Window *m_sdlWindow { nullptr };
 
-  bool m_shouldClose { false };
-  std::shared_ptr<SceneViewport> m_sceneViewport;
+  bool m_shouldClose{false};
 
+  // pointer to SceneViewport created by GameInstance
+  SceneViewport* m_sceneViewport;
+
+ private:
   SDL_Window *createOpenGL45Window(const WindowCreateInfo &createInfo);
   SDL_Window *createVulkanWindow(const WindowCreateInfo &createInfo);
 

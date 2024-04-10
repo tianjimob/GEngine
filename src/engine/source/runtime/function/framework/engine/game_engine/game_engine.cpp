@@ -3,9 +3,11 @@
 #include <memory>
 
 #include "core/chrono/time_guard.h"
+#include "core/misc/config_cache_ini.h"
 #include "function/framework/engine/game_viewport_client.h"
 #include "function/framework/game_instance/game_instance.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi.h"
+#include "function/framework/render/core/rendering_thread.h"
 
 namespace GEngine {
 GameEngine::GameEngine() { GlobalEngine = this; }
@@ -23,20 +25,47 @@ void GameEngine::preInit(const std::string &configPath) {
     m_gameInstance->preInit();
   }
 
-  // todo: GameViewportClient
-  std::shared_ptr<GameViewportClient> gameViewportClient;
-  gameViewportClient = std::make_shared<GameViewportClient>();
-  m_gameViewportClient = gameViewportClient;
+  {
+    std::shared_ptr<GameViewportClient> gameViewportClient;
+    gameViewportClient = std::make_shared<GameViewportClient>();
+    m_gameViewportClient = gameViewportClient;
+  }
 
   {
     m_gameViewportWindow = createGameWindow();
-    m_gameViewportWindow->setGameViewportClient(gameViewportClient);
+    m_sceneViewport = std::make_shared<SceneViewport>();
+    m_gameViewportClient->setViewport(m_sceneViewport.get());
+    m_gameViewportWindow->setGameViewport(m_sceneViewport.get());
+  }
+
+  {
+    m_gameInstance->createLocalPlayer(false);
   }
 
   // initialize RHI
   {
-    GlobalRHI = new VulkanRHI;
+    ConfigCacheIni &config = ConfigCacheIni::instance();
+    auto getWindowSettingStr =
+        [&config](const std::string &key,
+                  const std::string &defaultValue) -> std::string {
+      std::string res;
+      res = config.getStr("Window", key, "game.ini");
+      if (res.empty()) res = defaultValue;
+      return res;
+    };
+    auto backend = getWindowSettingStr("backend", "Vulkan");
+
+    if (backend == "Vulkan")
+      GlobalRHI = new VulkanRHI;
+    else if (backend == "OpenGL45")
+      // GlobalRHI = new OpenGLRHI;
+    
     GlobalRHI->init();
+  }
+
+  // start rendering thread
+  {
+    startRenderingThread();
   }
 
   LOG_INFO(LogGameEngine, "Game Engine PreInitialized.");
@@ -47,6 +76,7 @@ void GameEngine::init() {
 
   Engine::init();
   m_gameInstance->init();
+  m_gameInstance->getWorld()->setGameViewport(m_gameViewportClient.get());
 }
 
 void GameEngine::tick(float deltaTime) {

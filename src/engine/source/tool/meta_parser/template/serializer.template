@@ -1,0 +1,14 @@
+#pragma once
+
+#include "{{ headfile_name }}"
+#include "core/serializer/serializer.h"
+
+
+namespace GEngine {
+## for meta_register in meta_registers
+{% if meta_register.type == "Class" %}
+template<> Json Serializer::write(const ::{{ meta_register.meta_name }}& instance);
+template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonContext, ::{{ meta_register.meta_name }}& instance);
+{% endif %}
+## endfor
+} // namespace Serializer

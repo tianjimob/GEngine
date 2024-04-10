@@ -11,6 +11,9 @@ public:
 
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::Vector2"};
     classBuilder
+
+        .setSuperClassName("GEngine::GObject")
+
     ;
 
     REGISTER_CLASS(classBuilder);

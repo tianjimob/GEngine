@@ -31,14 +31,11 @@ public:
   std::shared_ptr<TransformComponent> getRootComponent() const {return {};}
 
 protected:
-  META_FIELD()
-  std::vector<std::shared_ptr<Actor>> m_children;
+  std::vector<std::weak_ptr<Actor>> m_children;
 
-  META_FIELD()
   std::shared_ptr<TransformComponent> m_rootComponent;
 
 private:
-  META_FIELD()
   std::weak_ptr<ChildActorComponent> m_parentComponent;
 
   std::set<std::shared_ptr<ActorComponent>> m_ownedComponents;

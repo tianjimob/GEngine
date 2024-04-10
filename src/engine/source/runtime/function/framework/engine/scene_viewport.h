@@ -1,6 +1,7 @@
 #pragma once
 
 #include "function/framework/ui/input.h"
+#include "function/framework/render/core/color_attachment.h"
 #include <cstdint>
 #include <memory>
 
@@ -10,9 +11,9 @@ namespace GEngine {
 class Window;
 class GameViewportClient;
 
-class SceneViewport {
+class SceneViewport : public ColorAttachment {
 public:
-  void setGameViewportClient(std::shared_ptr<GameViewportClient> client);
+  void setGameViewportClient(GameViewportClient* client);
 
   bool onSizeChanged(Window *window, int32_t width, int32_t height,
                      bool wasMinimized) {
@@ -36,7 +37,8 @@ public:
   bool onMouseWheel(float delta, double xpos, double ypos) { return false; }
 
 private:
-  std::shared_ptr<GameViewportClient> m_gameViewportClient;
+  // pointer to GameViewportClient
+  GameViewportClient* m_gameViewportClient;
 };
 
 } // namespace GEngine

@@ -11,6 +11,9 @@ public:
 
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::ChildActorComponent"};
     classBuilder
+
+        .setSuperClassName("GEngine::TransformComponent")
+
     ;
 
     REGISTER_CLASS(classBuilder);

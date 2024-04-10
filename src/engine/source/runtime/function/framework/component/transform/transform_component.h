@@ -14,12 +14,12 @@ CLASS(TransformComponent) : public ActorComponent {
   
 public:
 private:
-  META_FIELD()
-  std::weak_ptr<TransformComponent> m_attchParent;
 
-  META_FIELD()
+  std::weak_ptr<TransformComponent> m_attchParent;
+  
   std::vector<std::shared_ptr<TransformComponent>> m_attachChildren;
 
+  META_FIELD()
   Transform m_componentToWorld;
 
 //   BoxSphereBounds m_bounds;

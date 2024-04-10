@@ -12,6 +12,9 @@ public:
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::Actor"};
     classBuilder
 
+        .setSuperClassName("GEngine::GObject")
+
+
         .addField("m_children", "std::vector<std::shared_ptr<Actor>>", & ::GEngine::Actor::m_children, "std::shared_ptr<Actor>",
                   [](const void * instance) -> size_t { return  static_cast<const ::GEngine::Actor*>(instance)->m_children.size(); },
                   [](void *instance, void *value, size_t index) {

@@ -11,6 +11,9 @@ public:
 
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::Matrix4x4_"};
     classBuilder
+
+        .setSuperClassName("GEngine::GObject")
+
     ;
 
     REGISTER_CLASS(classBuilder);

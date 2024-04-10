@@ -8,14 +8,17 @@
 
 namespace GEngine {
 
+class GameViewportClient;
+
 CLASS(LocalPlayer) : public Player {
 
   REFLECTION_BODY(LocalPlayer)
-  
+
 public:
-  std::shared_ptr<World> getWorld();
+  bool spawnPlayActor(World * world);
+  
 private:
-  // std::shared_ptr<GameViewportClient> m_gameViewportClient;
+  GameViewportClient* m_gameViewportClient;
 };
 
 }

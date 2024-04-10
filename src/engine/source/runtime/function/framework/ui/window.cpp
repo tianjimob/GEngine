@@ -55,8 +55,6 @@ void Window::init() {
     m_sdlWindow = createVulkanWindow(createInfo);
     break;
   }
-
-  m_sceneViewport = std::make_shared<SceneViewport>();
 }
 
 void Window::pollEvents() {
@@ -111,10 +109,6 @@ void Window::exit() {
 }
 
 bool Window::shouldClose() const { return m_shouldClose; }
-
-void Window::setGameViewportClient(std::shared_ptr<GameViewportClient> client) {
-  m_sceneViewport->setGameViewportClient(client);
-}
 
 SDL_Window *Window::createOpenGL45Window(const WindowCreateInfo &createInfo) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);

@@ -19,7 +19,7 @@ class VulkanDevice {
 
   const VkPhysicalDeviceProperties &getGpuProperties() { return m_gpuProp; }
 
-  VkDevice getDeviceHanle() { return m_device; }
+  VkDevice getDevice() { return m_device; }
 
  private:
   struct QueueFamilyIndices {

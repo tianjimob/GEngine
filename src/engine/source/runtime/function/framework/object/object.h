@@ -22,12 +22,14 @@ class GObject {
 };
 
 template <typename T> bool GObject::isA() {
-  static Reflection::ClassDescriptor *otherClass = &T::getClass();
+  static auto otherClassID = T::getClass().getClassID();
 
-  Reflection::ClassDescriptor *thisClass = &getClass();
+  if(m_class == nullptr)
+    getClass();
+  Reflection::ClassDescriptor *thisClass = m_class;
   
   for (auto *curr = thisClass; curr != nullptr; curr = curr->getSuperClass()) {
-    if (curr->getClassID() == otherClass->getClassID())
+    if (curr->getClassID() == otherClassID)
       return true;
   }
   return false;

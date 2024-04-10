@@ -3,8 +3,7 @@
 #include "function/framework/engine/game_viewport_client.h"
 
 namespace GEngine {
-void SceneViewport::setGameViewportClient(
-    std::shared_ptr<GameViewportClient> client) {
+void SceneViewport::setGameViewportClient(GameViewportClient* client) {
   m_gameViewportClient = client;
 }
 

@@ -1,12 +1,12 @@
 #include "cursor.h"
 #include "meta_reflection_data.h"
+
 #include <clang-c/Index.h>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <fstream>
 #include <inja.hpp>
-#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -32,11 +32,13 @@ int main(int argc, char **argv) {
   fs::path includePath = std::string{argv[4]};
   std::string includeArg = std::string{"-I"} + includePath.string();
   fs::path refSaveDir = saveDir / "_generated" / "reflection";
+  fs::path serSaveDir = saveDir / "_generated" / "serializer";
   fs::path workPath = fs::current_path();
 
   if (fs::exists(projectDir)) {
     arguments.emplace_back(includeArg.c_str());
     fs::create_directories(refSaveDir);
+    fs::create_directories(serSaveDir);
   } else {
     std::cerr << projectDir << " is not exist!" << std::endl;
     exit(EXIT_FAILURE);
@@ -46,6 +48,8 @@ int main(int argc, char **argv) {
   for (const fs::directory_entry &dirEntry :
        fs::recursive_directory_iterator(projectDir)) {
     if (dirEntry.path().string().find(refSaveDir.string()) != std::string::npos)
+      continue;
+    if (dirEntry.path().string().find(serSaveDir.string()) != std::string::npos)
       continue;
 
     if (dirEntry.is_regular_file()) {
@@ -58,22 +62,21 @@ int main(int argc, char **argv) {
     }
   }
 
-  // {
-  //   std::ofstream metaHead{workPath / "meta_head.h"};
-  //   for (auto &include : includes) {
-  //     metaHead << "#include " << std::quoted(include.string()) << '\n';
-  //   }
-  // }
-
   auto index = clang_createIndex(0, 0);
 
   inja::Environment env;
   inja::Template tempMeta = env.parse_template(
-      "src/engine/source/tool/meta_parser/meta_reflection.template");
-  inja::Template tempCpp = env.parse_template("src/engine/source/tool/meta_parser/gen_cpp.template");
+      "src/engine/source/tool/meta_parser/template/meta_reflection.template");
+  inja::Template tempCpp = env.parse_template(
+      "src/engine/source/tool/meta_parser/template/gen_cpp.template");
+  inja::Template tempSerializer = env.parse_template(
+      "src/engine/source/tool/meta_parser/template/serializer.template");
+  inja::Template tempSerializerCpp = env.parse_template(
+      "src/engine/source/tool/meta_parser/template/serializer_cpp.template");
 
   struct RegisterEntry {
     std::string filename;
+    std::string serializerFilename;
     std::vector<std::string> metaNames;
   };
 
@@ -124,8 +127,10 @@ int main(int argc, char **argv) {
           cur.hasAnnotateAttr("meta-enum")) {
         metaData.addEnum(cur);
         return CXChildVisit_Continue;
-      } else if (cur.getKind() == CXCursor_ClassDecl &&
-                 cur.hasAnnotateAttr("meta-class")) {
+      } else if ((cur.getKind() == CXCursor_ClassDecl &&
+                  cur.hasAnnotateAttr("meta-class")) ||
+                 (cur.getKind() == CXCursor_StructDecl &&
+                  cur.hasAnnotateAttr("meta-struct"))) {
         metaData.addClass(cur);
         return CXChildVisit_Continue;
       }
@@ -152,21 +157,33 @@ int main(int argc, char **argv) {
     filename.replace(pos, filename.size() - pos, ".gen.h");
     std::string filenameCpp = filename;
     filenameCpp.replace(pos, filename.size() - pos, ".gen.cpp");
+    std::string filenameSerializer = filename;
+    filenameSerializer.replace(pos, filename.size() - pos, ".serializer.gen.h");
+    std::string filenameSerializerCpp = filename;
+    filenameSerializerCpp.replace(pos, filename.size() - pos, ".serializer.gen.cpp");
     entry.filename = "_generated/reflection/" + filename;
+    entry.serializerFilename = "_generated/serializer/" + filenameSerializer;
     std::ofstream of{refSaveDir / filename};
     std::ofstream ofCpp{refSaveDir / filenameCpp};
+    std::ofstream ofSerializer{serSaveDir / filenameSerializer};
+    std::ofstream ofSerializerCpp{serSaveDir / filenameSerializerCpp};
     try {
       env.render_to(of, tempMeta, data);
       env.render_to(ofCpp, tempCpp, data);
+      env.render_to(ofSerializer, tempSerializer, data);
+      env.render_to(ofSerializerCpp, tempSerializerCpp, data);
     } catch (std::exception &e) {
       std::cerr << e.what() << std::endl;
     }
   }
+
   clang_disposeIndex(index);
 
   {
-    inja::Template tempAutoRegister =
-        env.parse_template("src/engine/source/tool/meta_parser/auto_register.template");
+    inja::Template tempAutoRegister = env.parse_template(
+        "src/engine/source/tool/meta_parser/template/auto_register.template");
+    inja::Template tempAllSerializer =
+        env.parse_template("src/engine/source/tool/meta_parser/template/all_serializer.template");
     
     inja::json allReflection;
     allReflection["reflections"] = inja::json::array();
@@ -174,6 +191,7 @@ int main(int argc, char **argv) {
     for (auto &entry : entries) {
       auto &reflection = reflections.emplace_back();
       reflection["filename"] = entry.filename;
+      reflection["serializer_filename"] = entry.serializerFilename;
       reflection["meta_names"] = inja::json::array();
       for (auto &s : entry.metaNames) {
         auto namespacePos = s.rfind("::");
@@ -182,8 +200,10 @@ int main(int argc, char **argv) {
       }
     }
     std::ofstream of{refSaveDir / "all_reflection.cpp"};
+    std::ofstream ofSerializer{serSaveDir / "all_serializer.h"};
     try {
       env.render_to(of, tempAutoRegister, allReflection);
+      env.render_to(ofSerializer, tempAllSerializer, allReflection);
     } catch (std::exception &e) {
       std::cerr << e.what() << std::endl;
     }

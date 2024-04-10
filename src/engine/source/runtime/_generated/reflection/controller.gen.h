@@ -11,6 +11,9 @@ public:
 
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::Controller"};
     classBuilder
+
+        .setSuperClassName("GEngine::Actor")
+
     ;
 
     REGISTER_CLASS(classBuilder);

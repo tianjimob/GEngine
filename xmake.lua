@@ -41,7 +41,11 @@ target("GEngineRuntime")
     
     add_includedirs("src/engine/source/runtime")
     add_includedirs("src/engine/source/third_party")
-    add_includedirs(join_third_party_dir("spdlog/include"), join_third_party_dir("SDL2/include"), join_third_party_dir("VulkanSDK/include"), join_third_party_dir("glad/include"))
+    add_includedirs(join_third_party_dir("spdlog/include"), 
+                    join_third_party_dir("SDL2/include"), 
+                    join_third_party_dir("VulkanSDK/include"), 
+                    join_third_party_dir("glad/include"),
+                    join_third_party_dir("nlohmann/include"))
 
     if is_mode("debug") or is_mode("releasedbg") then 
         add_defines("VULKAN_DEBUG_ENABLE", "VULKAN_VALIDATION_ENABLE")

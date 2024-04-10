@@ -1,17 +1,31 @@
 #pragma once
 
+#include <memory>
+
 #include "core/reflection/reflection.h"
+#include "function/framework/engine/scene_viewport.h"
 #include "function/framework/object/object.h"
 #include "function/framework/ui/input.h"
+
 
 namespace GEngine {
 
 CLASS(GameViewportClient) : public GObject {
-
   REFLECTION_BODY(GameViewportClient);
-  
-public:
+
+ public:
+  void createGameViewport();
   bool inputKey(InputEvent event, ModifierKey mod, VirtualCode key);
+
+  void setViewport(SceneViewport * viewport) {
+    m_viewport = viewport;
+  }
+
+ private:
+  std::shared_ptr<SceneViewport> m_sceneViewport;
+
+  // pointer to SceneViewport created by GameInstance
+  SceneViewport* m_viewport;
 };
 
-}
+}  // namespace GEngine

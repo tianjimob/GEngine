@@ -25,10 +25,12 @@ public:
 private:
   std::shared_ptr<GameInstance> m_gameInstance;
   std::shared_ptr<Window> m_gameViewportWindow;
+  std::shared_ptr<SceneViewport> m_sceneViewport;
 
 private:
   
   static std::shared_ptr<Window> createGameWindow();
+  
 };
 
 }

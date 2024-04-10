@@ -11,6 +11,9 @@ public:
 
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::InputComponent"};
     classBuilder
+
+        .setSuperClassName("GEngine::ActorComponent")
+
     ;
 
     REGISTER_CLASS(classBuilder);

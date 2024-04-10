@@ -1,0 +1,3 @@
+## for reflection in reflections
+#include "{{ reflection.serializer_filename }}"
+## endfor

@@ -1,0 +1,63 @@
+#pragma once
+
+#include "{{ headfile_name }}"
+#include "core/serializer/serializer.h"
+
+
+namespace GEngine {
+## for meta_register in meta_registers
+{% if meta_register.type == "Class" %}
+template<> Json Serializer::write(const ::{{ meta_register.meta_name }}& instance) {
+    Json ret;
+## for entry in meta_register.entries
+{% if entry.type == "Field" %}
+    ret["{{ entry.field_name }}"] = Serializer::write(instance.{{ entry.field_name }});
+{% else if entry.type == "CArrayField" %}
+    Json {{ entry.field_name }}Json;
+    for(auto& item : instance.{{ entry.field_name }}) {
+        {{ entry.field_name }}Json.emplace_back(Serializer::write(item));
+    }
+    ret["{{ entry.field_name }}"] = {{ entry.field_name }}Json;
+{% else if entry.type == "SizeArrayField" %}
+    Json {{ entry.field_name }}Json;
+    for(auto& item : instance.{{ entry.field_name }}) {
+        {{ entry.field_name }}Json.emplace_back(Serializer::write(item));
+    }
+    ret["{{ entry.field_name }}"] = {{ entry.field_name }}Json;
+{% endif %}
+## endfor
+    return ret;
+}
+
+template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonContext, ::{{ meta_register.meta_name }}& instance) {
+    assert(jsonContext.is_object());
+## for entry in meta_register.entries
+{% if entry.type == "Field" %}
+    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+        Serializer::read(jsonContext["{{ entry.field_name }}"], instance.{{ entry.field_name }});
+    }
+{% else if entry.type == "CArrayField" %}
+    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+        assert(json_context["{{ entry.field_name }}"].is_array());
+        size_t size = json_context["{{ entry.field_name }}"].size();
+        assert(size < {{ entry.size }});
+        for(size_t index = 0; index < size; ++index) {
+            Serializer::read(jsonContext["{{ entry.field_name }}"][index], instance.{{ entry.field_name }}[index]);
+        }
+    }
+{% else if entry.type == "SizeArrayField" %}
+    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+        assert(json_context["{{ entry.field_name }}"].is_array());
+        size_t size = jsonContext["{{ entry.field_name }}"].size();
+        instance.{{ entry.field_name }}.resize(size);
+        for(size_t index = 0; index < size; ++index) {
+            Serializer::read(jsonContext["{{ entry.field_name }}"][index], instance.{{ entry.field_name }}[index]);
+        }
+    }
+{% endif %}
+## endfor
+    return instance;
+}
+{% endif %}
+## endfor
+} // namespace Serializer

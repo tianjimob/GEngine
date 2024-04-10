@@ -11,6 +11,9 @@ public:
 
     ::GEngine::Reflection::ClassDescriptorBuilder classBuilder{"GEngine::GameEngine"};
     classBuilder
+
+        .setSuperClassName("GEngine::Engine")
+
     ;
 
     REGISTER_CLASS(classBuilder);
