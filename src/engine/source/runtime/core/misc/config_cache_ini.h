@@ -2,10 +2,11 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 namespace GEngine {
 
-using ConfigSection = std::map<std::string, std::string>;
+using ConfigSection = std::multimap<std::string, std::string>;
 
 class ConfigIniFile {
 public:
@@ -14,7 +15,6 @@ public:
   ConfigSection *find(const std::string sectionName);
 
 private:
-  
   std::map<std::string, ConfigSection> m_sections;
 };
 
@@ -34,9 +34,11 @@ public:
   bool getDouble(const std::string &sectionName, const std::string &key,
               const std::string &filename, double &value);
   bool getBool(const std::string &sectionName, const std::string &key,
-              const std::string &filename, bool &value);
+               const std::string &filename, bool &value);
+  bool getStrings(const std::string &sectionName, const std::string &key,
+                  const std::string &filename, std::vector<std::string> &value);
 
-private:
+ private:
   std::map<std::string, ConfigIniFile> m_configs;
 
  ConfigIniFile * find(const std::string& filename);

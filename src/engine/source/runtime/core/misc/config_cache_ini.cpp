@@ -72,13 +72,13 @@ bool ConfigIniFile::parse(const std::string &filename) {
 
       std::string key = vline.substr(startPos, equPos - startPos);
 
-      if (vline[valuePos] == '"')
+      if (vline[valuePos] == '"' || vline[valuePos] == '(')
         ++valuePos;
-      if (vline[endPos - 1] == '"')
+      if (vline[endPos - 1] == '"' || vline[endPos - 1] == ')')
         --endPos;
       std::string value = vline.substr(valuePos, endPos - valuePos);
 
-      (*section)[key.data()] = value.data();
+      (*section).emplace(key.data(), value.data());
     }
   }
   return true;
@@ -170,6 +170,26 @@ bool ConfigCacheIni::getBool(const std::string &sectionName, const std::string &
   return false;
 }
 
+bool ConfigCacheIni::getStrings(const std::string &sectionName,
+                                const std::string &key,
+                                const std::string &filename,
+                                std::vector<std::string> &value) {
+  ConfigIniFile *file = find(filename);
+  if (!file)
+    return false;
+
+  ConfigSection *section = file->find(sectionName);
+  if (!section)
+    return false;
+
+  bool found = false;
+  auto [begin, end] = section->equal_range(key);
+  for (auto it = begin; it != end; ++it) {
+    value.emplace_back(it->second);
+    found = true;
+  }
+  return found;
+}
 
 ConfigIniFile *ConfigCacheIni::find(const std::string &filename) {
   auto it = m_configs.find(filename);

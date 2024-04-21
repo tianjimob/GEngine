@@ -1,17 +1,20 @@
 #pragma once
 
+#include <memory>
 #include <string_view>
 
 #include "core/reflection/reflection.h"
 
 namespace GEngine {
-class GObject {
+class GObject : public std::enable_shared_from_this<GObject> {
  public:
   virtual ~GObject() = default;
 
   virtual std::string_view getClassName() = 0;
 
   Reflection::ClassDescriptor &getClass();
+
+  virtual void postLoad(std::weak_ptr<GObject> parentObject) {}
 
   template <typename T>
   bool isA();

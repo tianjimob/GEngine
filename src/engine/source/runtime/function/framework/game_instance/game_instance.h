@@ -22,20 +22,21 @@ public:
   void tick(float deltaTime);
   void exit();
 
-  void setEngine(Engine * engine);
+  void setEngine(std::weak_ptr<Engine> engine);
 
   World *getWorld() { return m_world.get(); }
   
   std::shared_ptr<LocalPlayer>& createLocalPlayer(bool shouldSpawnPlayActor);
   std::shared_ptr<GameMode> createGameMode();
+
+  auto& getLocalPlayers() { return m_localPlayers; }
 private:
   std::shared_ptr<World> m_world;
   std::vector<std::shared_ptr<LocalPlayer>> m_localPlayers;
 
   // pointer to engine gameinstance belongs to, initlialized after called setEngine()
-  Engine *m_engine;
+  std::weak_ptr<Engine> m_engine;
 
-  bool loadWorld(World& world);
 };
 
 } // namespace GEngine

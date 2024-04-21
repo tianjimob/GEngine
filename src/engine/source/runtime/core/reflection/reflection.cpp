@@ -90,8 +90,14 @@ const std::string &ClassDescriptor::getSuperClassName() const {
   return m_superClassName;
 }
 
-ClassDescriptor *ClassDescriptor::getSuperClass() {
-  return m_superClass;
+ClassDescriptor *ClassDescriptor::getSuperClass() { return m_superClass; }
+
+bool ClassDescriptor::isSubclassOf(ClassDescriptor &base) {
+  for (auto *curr = this; curr != nullptr; curr = curr->getSuperClass()) {
+    if (curr->getClassID() == base.getClassID())
+      return true;
+  }
+  return false;
 }
 
 EnumDescriptor::EnumDescriptor(const std::string &enumName)

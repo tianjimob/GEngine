@@ -34,14 +34,24 @@ void GameInstance::init() {
     Json data = Json::parse(worldJson);
     Serializer::read(data, worldInitializer);
   }
-  m_world->init(worldInitializer, this);
+  m_world->load(worldInitializer, std::static_pointer_cast<GameInstance>(shared_from_this()));
+
+  for (auto &localPlayer : m_localPlayers) {
+    localPlayer->spawnPlayActor(m_world.get());
+  }
+
 }
 
-void GameInstance::tick(float deltaTime) { m_world->tick(deltaTime); }
+void GameInstance::tick(float deltaTime) {
+  for (auto &localPlayer : m_localPlayers) {
+    localPlayer->getPlayerController()->tick(deltaTime);
+  }
+  m_world->tick(deltaTime);
+}
 
 void GameInstance::exit() {}
 
-void GameInstance::setEngine(Engine* engine) { m_engine = engine; }
+void GameInstance::setEngine(std::weak_ptr<Engine> engine) { m_engine = engine; }
 
 std::shared_ptr<LocalPlayer> &GameInstance::createLocalPlayer(bool shouldSpawnPlayActor) {
   auto &newPlayer = m_localPlayers.emplace_back();

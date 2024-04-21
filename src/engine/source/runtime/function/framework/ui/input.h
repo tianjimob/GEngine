@@ -1,6 +1,8 @@
 #pragma once
 
+#include "function/framework/input/input_types.h"
 #include <cstdint>
+
 #define SCANCODE_MASK (1 << 30)
 #define SCANCODE_TO_KEYCODE(X) (static_cast<uint32_t>(X) | SCANCODE_MASK)
 
@@ -685,12 +687,5 @@ enum class VirtualCode : uint32_t {
 };
 
 enum class MouseButton { Left, Middle, Right, X1, X2 };
-
-enum class InputEvent {
-  Pressed,
-  Released,
-  Repeat,
-  DoubleClick
-};
 
 } // namespace GEngine

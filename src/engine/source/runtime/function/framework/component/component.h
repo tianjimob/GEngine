@@ -16,6 +16,11 @@ public:
   virtual ~ActorComponent() = default;
 
   virtual void tick(float deltaTime) {}
+  virtual void postLoad(std::weak_ptr<GObject> parentObject) override {
+    if (auto object = parentObject.lock(); object->isA<Actor>()) {
+      m_owner = std::static_pointer_cast<Actor>(object);
+    }
+  }
 
 private:
   std::weak_ptr<Actor> m_owner;

@@ -12,6 +12,8 @@ namespace GEngine {
 
 class GameInstance;
 class GameViewportClient;
+class PlayerController;
+class Player;
 
 STRUCT(WorldInitializer) : public GObject {
 
@@ -32,7 +34,7 @@ CLASS(World) : public GObject {
   REFLECTION_BODY(World)
 
 public:
-  void init(const WorldInitializer& worldInitializer, GameInstance* gameInstance);
+  void load(const WorldInitializer& worldInitializer, std::weak_ptr<GameInstance> gameInstance);
   void tick(float deltaTime);
 
   void addLevel(std::shared_ptr<Level> & level) {
@@ -40,21 +42,25 @@ public:
   }
 
   bool setCurrentLevel(const std::string &levelUrl);
-  void setGameViewport(GameViewportClient * gameViewport) {
+  void setGameViewport(std::weak_ptr<GameViewportClient> gameViewport) {
     m_gameViewport = gameViewport;
   }
 
+  std::shared_ptr<PlayerController> spawnPlayActor(Player * player);
+
+  auto getGameInstance() { return m_owingGameInstance; }
+
 private:
-  META_FIELD()
+  
   std::vector<std::shared_ptr<Level>> m_levels; // all loaded levels
 
   std::weak_ptr<Level> m_currentLevel;
 
   // pointer to GameInstance created this world
-  GameInstance *m_owingGameInstance;
+  std::weak_ptr<GameInstance> m_owingGameInstance;
 
   // pointer to GameViewportClient created by GameInstance who's belong to GameEngine
-  GameViewportClient* m_gameViewport;
+  std::weak_ptr<GameViewportClient> m_gameViewport;
 
   // std::shared_ptr<GameMode> m_gameMode;
 

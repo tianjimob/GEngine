@@ -1,11 +1,15 @@
 #include "engine.h"
 
 #include "core/reflection/reflection.h"
-#include "core/reflection/reflection_example.h" // for test reflection
-#include <cassert>                              // for test reflection
-#include <ios>                                  // for test reflection
-#include <iostream>                             // for test reflection
-#include "core/chrono/time_guard.h"             // for test reflection
+#include "function/framework/input/key.h"
+#include "core/misc/config_cache_ini.h"
+#include "resource/resource_path.h"
+#include "core/misc/json.h"
+#include "core/serializer/serializer.h"
+#include "function/framework/input/input_settings.h"
+#include <algorithm>
+#include <string>
+#include <vector>
 
 namespace GEngine {
 
@@ -37,52 +41,46 @@ void Engine::preInit(const std::string &configPath) {
   Reflection::autoSetupSuperClassInfo();
   // everything about reflection infos was setup
 
-  // for test reflection
-  ReflectionExampleA exampleA;
-  ReflectionExampleB exampleB;
-  ReflectionExampleU exampleU;
-  std::boolalpha(std::cout);
   {
-    TimeGuard guard{LogEngine};
-    for (int i = 0; i < 100000; ++i) {
-      exampleA.isA<ReflectionExample>();   // true
-      exampleB.isA<ReflectionExample>();   // true
-      exampleU.isA<ReflectionExample>();   // true
-      exampleA.isA<ReflectionExampleA>();  // true
-      exampleB.isA<ReflectionExampleA>();  // true
-      exampleU.isA<ReflectionExampleA>();  // false
-      exampleA.isA<ReflectionExampleB>();  // false
-      exampleB.isA<ReflectionExampleB>();  // true
-      exampleU.isA<ReflectionExampleB>();  // false
-      exampleA.isA<ReflectionExampleU>();  // false
-      exampleB.isA<ReflectionExampleU>();  // false
-      exampleU.isA<ReflectionExampleU>();  // true
-      
-    }
-  }
-  std::cout << "--------------------------------------------------------\n";
-  {
-    TimeGuard guard{LogEngine};
-    for (int i = 0; i < 100000; ++i) {
-      dynamicTest<ReflectionExampleA, ReflectionExample>(&exampleA);
-      dynamicTest<ReflectionExampleB, ReflectionExample>(&exampleB);
-      dynamicTest<ReflectionExampleU, ReflectionExample>(&exampleU);
-      dynamicTest<ReflectionExampleA, ReflectionExampleA>(&exampleA);
-      dynamicTest<ReflectionExampleB, ReflectionExampleA>(&exampleB);
-      dynamicTest<ReflectionExampleU, ReflectionExampleA>(&exampleU);
-      dynamicTest<ReflectionExampleA, ReflectionExampleB>(&exampleA);
-      dynamicTest<ReflectionExampleB, ReflectionExampleB>(&exampleB);
-      dynamicTest<ReflectionExampleU, ReflectionExampleB>(&exampleU);
-      dynamicTest<ReflectionExampleA, ReflectionExampleU>(&exampleA);
-      dynamicTest<ReflectionExampleB, ReflectionExampleU>(&exampleB);
-      dynamicTest<ReflectionExampleU, ReflectionExampleU>(&exampleU);
-    }
-    
-  }
+    Keys::init();
 
-  assert(0 && "for test reflection");
-  exit();
-  // for test
+    std::vector<std::string> axisMappings;
+    std::vector<std::string> actionMappings;
+    ConfigCacheIni::instance().getStrings("Mapping", "AxisMappings",
+                                          ResourcePath::inputIni, axisMappings);
+    ConfigCacheIni::instance().getStrings("Mapping", "ActionMappings",
+                                          ResourcePath::inputIni, actionMappings);
+    auto getJsonFromValue = [](const std::string &value) {
+      std::string jsonStr;
+      jsonStr.resize(value.size() + 2);
+      int index = 1;
+      for (auto ch : value) {
+        if (ch == '=')
+          jsonStr[index++] = ':';
+        else
+          jsonStr[index++] = ch;
+      }
+      jsonStr[0] = '{';
+      jsonStr.back() = '}';
+      return Json::parse(jsonStr);
+    };
+    std::for_each(axisMappings.begin(), axisMappings.end(),
+                  [&getJsonFromValue](const std::string &str) {
+                    auto json = getJsonFromValue(str);
+                    InputAxisKeyMapping mapping;
+                    Serializer::read(json, mapping);
+                    mapping.postLoad({});
+                    InputSettings::instance().addAxisKeyMapping(mapping);
+                  });
+    std::for_each(actionMappings.begin(), actionMappings.end(),
+                  [&getJsonFromValue](const std::string &str) {
+                    auto json = getJsonFromValue(str);
+                    InputActionKeyMapping mapping;
+                    Serializer::read(json, mapping);
+                    mapping.postLoad({});
+                    InputSettings::instance().addActionKeyMapping(mapping);
+                  });
+  }
 }
 
 void Engine::init() {}

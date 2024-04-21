@@ -1,7 +1,6 @@
 .cache/
 .vscode/
 /bin/
-src/engine/source/runtime/_generated/
 compile_commands.json
 
 # Xmake cache
@@ -12,4 +11,5 @@ tmp/
 # MacOS Cache
 .DS_Store
 
-
+vs2022/
+src/engine/source/runtime/_generated/

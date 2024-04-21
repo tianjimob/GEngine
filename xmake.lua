@@ -101,6 +101,19 @@ target("test_engine_runtime_ini")
         end
     end)
 
+target("test_engine_runtime_delegate")
+    set_kind("binary")
+    set_targetdir("/tmp/tests")
+    add_deps("catch2")
+    add_includedirs("test/catch")
+    add_includedirs("src/engine/source/runtime")
+    add_files("test/engine/runtime/delegate/test_delegate.cpp")
+    after_build(function (target)
+        if enable_test  then 
+            os.exec("$(projectdir)/%s", target:targetfile())
+        end
+    end)
+
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --

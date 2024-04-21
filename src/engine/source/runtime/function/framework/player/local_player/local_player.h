@@ -16,8 +16,10 @@ CLASS(LocalPlayer) : public Player {
 
 public:
   bool spawnPlayActor(World * world);
-  
+  auto& getPlayerController() { return m_playerController; }
+
 private:
+  std::shared_ptr<PlayerController> m_playerController;
   GameViewportClient* m_gameViewportClient;
 };
 

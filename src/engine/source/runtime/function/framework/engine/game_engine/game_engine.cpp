@@ -8,6 +8,7 @@
 #include "function/framework/game_instance/game_instance.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi.h"
 #include "function/framework/render/core/rendering_thread.h"
+#include "resource/resource_path.h"
 
 namespace GEngine {
 GameEngine::GameEngine() { GlobalEngine = this; }
@@ -21,7 +22,8 @@ void GameEngine::preInit(const std::string &configPath) {
   {
     // create gameinstance ...
     m_gameInstance = std::make_shared<GameInstance>();
-    m_gameInstance->setEngine(this);
+    m_gameInstance->setEngine(
+        std::static_pointer_cast<Engine>(shared_from_this()));
     m_gameInstance->preInit();
   }
 
@@ -34,8 +36,8 @@ void GameEngine::preInit(const std::string &configPath) {
   {
     m_gameViewportWindow = createGameWindow();
     m_sceneViewport = std::make_shared<SceneViewport>();
-    m_gameViewportClient->setViewport(m_sceneViewport.get());
-    m_gameViewportWindow->setGameViewport(m_sceneViewport.get());
+    m_gameViewportClient->setViewport(m_sceneViewport);
+    m_gameViewportWindow->setGameViewport(m_sceneViewport);
   }
 
   {
@@ -49,7 +51,7 @@ void GameEngine::preInit(const std::string &configPath) {
         [&config](const std::string &key,
                   const std::string &defaultValue) -> std::string {
       std::string res;
-      res = config.getStr("Window", key, "game.ini");
+      res = config.getStr("Window", key, ResourcePath::gameIni);
       if (res.empty()) res = defaultValue;
       return res;
     };
@@ -76,7 +78,7 @@ void GameEngine::init() {
 
   Engine::init();
   m_gameInstance->init();
-  m_gameInstance->getWorld()->setGameViewport(m_gameViewportClient.get());
+  m_gameInstance->getWorld()->setGameViewport(m_gameViewportClient);
 }
 
 void GameEngine::tick(float deltaTime) {

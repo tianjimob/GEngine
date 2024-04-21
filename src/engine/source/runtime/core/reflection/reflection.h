@@ -73,6 +73,9 @@ public:                                                                        \
   ::GEngine::Reflection::Registry::instance().registerEnum(                    \
       std::move(enumDescriptorBuilder.getEnumDescriptor()));
 
+#define GET_CLASS(className)                                                   \
+  ::GEngine::Reflection::Registry::instance().getClass(className)
+
 namespace GEngine {
 namespace Reflection {
 
@@ -259,6 +262,10 @@ public:
 
   uint32_t getClassID() const { return m_classId; }
 
+  void *construct() { return m_constructor(); }
+
+  bool isSubclassOf(ClassDescriptor& base);
+
  private:
   friend class ClassDescriptorBuilder;
   friend void autoSetupSuperClassInfo();
@@ -269,6 +276,7 @@ public:
   uint32_t m_classId;
   std::vector<Field> m_fields;
   std::vector<Method> m_methods;
+  std::function<void*()> m_constructor;
 
   std::string m_superClassName;
   ClassDescriptor* m_superClass;
@@ -313,6 +321,11 @@ public:
                                     Method method);
 
   ClassDescriptorBuilder &setSuperClassName(const std::string &superClassName);
+
+  ClassDescriptorBuilder &setConstructor(std::function<void *()> constructor) {
+    m_classDescriptor->m_constructor = constructor;
+    return *this;
+  }
 
   std::unique_ptr<ClassDescriptor> &getClassDescriptor();
 

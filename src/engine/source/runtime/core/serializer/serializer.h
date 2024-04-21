@@ -1,16 +1,20 @@
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "core/misc/json.h"
 #include <memory>
+#include <string_view>
+#include <type_traits>
+#include "function/framework/object/object.h"
 
 namespace GEngine {
-using Json = nlohmann::json;
 
 class Serializer {
 public:
- template <typename T> static Json write(const std::shared_ptr<T> &instance) {
+  template <typename T> static Json write(const std::shared_ptr<T> &instance) {
+   static_assert(std::is_base_of_v<GObject, T>, "T must be child class of GObject");
    if (instance) {
-     return Serializer::write(*instance);
+     return {{"$typeName", instance->getClassName()},
+             {"$context", Serializer::write(*instance)}};
    }
    return {};
  }
@@ -18,10 +22,14 @@ public:
  template <typename T>
  static std::shared_ptr<T> &read(const Json &json_context,
                                  std::shared_ptr<T> &instance) {
+   static_assert(std::is_base_of_v<GObject, T>, "T must be child class of GObject");
    if (!instance) {
-     instance = std::make_shared<T>();
-     Serializer::read(json_context, *instance);
-     return instance;
+     auto &classDesc = GET_CLASS(json_context["$typeName"]);
+     if (classDesc.isSubclassOf(T::getClass())) {
+       instance = classDesc.construct();
+       Serializer::read(json_context["$context"], *instance);
+       return instance;
+     }
    }
    return instance;
  }

@@ -27,7 +27,7 @@ public:
   void exit();
   bool shouldClose() const;
 
-  void setGameViewport(SceneViewport *sceneViewport) {
+  void setGameViewport(std::weak_ptr<SceneViewport> sceneViewport) {
     m_sceneViewport = sceneViewport;
   }
 
@@ -41,7 +41,7 @@ private:
   bool m_shouldClose{false};
 
   // pointer to SceneViewport created by GameInstance
-  SceneViewport* m_sceneViewport;
+  std::weak_ptr<SceneViewport> m_sceneViewport;
 
  private:
   SDL_Window *createOpenGL45Window(const WindowCreateInfo &createInfo);

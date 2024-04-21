@@ -12,11 +12,10 @@ CLASS(Player) : public GObject {
   REFLECTION_BODY(Player)
   
 public:
-  virtual void switchController(
-      std::shared_ptr<PlayerController> playerController);
-  std::shared_ptr<PlayerController> getPlayerController() const;
+  void setPlayerController(PlayerController * playerController);
+  
 private:
-  std::shared_ptr<PlayerController> m_playerController;
+  PlayerController* m_playerController;
 };
 
 }
