@@ -1,5 +1,7 @@
 #include "class.h"
 #include <cassert>
+#include <cstdlib>
+#include <iostream>
 
 
 Class::Class(const Cursor& cursor):m_className(cursor.getType().GetDisplayName())
@@ -9,8 +11,11 @@ Class::Class(const Cursor& cursor):m_className(cursor.getType().GetDisplayName()
     case CXCursor_CXXBaseSpecifier:
       if(m_superClassName.empty())
         m_superClassName = child.getType().GetDisplayName();
-      else
-       assert(0 && "meta parser cannot support multiple inheritance");
+      else {
+        std::cerr << "meta parser cannot support multiple inheritance"
+                  << std::endl;
+        exit(EXIT_FAILURE);
+      }
       break;
     case CXCursor_FieldDecl:
       if(child.hasAnnotateAttr("meta-field"))
