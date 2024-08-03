@@ -13,14 +13,9 @@ CLASS(TransformComponent) : public ActorComponent {
   REFLECTION_BODY(TransformComponent)
   
 public:
-private:
-
-  std::weak_ptr<TransformComponent> m_attchParent;
-  
-  std::vector<std::shared_ptr<TransformComponent>> m_attachChildren;
-
+protected:
   META_FIELD()
-  Transform m_componentToWorld;
+  Transform m_transformToWorld;
 
 //   BoxSphereBounds m_bounds;
 };

@@ -24,7 +24,9 @@ public:
 {% if meta_register.has_super_class %}
         .setSuperClassName("{{ meta_register.super_class_name }}")
 {% endif %}
+{% if not meta_register.is_abstract %}
         .setConstructor([]() -> void* {return new ::{{ meta_register.meta_name }};})
+{% endif %}
 ## for entry in meta_register.entries
 {% if entry.type == "Field" %}
         .addField("{{ entry.field_name }}", "{{ entry.field_type_name }}", & ::{{ meta_register.meta_name }}::{{ entry.field_name }}, {{ entry.is_enum }})

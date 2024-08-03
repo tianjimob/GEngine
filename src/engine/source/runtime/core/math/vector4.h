@@ -4,12 +4,10 @@
 #include "core/math/vector3.h"
 #include "core/reflection/reflection.h"
 
-namespace GEngine
-{
-    CLASS(Vector4) : public GObject
-    {
-        REFLECTION_BODY(Vector4)
+namespace GEngine {
 
+    class alignas(16) Vector4
+    {
     public:
         float x {0.f}, y {0.f}, z {0.f}, w {0.f};
 

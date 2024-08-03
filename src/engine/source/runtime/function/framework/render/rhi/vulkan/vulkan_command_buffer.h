@@ -65,6 +65,8 @@ public:
 
   void refreshFenceStatus();
 
+  
+
 private:
   VulkanDevice* m_device;
   VulkanCommandPool *m_commandPool;
@@ -85,6 +87,7 @@ public:
   void submitActiveCommandBuffer(
       std::vector<std::shared_ptr<VulkanSemaphore>> signalSemaphores);
   void prepareForNewActiveCommandBuffer();
+  std::shared_ptr<VulkanCommandBuffer>& getActiveCommandBuffer() { return m_activeCommandBuffer; }
   
 private:
   VulkanDevice *m_device;

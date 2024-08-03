@@ -11,4 +11,11 @@ Reflection::ClassDescriptor& GObject::getClass() {
     return *m_class;
 }
 
+bool GObject::is(Reflection::ClassDescriptor &classDesc) {
+  if (m_class->getClassID() == classDesc.getClassID())
+    return true;
+  else
+   return false;
+}
+
 }  // namespace GEngine

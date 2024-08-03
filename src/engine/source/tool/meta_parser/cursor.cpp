@@ -1,5 +1,6 @@
 #include "cursor.h"
 #include "util.h"
+#include "clang-c/Index.h"
 #include <utility>
 
 Cursor::Cursor(const CXCursor &handle) : m_handle(handle) {}
@@ -37,6 +38,10 @@ std::string Cursor::getSourceFile(void) const {
 
 bool Cursor::isDefinition(void) const {
   return clang_isCursorDefinition(m_handle);
+}
+
+bool Cursor::isPureVritual() const {
+  return clang_CXXMethod_isPureVirtual(m_handle);
 }
 
 CursorType Cursor::getType(void) const { return clang_getCursorType(m_handle); }

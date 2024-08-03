@@ -76,6 +76,7 @@ struct Keys {
   static const Key Y;
   static const Key Z;
 
+  static const Key SpaceBar;
   static const Key Shift;
   static const Key Ctrl;
   static const Key Alt;
@@ -91,7 +92,7 @@ struct Keys {
   static std::map<Key, std::shared_ptr<KeyDetails>> m_keyToDetails;
   static void addKeyWithDetails(const Key &key) {
     m_keyToDetails[key] = std::make_shared<KeyDetails>();
-    const_cast<Key &>(key).m_keyDetails = m_keyToDetails[AnyKey];
+    const_cast<Key &>(key).m_keyDetails = m_keyToDetails[key];
   }
 };
 

@@ -1,14 +1,23 @@
 #include "engine.h"
 
+#include "core/log/logger.h"
+#include "core/misc/util_string.h"
 #include "core/reflection/reflection.h"
 #include "function/framework/input/key.h"
 #include "core/misc/config_cache_ini.h"
+#include "function/framework/world/world.h"
 #include "resource/resource_path.h"
 #include "core/misc/json.h"
 #include "core/serializer/serializer.h"
 #include "function/framework/input/input_settings.h"
+#include "function/framework/game_instance/game_instance.h"
 #include <algorithm>
+#include <cassert>
+#include <exception>
+#include <fstream>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace GEngine {
@@ -35,56 +44,72 @@ void Engine::preInit(const std::string &configPath) {
 
   // register classes into Registry::instance()
   Reflection::autoRegisterAll();
-  // now ClassDescriptor::m_superClass is nullptr that we can get super class
+  // now ClassDescriptor::m_superClass is nullptr so we can get super class
   // name (ClassDescriptor::getSuperClassName()) and set m_superClass as
   // ClassDescriptor with super class name
   Reflection::autoSetupSuperClassInfo();
   // everything about reflection infos was setup
 
-  {
-    Keys::init();
+  // init input system and register axis/action mappings to InputSetting::instance
+  initInputSystem();
+}
 
-    std::vector<std::string> axisMappings;
-    std::vector<std::string> actionMappings;
-    ConfigCacheIni::instance().getStrings("Mapping", "AxisMappings",
-                                          ResourcePath::inputIni, axisMappings);
-    ConfigCacheIni::instance().getStrings("Mapping", "ActionMappings",
-                                          ResourcePath::inputIni, actionMappings);
-    auto getJsonFromValue = [](const std::string &value) {
-      std::string jsonStr;
-      jsonStr.resize(value.size() + 2);
-      int index = 1;
-      for (auto ch : value) {
-        if (ch == '=')
-          jsonStr[index++] = ':';
-        else
-          jsonStr[index++] = ch;
-      }
-      jsonStr[0] = '{';
-      jsonStr.back() = '}';
-      return Json::parse(jsonStr);
-    };
-    std::for_each(axisMappings.begin(), axisMappings.end(),
-                  [&getJsonFromValue](const std::string &str) {
-                    auto json = getJsonFromValue(str);
-                    InputAxisKeyMapping mapping;
-                    Serializer::read(json, mapping);
+void Engine::init() { m_world = std::make_shared<World>(); }
+
+void Engine::exit() {}
+
+std::vector<std::shared_ptr<LocalPlayer>> &Engine::getLocalPlayers() {
+    std::shared_ptr<GameInstance> gameInstance;
+    if (m_world) {
+      gameInstance = m_world->getGameInstance().lock();
+    }
+
+    if (gameInstance) return gameInstance->getLocalPlayers();
+}
+
+void Engine::initInputSystem() {
+  Keys::init();
+
+  Json inputsJson;
+  try {
+    std::ifstream is(ResourcePath::inputsJson);
+    if (!is.is_open()) {
+      LOG_ERROR(LogEngine, "Failed load file %s", ResourcePath::inputsJson);
+    }
+    inputsJson = Json::parse(is);
+
+    assert(inputsJson.is_object());
+  } catch (Json::exception& e) {
+    LOG_ERROR(LogEngine, "Failed parse %s: %s", ResourcePath::inputsJson,
+              e.what());
+    return;
+  }
+
+  {
+    assert(inputsJson["AxisMappings"].is_array());
+
+    std::for_each(inputsJson["AxisMappings"].begin(),
+                  inputsJson["AxisMappings"].end(), [this](const Json &json) {
+                    InputAxisKeyMappingInitializer initializer;
+                    Serializer::read(json, initializer, this);
+                    InputAxisKeyMapping mapping{initializer};
                     mapping.postLoad({});
                     InputSettings::instance().addAxisKeyMapping(mapping);
                   });
-    std::for_each(actionMappings.begin(), actionMappings.end(),
-                  [&getJsonFromValue](const std::string &str) {
-                    auto json = getJsonFromValue(str);
-                    InputActionKeyMapping mapping;
-                    Serializer::read(json, mapping);
+  }
+
+  {
+    assert(inputsJson["ActionMappings"].is_array());
+
+    std::for_each(inputsJson["ActionMappings"].begin(),
+                  inputsJson["ActionMappings"].end(), [this](const Json &json) {
+                    InputActionKeyMappingInitializer initializer;
+                    Serializer::read(json, initializer, this);
+                    InputActionKeyMapping mapping{initializer};
                     mapping.postLoad({});
                     InputSettings::instance().addActionKeyMapping(mapping);
                   });
   }
 }
-
-void Engine::init() {}
-
-void Engine::exit() {}
 
 } // namespace GEngine

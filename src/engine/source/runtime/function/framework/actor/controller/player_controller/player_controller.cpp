@@ -1,12 +1,15 @@
 #include "player_controller.h"
+#include "function/framework/component/input/input_component.h"
 #include "function/framework/player/player.h"
 #include "function/framework/player/local_player/local_player.h"
 #include "function/framework/actor/pawn/pawn.h"
 #include "function/framework/input/player_input.h"
 #include "function/framework/game_instance/game_instance.h"
 
+#include <algorithm>
 #include <memory>
 #include <vector>
+
 namespace GEngine {
 
 PlayerController *PlayerController::GetPlayControllerFromActor(Actor *actor) {
@@ -51,8 +54,8 @@ void PlayerController::tick(float deltaTime) {
     }
 
     for (auto &actorComponent : pawn->getComponents()) {
-      if (actorComponent->isA<InputComponent>()) {
-        auto inputComponent = std::static_pointer_cast<InputComponent>(actorComponent);
+      if (auto actorComp = actorComponent.lock(); actorComp->isA<InputComponent>()) {
+        auto inputComponent = std::static_pointer_cast<InputComponent>(actorComp);
         if (inputComponent && inputComponent != pawn->getInputComponent()) {
           inputStack.emplace_back(inputComponent.get());
         }
@@ -80,6 +83,13 @@ void PlayerController::initInputSystem() {
 
 void PlayerController::pushInputComponent(InputComponent *inputComponent) {
   m_currentInputStack.emplace_back(inputComponent);
+}
+
+void PlayerController::popInputComponent(InputComponent *inputComponent) {
+  auto it = std::remove_if(
+      m_currentInputStack.begin(), m_currentInputStack.end(),
+      [inputComponent](const InputComponent *comp) { return inputComponent == comp; });
+  m_currentInputStack.erase(it, m_currentInputStack.end());
 }
 
 }  // namespace GEngine

@@ -36,6 +36,18 @@ std::vector<std::string> split(const std::string &str, char delimiter) {
   return tokens;
 }
 
+void removeWhiteSpace(std::string &str) {
+  str.erase(std::remove_if(str.begin(), str.end(),
+                           [](unsigned ch) { return std::isspace(ch); }),
+            str.end());
+}
+
+std::string addQuotesAndCheck(const std::string &str) {
+  if (str.find('"') != std::string::npos)
+    return {};
+  else
+    return '"' + str + '"';
+}
 } // namespace Util
 
 } // namespace GEngine

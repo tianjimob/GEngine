@@ -1,0 +1,23 @@
+#version 450
+
+layout(binding = 0) uniform MemcpyInfo {
+    uint sizeInVec4;
+    uint srcOffset;
+    uint dstOffset;
+} info;
+
+layout(std430, binding = 1) readonly buffer ssboSrc {
+    vec4 srcBuffer[];
+};
+
+layout(std430, binding = 2) buffer ssboDst {
+    vec4 dstBuffer[];
+};
+
+layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+void main() {
+    if(gl_GlobalInvocationID.x < info.sizeInVec4) {
+        dstBuffer[info.srcOffset + gl_GlobalInvocationID.x] = srcBuffer[info.dstOffset + gl_GlobalInvocationID.x];
+    }
+}

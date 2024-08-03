@@ -4,14 +4,19 @@
 #include "core/log/logger.h"
 #include "function/framework/engine/engine.h"
 #include "function/framework/engine/game_engine/game_engine.h"
+#include "function/framework/render/rhi/rhi_resource.h"
+#include "function/framework/render/rhi/rhi_type.h"
+#include "function/framework/render/rhi/vulkan/vulkan_rhi_resource.h"
 #include "platform/vulkan/vulkan_vendor.h"
+#include "vulkan/vulkan_core.h"
 
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
+#include <malloc.h>
 #include <memory>
-#include <utility>
 #include <vector>
 
 namespace GEngine {
@@ -36,6 +41,56 @@ void VulkanRHI::init() {
   if (auto device = m_device.lock()) {
     device->init();
   }
+}
+
+std::shared_ptr<RHIComputePipelineState>
+VulkanRHI::createComputePipelineState(std::shared_ptr<RHIComputeShader>& computeShader) {
+  if (auto it = m_device.lock()) {
+    return it->getPipelineManager().getOrCreateComputePipeline(
+        std::static_pointer_cast<VulkanRHIComputeShader>(computeShader));
+  }
+  return nullptr;
+}
+
+std::shared_ptr<RHIUniformBuffer> VulkanRHI::createUniformBuffer(uint32_t size) {
+  VkBuffer buffer;
+  VkDeviceMemory memory;
+  createBuffer(size, RHIBufferUsageFlags::UniformBuffer,
+               RHIMemoryPropertyFlags::HostVisibleAndCoherent, buffer, memory);
+  VulkanMemory vulkanMemory{m_device.lock().get(), memory};
+  void *mapped;
+  auto device = m_device.lock();
+  vkMapMemory(device->getDevice(), memory, 0, size, 0, &mapped);
+  return std::make_shared<VulkanRHIUniformBuffer>(m_device.lock().get(), buffer,
+                                                  vulkanMemory, mapped);
+}
+
+std::shared_ptr<RHIBuffer> VulkanRHI::createBuffer(uint32_t size,
+                                                   RHIBufferUsageFlags usage, RHIMemoryPropertyFlags property) {
+
+  VkBuffer buffer;
+  VkDeviceMemory memory;
+  createBuffer(size,usage,property, buffer, memory);                                                  
+  VulkanMemory vulkanMemory{m_device.lock().get(), memory};
+  std::shared_ptr<RHIBuffer> ret = std::make_shared<VulkanRHIBuffer>(
+      size,  m_device.lock().get(), buffer,vulkanMemory);
+  return ret;
+}
+
+std::shared_ptr<RHIComputeShader>
+VulkanRHI::createComputeShader(const std::vector<uint8_t> &shaderCode) {
+  if (auto device = m_device.lock()) {
+    VkShaderModule shaderModule = device->createShaderModule(shaderCode);
+    if (shaderModule != VK_NULL_HANDLE) {
+      std::shared_ptr<RHIComputeShader> shader =
+          std::make_shared<VulkanRHIComputeShader>(device.get(), shaderModule);
+      return shader;
+    } else {
+      LOG_ERROR(LogVulkanRHI, "createComputerShader failed!");
+      return nullptr;
+    }
+  }
+  return nullptr;
 }
 
 void VulkanRHI::createInstance() {
@@ -618,6 +673,44 @@ VulkanRHI::enumerateLayerProperties() {
   }
 
   return ret;
+}
+
+void VulkanRHI::createBuffer(uint32_t size, RHIBufferUsageFlags usage,
+                             RHIMemoryPropertyFlags property, VkBuffer &buffer,
+                             VkDeviceMemory &memory) {
+  VkBufferCreateInfo bufferCreateInfo;
+  bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+  bufferCreateInfo.size = size;
+  bufferCreateInfo.usage = static_cast<uint32_t>(usage);
+  bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+  auto device = m_device.lock();
+  if (device == nullptr) {
+    return;
+  }
+
+  if (vkCreateBuffer(device->getDevice(), &bufferCreateInfo, nullptr,
+                     &buffer) != VK_SUCCESS) {
+    LOG_ERROR(LogVulkanRHI, "vkCreateBuffer failed!");
+    return;
+  }
+
+  VkMemoryRequirements requirements;
+  vkGetBufferMemoryRequirements(device->getDevice(), buffer, &requirements);
+
+  VkMemoryAllocateInfo allocateInfo;
+  allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  allocateInfo.allocationSize = requirements.size;
+  allocateInfo.memoryTypeIndex = device->findMemoryType(
+      requirements.memoryTypeBits, static_cast<uint32_t>(property));
+
+  if (vkAllocateMemory(device->getDevice(), &allocateInfo, nullptr, &memory) !=
+      VK_SUCCESS) {
+    LOG_ERROR(LogVulkanRHI, "vkAllocate failed!");
+    return;
+  }
+
+  vkBindBufferMemory(device->getDevice(), buffer, memory, 0);
 }
 
 std::vector<VkExtensionProperties>

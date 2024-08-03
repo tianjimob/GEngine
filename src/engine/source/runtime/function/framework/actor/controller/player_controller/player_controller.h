@@ -29,6 +29,8 @@ public:
 
   virtual void popInputComponent(InputComponent * inputComponent);
 
+  virtual void posses(Pawn* pawn) override {}
+
   void setWorld(std::weak_ptr<World> world) { m_world = world; }
   void setPawn(std::weak_ptr<Pawn> pawn) { m_pawn = pawn; }
 

@@ -7,9 +7,11 @@ compile_commands.json
 .xmake/
 build/
 tmp/
+third_party/
 
 # MacOS Cache
 .DS_Store
 
 vs2022/
+changeLog.txt
 src/engine/source/runtime/_generated/

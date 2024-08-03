@@ -2,6 +2,7 @@
 #include <iostream>
 
 namespace Util {
+
 void toString(const CXString &str, std::string &output) {
   auto cstr = clang_getCString(str);
   if (cstr != nullptr) {
@@ -9,4 +10,5 @@ void toString(const CXString &str, std::string &output) {
     clang_disposeString(str);
   }
 }
+
 } // namespace Util

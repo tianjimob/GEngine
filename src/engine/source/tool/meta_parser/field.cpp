@@ -1,11 +1,16 @@
 #include "field.h"
+#include "util.h"
+#include "clang-c/Index.h"
+#include <algorithm>
 #include <iostream>
+#include <iterator>
+#include <string>
 
 Field::Field(const Cursor &cursor)
     : m_fieldName(cursor.getSpelling()),
       m_fieldTypeName(cursor.getType().GetDisplayName()),
       m_isEnum(cursor.getType().GetKind() == CXTypeKind::CXType_Enum) {
-  if (cursor.getType().isArray()) {
+  if (isCArray(cursor)) {
     m_arrayType = ArrayType::CArray;
     m_cArraySize = cursor.getType().getArraySize();
     m_elemTypeName = cursor.getType().getElementType().GetDisplayName();
@@ -30,11 +35,32 @@ size_t Field::getCArraySize() const { return m_cArraySize; }
 
 const std::string &Field::getElementTypeName() const { return m_elemTypeName; }
 
-bool Field::isSizeArray(const Cursor &cursor) const {
-  std::string typeName = cursor.getType().GetDisplayName();
-  if (typeName.find("std::vector") != std::string::npos) {
+
+bool Field::isCArray(const Cursor &cursor) const {
+  // support random access operator[] and can't resize
+  static const char *cArrayTypeNames[]{"std::array"};
+  if (cursor.getType().isArray())
     return true;
-  } else {
-    return false;
+  std::string typeName = cursor.getType().GetDisplayName();
+  for (const char *name : cArrayTypeNames) {
+    if (typeName.find(std::string{name}) != std::string::npos) {
+      return true;
+    }
   }
+  return false;
+}
+
+
+bool Field::isSizeArray(const Cursor &cursor) const {
+  // support random access operator[] and resize
+  static const char *sizeTypeNames[] {
+    "std::vector", "std::deque"
+  };
+  std::string typeName = cursor.getType().GetDisplayName();
+  for (const char *name : sizeTypeNames) {
+    if (typeName.find(std::string{name}) != std::string::npos) {
+      return true;
+    }
+  }
+  return false;
 }

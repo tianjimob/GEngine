@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "function/framework/render/rhi/rhi.h"
+#include "vulkan/vulkan_core.h"
 #include "vulkan_com.h"
 #include "vulkan_device.h"
 
@@ -22,6 +23,13 @@ class VulkanRHI : public RHI {
       const RHIGraphicsPipelineStateCreateInfo &createInfo) override {
     return {};
   }
+  virtual std::shared_ptr<RHIComputePipelineState> createComputePipelineState(std::shared_ptr<RHIComputeShader>& computeShader) override;
+
+  virtual std::shared_ptr<RHIUniformBuffer> createUniformBuffer(uint32_t size) override;
+  virtual std::shared_ptr<RHIBuffer>
+  createBuffer(uint32_t size, RHIBufferUsageFlags usage,
+               RHIMemoryPropertyFlags property) override;
+  virtual std::shared_ptr<RHIComputeShader> createComputeShader(const std::vector<uint8_t>& shaderCode) override;
 
  private:
   void createInstance();
@@ -48,12 +56,15 @@ class VulkanRHI : public RHI {
 
   bool isDeviceSuitable(const VulkanDevice &physicalDevice);
 
+  void createBuffer(uint32_t size, RHIBufferUsageFlags usage,
+               RHIMemoryPropertyFlags property, VkBuffer& buffer, VkDeviceMemory& memory);
+
  private:
   VkInstance m_instance;
 
   std::vector<std::shared_ptr<VulkanDevice>> m_devices;
   std::weak_ptr<VulkanDevice>
-      m_device;  // pointer to one of m_devices (now best fit)
+      m_device; // pointer to one of m_devices (now best fit)
 
  private:
   enum class DebugLayerExtension {

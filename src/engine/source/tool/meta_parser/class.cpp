@@ -1,10 +1,11 @@
 #include "class.h"
+#include "clang-c/Index.h"
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
 
 
-Class::Class(const Cursor& cursor):m_className(cursor.getType().GetDisplayName())
+Class::Class(const Cursor& cursor):m_className(cursor.getType().GetDisplayName()),m_isAbstract(false)
 {
   for (auto &child : cursor.getChildren()) {
     switch (child.getKind()) {
@@ -24,6 +25,8 @@ Class::Class(const Cursor& cursor):m_className(cursor.getType().GetDisplayName()
     case CXCursor_CXXMethod:
       if(child.hasAnnotateAttr("meta-method"))
         m_methods.emplace_back(child);
+      if (child.isPureVritual())
+        m_isAbstract = true;
       break;
     default:
       break;

@@ -170,9 +170,9 @@ void Window::handleWindowEvent(SDL_Event &event) {
   case SDL_WINDOWEVENT_SIZE_CHANGED: {
     auto flags = SDL_GetWindowFlags(m_sdlWindow);
     if (!(flags & SDL_WINDOW_FULLSCREEN)) {
-      m_sceneViewport->onSizeChanged(this, event.window.data1,
-                                     event.window.data2,
-                                     flags & SDL_WINDOW_MINIMIZED);
+      if(auto viewport = m_sceneViewport.lock())
+        viewport->onSizeChanged(this, event.window.data1, event.window.data2,
+                                flags & SDL_WINDOW_MINIMIZED);
     }
   } break;
   case SDL_WINDOWEVENT_MINIMIZED:
@@ -190,7 +190,8 @@ void Window::handleWindowEvent(SDL_Event &event) {
   case SDL_WINDOWEVENT_FOCUS_LOST:
     break;
   case SDL_WINDOWEVENT_CLOSE:
-    m_sceneViewport->onWindowClose(this);
+    if(auto viewport = m_sceneViewport.lock())
+        viewport->onWindowClose(this);
     m_shouldClose = true;
     break;
 #if SDL_VERSION_ATLEAST(2, 0, 5)
@@ -261,7 +262,8 @@ void Window::handleKeydownEvent(SDL_Event &event) {
     break;
   }
 
-  m_sceneViewport->onKeyDown(
+  if(auto viewport = m_sceneViewport.lock())
+        viewport->onKeyDown(
       mod, static_cast<VirtualCode>(event.key.keysym.sym), event.key.repeat);
 }
 
@@ -316,7 +318,8 @@ void Window::handleKeyupEvent(SDL_Event &event) {
     break;
   }
 
-  m_sceneViewport->onKeyUp(mod, static_cast<VirtualCode>(event.key.keysym.sym),
+  if(auto viewport = m_sceneViewport.lock())
+        viewport->onKeyUp(mod, static_cast<VirtualCode>(event.key.keysym.sym),
                            event.key.repeat);
 }
 
@@ -345,7 +348,8 @@ void Window::handleMouseButtonUpEvent(SDL_Event &event) {
   default:
     break;
   }
-  m_sceneViewport->onMouseButtonUp(button, event.button.x, event.button.y);
+  if(auto viewport = m_sceneViewport.lock())
+        viewport->onMouseButtonUp(button, event.button.x, event.button.y);
 }
 
 void Window::handleMouseButtonDoubleClick(SDL_Event &event) {
@@ -373,7 +377,8 @@ void Window::handleMouseButtonDoubleClick(SDL_Event &event) {
   default:
     break;
   }
-  m_sceneViewport->onMouseButtonDoubleClick(button, event.button.x,
+  if(auto viewport = m_sceneViewport.lock())
+        viewport->onMouseButtonDoubleClick(button, event.button.x,
                                             event.button.y);
 }
 
@@ -402,7 +407,8 @@ void Window::handleMouseButtonDownEvent(SDL_Event &event) {
   default:
     break;
   }
-  m_sceneViewport->onMouseButtonDown(button, event.button.x, event.button.y);
+  if(auto viewport = m_sceneViewport.lock())
+        viewport->onMouseButtonDown(button, event.button.x, event.button.y);
 }
 
 void Window::handleMouseMotionEvent(SDL_Event &event) {
@@ -430,7 +436,8 @@ void Window::handleMouseMotionEvent(SDL_Event &event) {
   default:
     break;
   }
-  m_sceneViewport->onMouseMove(event.motion.x, event.motion.y,
+  if(auto viewport = m_sceneViewport.lock())
+        viewport->onMouseMove(event.motion.x, event.motion.y,
                                event.motion.xrel, event.motion.yrel);
 }
 
@@ -441,7 +448,8 @@ void Window::handleMouseWheelEvent(SDL_Event &event) {
 
   const float spinFactor = 1 / 120.f;
 #if SDL_VERSION_ATLEAST(2, 0, 26)
-  m_sceneViewport->onMouseWheel(event.wheel.preciseY * spinFactor,
+  if(auto viewport = m_sceneViewport.lock())
+        viewport->onMouseWheel(event.wheel.preciseY * spinFactor,
                                 event.wheel.mouseX, event.wheel.mouseY);
 #elif SDL_VERSION_ATLEAST(2, 0, 18)
   int32_t x, y;

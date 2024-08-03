@@ -52,6 +52,13 @@ struct InputKeyBinding : public InputBinding {
 
   InputKeyBinding(InputEvent event, const Key &key, ModifierIndicator indicator)
       : inputEvent(event), key(key), modifier(indicator) {}
+
+  ~InputKeyBinding() {
+    if (boundDelegate == BoundDelegate::Delegate)
+      inputKeyDelegate.reset();
+    else if (boundDelegate == BoundDelegate::DelegateWithKey)
+      inputKeyDelegateWithKey.reset();
+  }
 };
 
 DECLARE_DELEGATE(InputAxisDelegate, void, float);
@@ -91,6 +98,13 @@ struct InputActionBinding : public InputBinding {
 
   InputActionBinding(const std::string &actionName, InputEvent inputEvent)
       : actionName(actionName), event(inputEvent) {}
+
+  ~InputActionBinding() {
+    if (boundDelegate == BoundDelegate::Delegate)
+      inputKeyDelegate.reset();
+    else if (boundDelegate == BoundDelegate::DelegateWithKey)
+      inputKeyDelegateWithKey.reset();
+  }
 };
 
 CLASS(InputComponent) : public ActorComponent {

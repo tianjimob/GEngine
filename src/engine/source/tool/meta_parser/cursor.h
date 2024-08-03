@@ -22,8 +22,9 @@ public:
     std::string getSourceFile(void) const;
 
     bool isDefinition(void) const;
+    bool isPureVritual() const;
 
-    CursorType getType(void) const;
+    CursorType getType() const;
 
     bool hasAnnotateAttr(const std::string &attr);
     bool isAnnotateAttr() const;

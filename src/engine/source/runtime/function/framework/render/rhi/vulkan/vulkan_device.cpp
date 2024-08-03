@@ -1,6 +1,9 @@
 #include "vulkan_device.h"
 #include "core/log/logger.h"
+#include "function/framework/render/rhi/rhi.h"
+#include "function/framework/render/rhi/vulkan/vulkan_context.h"
 #include "vulkan/vk_enum_string_helper.h"
+#include "vulkan/vulkan_core.h"
 #include "vulkan_queue.h"
 
 
@@ -12,9 +15,12 @@ namespace GEngine {
 static DECLARE_LOG_CATEGORY(LogVulkanRHI);
 
 VulkanDevice::VulkanDevice(VulkanRHI *rhi, VkPhysicalDevice gpu)
-    : m_rhi(rhi), m_gpu(gpu) {
-
+    : m_rhi(rhi),
+      m_gpu(gpu),
+      m_pipelineStateCacheManager(this),
+      m_descriptorPoolManager(this) {
   vkGetPhysicalDeviceProperties(gpu, &m_gpuProp);
+  vkGetPhysicalDeviceMemoryProperties(gpu, &m_physicalDeviceMemoryProperties);
 
   LOG_INFO(LogVulkanRHI, "- DeviceName: {}", m_gpuProp.deviceName);
   LOG_INFO(LogVulkanRHI, "- API={}.{}.{} (0x{}) Driver=0x{} VendorId=0x{}",
@@ -42,6 +48,44 @@ void VulkanDevice::init() {
            m_physicalDeviceFeatures.geometryShader);
 
   createDevice();
+
+  m_graphicsContext = std::make_shared<VulkanRHICommandContext>(
+      GlobalRHI, this, m_graphicsQueue.get(), false);
+
+  if (m_graphicsQueue->getFamilyIndex() != m_computeQueue->getFamilyIndex()) {
+    m_computeContext = std::make_shared<VulkanRHICommandContext>(GlobalRHI, this, m_computeQueue.get(), false);
+  } else {
+    m_computeContext = m_graphicsContext;
+  }
+}
+
+uint32_t VulkanDevice::findMemoryType(uint32_t typeFilter,
+                                      VkMemoryPropertyFlags propertiesFlag) {
+  for (uint32_t i = 0; i < m_physicalDeviceMemoryProperties.memoryTypeCount;
+       ++i) {
+    if (typeFilter & (1 << i) &&
+        (m_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags &
+         propertiesFlag) == propertiesFlag) {
+      return i;
+    }
+  }
+  LOG_ERROR(LogVulkanRHI, "findMemoryType error");
+  return 0;
+}
+
+VkShaderModule
+VulkanDevice::createShaderModule(const std::vector<uint8_t> &shaderCode) {
+  VkShaderModuleCreateInfo createInfo;
+  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+  createInfo.codeSize = shaderCode.size();
+  createInfo.pCode = reinterpret_cast<const uint32_t *>(shaderCode.data());
+
+  VkShaderModule shaderModule;
+  if (vkCreateShaderModule(m_device, &createInfo, nullptr, &shaderModule) !=
+      VK_SUCCESS) {
+    return VK_NULL_HANDLE;
+  }
+  return shaderModule;
 }
 
 void VulkanDevice::createDevice() {

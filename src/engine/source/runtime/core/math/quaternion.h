@@ -15,15 +15,27 @@ namespace GEngine
     {
         REFLECTION_BODY(Quaternion)
 
-    public:
-        float w {1.f}, x {0.f}, y {0.f}, z {0.f};
+      public:
+       META_FIELD()
+       float w{1.f};
 
-    public:
-        Quaternion() = default;
-        Quaternion(float w_, float x_, float y_, float z_) : w {w_}, x {x_}, y {y_}, z {z_} {}
+       META_FIELD()
+       float x{0.f};
 
-        /// Construct a quaternion from a rotation matrix
-        explicit Quaternion(const Matrix3x3& rot) { this->fromRotationMatrix(rot); }
+       META_FIELD()
+       float y{0.f};
+
+       META_FIELD()
+       float z{0.f};
+
+      public:
+       Quaternion() = default;
+       Quaternion(float w_, float x_, float y_, float z_)
+           : w{w_}, x{x_}, y{y_}, z{z_} {}
+
+       /// Construct a quaternion from a rotation matrix
+       explicit Quaternion(const Matrix3x3& rot) {
+         this->fromRotationMatrix(rot); }
         /// Construct a quaternion from an angle/axis
         Quaternion(const Radian& angle, const Vector3& axis) { this->fromAngleAxis(angle, axis); }
         /// Construct a quaternion from 3 orthonormal local axes

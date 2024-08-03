@@ -7,8 +7,11 @@ class Scene;
 
 class SceneRenderer {
 public:
-  std::unique_ptr<Scene> m_scene;
   virtual void render() = 0;
+
+protected:
+  std::unique_ptr<Scene> m_scene;
+  
 };
 
 }

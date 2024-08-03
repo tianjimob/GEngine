@@ -31,6 +31,7 @@ private:
   std::string m_elemTypeName;
 
 private:
+  bool isCArray(const Cursor& cursor) const;
   bool isSizeArray(const Cursor& cursor) const;
 
 };

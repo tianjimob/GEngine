@@ -13,6 +13,8 @@ namespace GEngine {
 class InputComponent;
 
 CLASS(PlayerInput) : public GObject {
+  REFLECTION_BODY(PlayerInput)
+  
 public:
   virtual ~PlayerInput() = default;
   

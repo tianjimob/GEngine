@@ -6,6 +6,7 @@
 #include "core/misc/config_cache_ini.h"
 #include "function/framework/engine/game_viewport_client.h"
 #include "function/framework/game_instance/game_instance.h"
+#include "function/framework/render/rhi/rhi_shader.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi.h"
 #include "function/framework/render/core/rendering_thread.h"
 #include "resource/resource_path.h"
@@ -18,7 +19,6 @@ DECLARE_LOG_CATEGORY(LogGameEngine);
 void GameEngine::preInit(const std::string &configPath) {
   Engine::preInit(configPath);
 
-  // todo: create gameinstance from deserializing
   {
     // create gameinstance ...
     m_gameInstance = std::make_shared<GameInstance>();
@@ -44,30 +44,32 @@ void GameEngine::preInit(const std::string &configPath) {
     m_gameInstance->createLocalPlayer(false);
   }
 
-  // initialize RHI
+  // initialize RHI after created window                          
   {
     ConfigCacheIni &config = ConfigCacheIni::instance();
     auto getWindowSettingStr =
         [&config](const std::string &key,
                   const std::string &defaultValue) -> std::string {
       std::string res;
-      res = config.getStr("Window", key, ResourcePath::gameIni);
+      res = config.getStr("Render", key, ResourcePath::gameIni);
       if (res.empty()) res = defaultValue;
       return res;
     };
-    auto backend = getWindowSettingStr("backend", "Vulkan");
+    auto backend = getWindowSettingStr("rhi", "Vulkan");
 
-    if (backend == "Vulkan")
+    if (backend == "Vulkan") {
       GlobalRHI = new VulkanRHI;
-    else if (backend == "OpenGL45")
+    } else if (backend == "OpenGL45") {
       // GlobalRHI = new OpenGLRHI;
-    
+    }
+
     GlobalRHI->init();
+    RHIShaders::init();
   }
 
   // start rendering thread
   {
-    startRenderingThread();
+    // startRenderingThread();
   }
 
   LOG_INFO(LogGameEngine, "Game Engine PreInitialized.");
@@ -77,17 +79,17 @@ void GameEngine::init() {
   LOG_INFO(LogGameEngine, "Initializing Game...");
 
   Engine::init();
-  m_gameInstance->init();
-  m_gameInstance->getWorld()->setGameViewport(m_gameViewportClient);
+  m_gameInstance->init(m_world);
+  // m_gameInstance->getWorld()->setGameViewport(m_gameViewportClient);
 }
 
 void GameEngine::tick(float deltaTime) {
   SCOPE_TIME_GUARD(LogGameEngine);
 
-  m_gameViewportWindow->pollEvents();
-  m_shouldClose = m_gameViewportWindow->shouldClose();
+  // m_gameViewportWindow->pollEvents();
+  // m_shouldClose = m_gameViewportWindow->shouldClose();
 
-  m_gameInstance->tick(deltaTime);
+  // m_gameInstance->tick(deltaTime);
 
   // todo: tick GameViewportClient
 }

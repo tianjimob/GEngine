@@ -2,6 +2,7 @@
 
 #include "core/reflection/reflection.h"
 #include "function/framework/object/object.h"
+#include "function/framework/player/local_player/local_player.h"
 #include "function/framework/world/world.h"
 #include "core/log/logger.h"
 #include <memory>
@@ -24,13 +25,16 @@ public:
   virtual void tick(float deltaTime) = 0;
   virtual void exit();
   bool shouldClose() { return m_shouldClose; }
-
-  std::shared_ptr<World> loadWorld();
+  std::vector<std::shared_ptr<LocalPlayer>> &getLocalPlayers();
 
 protected:
   std::shared_ptr<GameViewportClient> m_gameViewportClient;
+  std::shared_ptr<World> m_world;
 
-  bool m_shouldClose { false };
+  bool m_shouldClose{false};
+
+private:
+  void initInputSystem();
 };
 
 extern Engine* GlobalEngine;

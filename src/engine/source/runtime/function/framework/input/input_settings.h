@@ -3,16 +3,34 @@
 #include <string>
 #include <vector>
 
-#include "function/framework/input/key.h"
 #include "core/reflection/reflection.h"
+#include "function/framework/input/key.h"
 #include "function/framework/object/object.h"
-
 
 namespace GEngine {
 
-STRUCT(InputAxisKeyMapping) : public GObject {
+STRUCT(InputAxisKeyMappingInitializer) : public GObject {
+  REFLECTION_BODY(InputAxisKeyMappingInitializer)
 
+  META_FIELD()
+  std::string axisName;
+
+  META_FIELD()
+  std::string key;
+
+  META_FIELD()
+  float scale;
+};
+
+STRUCT(InputAxisKeyMapping) : public GObject {
   REFLECTION_BODY(InputAxisKeyMapping)
+
+  InputAxisKeyMapping() = default;
+
+  InputAxisKeyMapping(InputAxisKeyMappingInitializer & initializer)
+      : axisName(initializer.axisName),
+        key(initializer.key),
+        scale(initializer.scale) {}
 
   META_FIELD()
   std::string axisName;
@@ -33,9 +51,40 @@ STRUCT(InputAxisKeyMapping) : public GObject {
   }
 };
 
-STRUCT(InputActionKeyMapping) : public GObject {
+STRUCT(InputActionKeyMappingInitializer) : public GObject {
+  REFLECTION_BODY(InputActionKeyMappingInitializer)
 
+  META_FIELD()
+  std::string actionName;
+
+  META_FIELD()
+  std::string key;
+
+  META_FIELD()
+  bool shift;
+
+  META_FIELD()
+  bool ctrl;
+
+  META_FIELD()
+  bool alt;
+
+  META_FIELD()
+  bool cmd;
+};
+
+STRUCT(InputActionKeyMapping) : public GObject {
   REFLECTION_BODY(InputActionKeyMapping)
+
+  InputActionKeyMapping() = default;
+
+  InputActionKeyMapping(InputActionKeyMappingInitializer & initializer)
+      : actionName(initializer.actionName),
+        key(initializer.key),
+        shift(initializer.shift),
+        ctrl(initializer.ctrl),
+        alt(initializer.alt),
+        cmd(initializer.cmd) {}
 
   META_FIELD()
   std::string actionName;

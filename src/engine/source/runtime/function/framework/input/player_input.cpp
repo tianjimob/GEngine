@@ -16,10 +16,10 @@ void PlayerInput::tickInputStack(
   
   static std::vector<std::pair<Key *, KeyState *>> keysWithEvents;
 
-  for (const auto &[key, keyState] : m_keyStates) {
+  for (auto &[key, keyState] : m_keyStates) {
     for (int i = 0; i < static_cast<int>(InputEvent::Num); ++i) {
       if (keyState.count[i] > 0) {
-        keysWithEvents.emplace_back(&key, &keyState);
+        keysWithEvents.emplace_back(&const_cast<Key&>(key), &keyState);
         break;
       }
     }

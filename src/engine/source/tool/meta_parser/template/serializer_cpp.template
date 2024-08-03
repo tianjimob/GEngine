@@ -29,33 +29,35 @@ template<> Json Serializer::write(const ::{{ meta_register.meta_name }}& instanc
     return ret;
 }
 
-template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonContext, ::{{ meta_register.meta_name }}& instance) {
+template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonContext, ::{{ meta_register.meta_name }}& instance, GObject* outer) {
     assert(jsonContext.is_object());
 ## for entry in meta_register.entries
 {% if entry.type == "Field" %}
     if(!jsonContext["{{ entry.field_name }}"].is_null()) {
-        Serializer::read(jsonContext["{{ entry.field_name }}"], instance.{{ entry.field_name }});
+        Serializer::read(jsonContext["{{ entry.field_name }}"], instance.{{ entry.field_name }}, &instance);
     }
 {% else if entry.type == "CArrayField" %}
     if(!jsonContext["{{ entry.field_name }}"].is_null()) {
-        assert(json_context["{{ entry.field_name }}"].is_array());
-        size_t size = json_context["{{ entry.field_name }}"].size();
+        assert(jsonContext["{{ entry.field_name }}"].is_array());
+        size_t size = jsonContext["{{ entry.field_name }}"].size();
         assert(size < {{ entry.size }});
         for(size_t index = 0; index < size; ++index) {
-            Serializer::read(jsonContext["{{ entry.field_name }}"][index], instance.{{ entry.field_name }}[index]);
+            Serializer::read(jsonContext["{{ entry.field_name }}"][index], instance.{{ entry.field_name }}[index], &instance);
         }
     }
 {% else if entry.type == "SizeArrayField" %}
     if(!jsonContext["{{ entry.field_name }}"].is_null()) {
-        assert(json_context["{{ entry.field_name }}"].is_array());
+        assert(jsonContext["{{ entry.field_name }}"].is_array());
         size_t size = jsonContext["{{ entry.field_name }}"].size();
         instance.{{ entry.field_name }}.resize(size);
         for(size_t index = 0; index < size; ++index) {
-            Serializer::read(jsonContext["{{ entry.field_name }}"][index], instance.{{ entry.field_name }}[index]);
+            Serializer::read(jsonContext["{{ entry.field_name }}"][index], instance.{{ entry.field_name }}[index], &instance);
         }
     }
 {% endif %}
 ## endfor
+    instance.setOuter(outer);
+    instance.onSerializeRead();
     return instance;
 }
 {% endif %}

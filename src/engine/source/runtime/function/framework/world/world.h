@@ -23,7 +23,7 @@ STRUCT(WorldInitializer) : public GObject {
   std::string name;
 
   META_FIELD()
-  std::vector<std::string> levelUrls;
+  std::vector<std::string, std::allocator<std::string>> levelUrls;
 
   META_FIELD()
   std::string defautLevelUrl;

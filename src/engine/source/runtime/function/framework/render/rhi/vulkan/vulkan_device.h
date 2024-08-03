@@ -1,9 +1,14 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <vector>
 
+#include "function/framework/render/rhi/vulkan/vulkan_context.h"
+#include "function/framework/render/rhi/vulkan/vulkan_pipeline.h"
+#include "function/framework/render/rhi/vulkan/vulkan_pipeline_state.h"
+#include "vulkan/vulkan_core.h"
 #include "vulkan_com.h"
 
 namespace GEngine {
@@ -20,6 +25,19 @@ class VulkanDevice {
   const VkPhysicalDeviceProperties &getGpuProperties() { return m_gpuProp; }
 
   VkDevice getDevice() { return m_device; }
+
+  uint32_t findMemoryType(uint32_t typeFilter,
+                          VkMemoryPropertyFlags propertiesFlag);
+
+  VkShaderModule createShaderModule(const std::vector<uint8_t> &shaderCode);
+
+  VulkanPipelineStateCacheManager &getPipelineManager() {
+    return m_pipelineStateCacheManager;
+  }
+
+  VulkanDescriptorPoolManager &getDescriptorPoolManager() {
+    return m_descriptorPoolManager;
+  }
 
  private:
   struct QueueFamilyIndices {
@@ -60,6 +78,7 @@ class VulkanDevice {
 
   VkPhysicalDevice m_gpu;
   VkPhysicalDeviceProperties m_gpuProp;
+  VkPhysicalDeviceMemoryProperties m_physicalDeviceMemoryProperties;
 
   std::vector<VkQueueFamilyProperties> m_queueFamilyProps;
   VkPhysicalDeviceFeatures m_physicalDeviceFeatures;
@@ -68,6 +87,12 @@ class VulkanDevice {
   std::shared_ptr<VulkanQueue> m_graphicsQueue;
   std::shared_ptr<VulkanQueue> m_computeQueue;
   std::shared_ptr<VulkanQueue> m_transferQueue;
+
+  std::shared_ptr<VulkanRHICommandContext> m_graphicsContext;
+  std::shared_ptr<VulkanRHICommandContext> m_computeContext;
+
+  VulkanPipelineStateCacheManager m_pipelineStateCacheManager;
+  VulkanDescriptorPoolManager m_descriptorPoolManager;
 
   // function pointers for this device
   PFN_vkCmdBeginDebugUtilsLabelEXT _vkCmdBeginDebugUtilsLabelEXT;

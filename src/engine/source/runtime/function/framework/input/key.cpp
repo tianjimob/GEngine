@@ -3,6 +3,8 @@
 
 namespace GEngine {
 
+std::map<Key, std::shared_ptr<KeyDetails>> Keys::m_keyToDetails;
+
 void Key::postLoad(std::weak_ptr<GObject> parentObject) {
   m_keyDetails = Keys::getKeyDetails(*this);
 }
@@ -36,6 +38,7 @@ const Key Keys::X("X");
 const Key Keys::Y("Y");
 const Key Keys::Z("Z");
 
+const Key Keys::SpaceBar("SpaceBar");
 const Key Keys::Shift("Shift");
 const Key Keys::Ctrl("Ctrl");
 const Key Keys::Alt("Alt");
@@ -71,6 +74,7 @@ void Keys::init() {
   addKeyWithDetails(Y);
   addKeyWithDetails(Z);
 
+  addKeyWithDetails(SpaceBar);
   addKeyWithDetails(Shift);
   addKeyWithDetails(Ctrl);
   addKeyWithDetails(Alt);

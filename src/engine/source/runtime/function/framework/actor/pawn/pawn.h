@@ -17,11 +17,7 @@ CLASS(Pawn) : public Actor {
 public:
   virtual void setupPlayerInputComponent(std::shared_ptr<InputComponent> inputComponent) {}
 
-  void resetInputComponent() {
-    m_inputComponent.reset();
-    m_inputComponent = std::make_shared<InputComponent>();
-    setupPlayerInputComponent(m_inputComponent);
-  }
+  void resetInputComponent();
 
 private:
   //   std::weak_ptr<PlayerState> m_playerState;

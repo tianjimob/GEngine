@@ -13,9 +13,14 @@ namespace GEngine
     {
         REFLECTION_BODY(Vector3)
 
-    public:
-        float x {0.f};
+      public:
+        META_FIELD()
+        float x{0.f};
+
+        META_FIELD()
         float y {0.f};
+
+        META_FIELD()
         float z {0.f};
 
     public:

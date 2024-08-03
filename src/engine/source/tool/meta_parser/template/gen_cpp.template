@@ -1,4 +1,5 @@
 #include "{{ headfile_name }}"
+#include "_generated/serializer/all_serializer.h"
 
 ## for meta_register in meta_registers
 ::GEngine::Reflection::ClassDescriptor& ::{{ meta_register.meta_name }}::getClass() {
@@ -8,5 +9,9 @@
 
 std::string_view {{ meta_register.meta_name }}::getClassName() {
     return "{{ meta_register.meta_name }}";
+}
+
+void ::{{ meta_register.meta_name }}::dynamicSerializeFromJson(const Json &jsonContext, GObject* outer) {
+    Serializer::read(jsonContext, *this, outer);
 }
 ##endfor

@@ -7,6 +7,7 @@ function join_third_party_dir (str)
     return third_party_dir..str;
 end
 
+-- Reflection
 target("meta_parser")
     set_kind("binary")
     add_includedirs(join_third_party_dir("libclang/include"), join_third_party_dir("inja/include"))
@@ -28,6 +29,65 @@ target("meta_parser")
         generate_meta("GEngineRuntime", "src/engine/source/runtime", "src/engine/source/runtime", "src/engine/source/runtime")
     end)
 
+rule("run_script")
+    on_run(function ()
+        os.exec("echo 'Hello, running script!'")
+    end)
+
+-- compile glsl to spv
+target("generate_spv")
+    set_kind("phony")  -- 设置为虚拟目标，不编译任何文件
+    local glslangValidator = ""
+    if is_os("windows") then
+        glslangValidator = join_third_party_dir("VulkanSDK/bin/Win32/glslangValidator.exe")
+    elseif  is_os("linux") then 
+        glslangValidator = join_third_party_dir("VulkanSDK/bin/linux/glslangValidator")
+    end 
+    after_build(function (target)      
+        local files = os.files("src/engine/source/runtime/shaders/glsl/*");
+        local dstDir = "src/engine/source/runtime/shaders/generated/spv/"
+        for num, file in ipairs(files) do
+            print('['..num..'/'..#files.."] "..file)
+            local filename = path.basename(file)
+            local extension = path.extension(file)
+            os.exec("glslangValidator -V %s -o %s", file, dstDir..filename..extension..".spv")
+        end
+    end)
+
+-- compile spv to cpp
+target("generate_cpp")
+    set_kind("phony")  -- 设置为虚拟目标，不编译任何文件
+    after_build(function (target)
+        local files = os.files("src/engine/source/runtime/shaders/generated/spv/*");
+        local dstDir = "src/engine/source/runtime/shaders/generated/cpp/"
+        for num, filename in ipairs(files) do
+            local file = io.open(filename, "rb")  -- 以只读二进制方式打开文件
+            local content = file:read("*all")  -- 读取全部内容
+            file:close()
+            local lastPart = filename:match("[^%/\\]+$")
+            lastPart = lastPart:gsub(".spv", "")
+            lastPart = lastPart:gsub("%.", "_")
+            local dstFilename = lastPart:lower()..".h"
+            lastPart = lastPart:upper()
+            local newFile = "#include <vector>\nstatic const std::vector<unsigned char> SHADER_CODE_"..lastPart.." {\n"
+            local newLine = 1;
+            for i = 1, #content do
+                newFile = newFile..string.format("0x%02x", string.byte(content, i))..", "
+                newLine = newLine + 1
+                if newLine == 16 then
+                    newFile = newFile..'\n'
+                    newLine = 1
+                end
+            end
+            newFile = newFile.."\n};\n"
+            local writeFile, err = io.open(dstDir..dstFilename, "w")
+            writeFile:write(newFile)
+            writeFile:close()
+        end
+    end)
+    
+    
+
 target("glad")
     set_kind("static")
     add_includedirs(join_third_party_dir("glad/include"))
@@ -45,7 +105,8 @@ target("GEngineRuntime")
                     join_third_party_dir("SDL2/include"), 
                     join_third_party_dir("VulkanSDK/include"), 
                     join_third_party_dir("glad/include"),
-                    join_third_party_dir("nlohmann/include"))
+                    join_third_party_dir("nlohmann/include"),
+                    join_third_party_dir("libsimdpp/"))
 
     if is_mode("debug") or is_mode("releasedbg") then 
         add_defines("VULKAN_DEBUG_ENABLE", "VULKAN_VALIDATION_ENABLE")
@@ -108,6 +169,33 @@ target("test_engine_runtime_delegate")
     add_includedirs("test/catch")
     add_includedirs("src/engine/source/runtime")
     add_files("test/engine/runtime/delegate/test_delegate.cpp")
+    after_build(function (target)
+        if enable_test  then 
+            os.exec("$(projectdir)/%s", target:targetfile())
+        end
+    end)
+
+target("test_engine_runtime_bounds")
+    set_kind("binary")
+    set_targetdir("/tmp/tests")
+    add_deps("catch2")
+    add_includedirs("test/catch")
+    add_includedirs("src/engine/source/runtime")
+    add_includedirs(join_third_party_dir("libsimdpp/"))
+    add_files("test/engine/runtime/misc/test_bounds.cpp")
+    after_build(function (target)
+        if enable_test  then 
+            os.exec("$(projectdir)/%s", target:targetfile())
+        end
+    end)
+
+target("test_engine_runtime_dynamic_bvh")
+    set_kind("binary")
+    set_targetdir("/tmp/tests")
+    add_deps("catch2")
+    add_includedirs("test/catch")
+    add_includedirs("src/engine/source/runtime")
+    add_files("test/engine/runtime/misc/test_dynamic_bvh.cpp")
     after_build(function (target)
         if enable_test  then 
             os.exec("$(projectdir)/%s", target:targetfile())

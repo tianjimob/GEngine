@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "core/log/logger.h"
+#include "vulkan/vulkan_core.h"
 #include "vulkan_context.h"
 #include "vulkan_device.h"
 #include "vulkan_queue.h"
@@ -14,8 +15,12 @@ namespace GEngine {
 
 static DECLARE_LOG_CATEGORY(LogVulkanRHI);
 
-VulkanCommandPool::VulkanCommandPool(VulkanDevice* device)
+VulkanCommandPool::VulkanCommandPool(VulkanDevice *device)
     : m_commandPool(nullptr), m_device(device) {}
+
+VulkanCommandPool::~VulkanCommandPool() {
+  vkDestroyCommandPool(m_device->getDevice(), m_commandPool, nullptr);
+}
 
 void VulkanCommandPool::init(uint32_t queueFamilyIndex) {
   VkCommandPoolCreateInfo createInfo;
@@ -40,7 +45,7 @@ VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevice* device,
                                          VulkanCommandPool* commandPool)
     : m_device(device), m_commandPool(commandPool), m_state(State::NotAllocate) {
   alloc();
-  m_fence = std::make_shared<VulkanFence>(m_device);
+  m_fence = std::make_shared<VulkanFence>(*m_device);
 }
 
 void VulkanCommandBuffer::alloc() {

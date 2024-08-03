@@ -23,14 +23,16 @@ void World::load(const WorldInitializer &worldInitializer, std::weak_ptr<GameIns
     }
     Json data = Json::parse(levelJson);
     std::shared_ptr<Level> level = std::make_shared<Level>();
-    Serializer::read(data, *level);
-    level->postLoad(weak_from_this());
+    Serializer::read(data, *level, this);
     for (auto &actor : level->getActos()) {
-      actor->postLoad(level);
       for (auto &component : actor->getComponents()) {
-        component->postLoad(actor);
+        if (auto comp = component.lock()) {
+          comp->postLoad(actor->weak_from_this());
+        }
       }
+      actor->postLoad(level->weak_from_this());
     }
+    level->postLoad(weak_from_this());
     addLevel(level);
   }
   setCurrentLevel(worldInitializer.defautLevelUrl);

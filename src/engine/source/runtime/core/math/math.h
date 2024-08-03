@@ -308,5 +308,19 @@ namespace GEngine
 
     inline Degree operator*(float a, const Degree& b) { return Degree(a * b.valueDegrees()); }
 
-    inline Degree operator/(float a, const Degree& b) { return Degree(a / b.valueDegrees()); }
+    inline Degree operator/(float a, const Degree &b) {
+      return Degree(a / b.valueDegrees());
+    }
+
+    inline uint32_t roundUpToPowerOfTwo(uint32_t n) {
+      if (n == 0) return 1;
+
+      n--;  // Ensure that numbers already powers of 2 are not affected
+      n |= n >> 1;
+      n |= n >> 2;
+      n |= n >> 4;
+      n |= n >> 8;
+      n |= n >> 16;
+      return n + 1;
+    }
 } // namespace GEngine

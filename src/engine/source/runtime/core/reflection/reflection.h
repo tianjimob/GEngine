@@ -61,9 +61,12 @@
 #define REFLECTION_BODY(className)                                             \
   friend class ::GEngine::Reflection::Register::Register##className;           \
   friend class ::GEngine::Serializer;                                          \
-public:                                                                        \
-  static  ::GEngine::Reflection::ClassDescriptor& getClass();                  \
-  virtual std::string_view getClassName() override;                            
+                                                                               \
+ public:                                                                       \
+  static ::GEngine::Reflection::ClassDescriptor &getClass();                   \
+  virtual std::string_view getClassName() override;                            \
+  virtual void dynamicSerializeFromJson(const Json &jsonContext,               \
+                                        GObject* outer) override;
 
 #define REGISTER_CLASS(classDescriptorBuilder)                                 \
   ::GEngine::Reflection::Registry::instance().registerClass(                   \
@@ -264,7 +267,13 @@ public:
 
   void *construct() { return m_constructor(); }
 
-  bool isSubclassOf(ClassDescriptor& base);
+  bool isSubclassOf(ClassDescriptor &base) {
+    for (auto *curr = this; curr != nullptr; curr = m_superClass) {
+      if (curr->m_classId == base.m_classId)
+        return true;
+    }
+    return false;
+  }
 
  private:
   friend class ClassDescriptorBuilder;

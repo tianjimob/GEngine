@@ -22,8 +22,6 @@ CLASS(GameViewportClient) : public GObject {
   }
 
  private:
-  std::shared_ptr<SceneViewport> m_sceneViewport;
-
   // pointer to SceneViewport created by GameInstance
   std::weak_ptr<SceneViewport> m_viewport;
 };
