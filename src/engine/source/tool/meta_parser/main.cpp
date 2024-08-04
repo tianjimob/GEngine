@@ -1,3 +1,4 @@
+#include "class.h"
 #include "cursor.h"
 #include "meta_reflection_data.h"
 
@@ -9,6 +10,7 @@
 #include <inja.hpp>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 // meta_parser.exe module_name project_dir gen_to_save_dir include_path
@@ -80,10 +82,14 @@ int main(int argc, char **argv) {
     std::vector<std::string> metaNames;
   };
 
-  std::vector<RegisterEntry> entries;
-  std::cout<<"start generating meta reflection ..."<<std::endl;
   int count = 1;
+
+  std::cout<<"start parsing meta reflection ..."<<std::endl;
+  MetaReflectionData totalMetaData;
+  std::unordered_map<std::string, std::vector<std::string>> includesMap;
   for (auto &include : includes) {
+    includesMap.emplace(include.string(), std::vector<std::string>{});
+
     std::cout << "[ " << count++ << "/"
               << includes.size() << " ] " << "parsing file " << include  << std::endl;
 
@@ -94,6 +100,61 @@ int main(int argc, char **argv) {
       std::cerr << "Failed to parse translation unit." << std::endl;
       exit(EXIT_FAILURE);
     }
+
+    struct ClientData {
+      ClientData(MetaReflectionData &metaData, const fs::path &path,
+                 std::vector<std::string>
+                     &registers)
+          : metaData(metaData), path(path), registers(registers) {}
+      MetaReflectionData& metaData;
+      fs::path path;
+      std::vector<std::string>& registers;
+    };
+    ClientData clientData{totalMetaData, include, includesMap[include.string()]};
+    auto childVisitor = [](CXCursor cursor, CXCursor parent,
+                           CXClientData data) {
+      auto &clientData = *reinterpret_cast<ClientData *>(data);
+      auto &metaData = clientData.metaData;
+      auto &registers = clientData.registers;
+
+      Cursor cur{cursor};
+      fs::path filename = cur.getSourceFile();
+      if (filename != clientData.path)
+        return CXChildVisit_Continue;
+
+      if (cur.getKind() == CXCursor_EnumDecl &&
+          cur.hasAnnotateAttr("meta-enum")) {
+        Enum e = cur;
+        metaData.addEnum(e);
+        registers.emplace_back(e.getEnumName());
+        return CXChildVisit_Continue;
+      } else if ((cur.getKind() == CXCursor_ClassDecl &&
+                  cur.hasAnnotateAttr("meta-class")) ||
+                 (cur.getKind() == CXCursor_StructDecl &&
+                  cur.hasAnnotateAttr("meta-struct"))) {
+        Class c = cur;
+        metaData.addClass(c);
+        registers.emplace_back(c.getClassName());
+        return CXChildVisit_Continue;
+      }
+
+      return CXChildVisit_Recurse;
+    };
+
+    auto rootCursor = clang_getTranslationUnitCursor(translator);
+    clang_visitChildren(rootCursor, childVisitor,
+                        reinterpret_cast<CXClientData>(&clientData));
+
+    clang_disposeTranslationUnit(translator);
+  }
+  totalMetaData.process();
+
+  std::vector<RegisterEntry> entries;
+  std::cout<<"start generating meta reflection ..."<<std::endl;
+  count = 1;
+  for (auto &include : includes) {
+    std::cout << "[ " << count++ << "/" << includes.size() << " ] "
+              << "generating file " << include << std::endl;
 
     fs::path includeHead;
     auto it1 = projectDir.begin();
@@ -108,51 +169,18 @@ int main(int argc, char **argv) {
       includeHead /= *it2;
     }
 
-    struct ClientData {
-      ClientData(const std::string &headname, const fs::path &path)
-          : metaData(headname), path(path) {}
-      MetaReflectionData metaData;
-      fs::path path;
-    };
-    ClientData clientData{includeHead.string(), include};
-    auto childVisitor = [](CXCursor cursor, CXCursor parent,
-                           CXClientData data) {
-      auto &clientData = *reinterpret_cast<ClientData *>(data);
-      auto &metaData = clientData.metaData;
+    MetaReflectionData metaData{includeHead.string()};
+    auto &registers = includesMap[include.string()];
+    for (auto &registerItem : registers) {
+      metaData.addRegister(totalMetaData.findRegisterByName(registerItem));
+    }
 
-      Cursor cur{cursor};
-      fs::path filename = cur.getSourceFile();
-      if (filename != clientData.path)
-        return CXChildVisit_Continue;
-
-      if (cur.getKind() == CXCursor_EnumDecl &&
-          cur.hasAnnotateAttr("meta-enum")) {
-        metaData.addEnum(cur);
-        return CXChildVisit_Continue;
-      } else if ((cur.getKind() == CXCursor_ClassDecl &&
-                  cur.hasAnnotateAttr("meta-class")) ||
-                 (cur.getKind() == CXCursor_StructDecl &&
-                  cur.hasAnnotateAttr("meta-struct"))) {
-        metaData.addClass(cur);
-        return CXChildVisit_Continue;
-      }
-
-      return CXChildVisit_Recurse;
-    };
-
-    auto rootCursor = clang_getTranslationUnitCursor(translator);
-    clang_visitChildren(rootCursor, childVisitor,
-                        reinterpret_cast<CXClientData>(&clientData));
-
-    clang_disposeTranslationUnit(translator);
-
-    if (clientData.metaData.isEmpty())
-      continue;
+    if (metaData.isEmpty()) continue;
 
     auto &entry = entries.emplace_back();
-    entry.metaNames = clientData.metaData.getRegisterNamesList();
+    entry.metaNames = metaData.getRegisterNamesList();
 
-    const inja::json &data = clientData.metaData.getData();
+    const inja::json &data = metaData.getData();
 
     std::string filename = include.filename().string();
     auto pos = filename.find_last_of(".");

@@ -3,12 +3,33 @@
 #include "{{ headfile_name }}"
 #include "core/serializer/serializer.h"
 
-
 namespace GEngine {
 ## for meta_register in meta_registers
 {% if meta_register.type == "Class" %}
 template<> Json Serializer::write(const ::{{ meta_register.meta_name }}& instance) {
     Json ret;
+## for chainItem in meta_register.chain
+    {
+    const ::{{ chainItem.meta_name }}& itemInstance = dynamic_cast<const ::{{ chainItem.meta_name }}&>(instance);
+## for entry in chainItem.entries
+{% if entry.type == "Field" %}
+    ret["{{ entry.field_name }}"] = Serializer::write(itemInstance.{{ entry.field_name }});
+{% else if entry.type == "CArrayField" %}
+    Json {{ entry.field_name }}Json;
+    for(auto& item : itemInstance.{{ entry.field_name }}) {
+        {{ entry.field_name }}Json.emplace_back(Serializer::write(item));
+    }
+    ret["{{ entry.field_name }}"] = {{ entry.field_name }}Json;
+{% else if entry.type == "SizeArrayField" %}
+    Json {{ entry.field_name }}Json;
+    for(auto& item : itemInstance.{{ entry.field_name }}) {
+        {{ entry.field_name }}Json.emplace_back(Serializer::write(item));
+    }
+    ret["{{ entry.field_name }}"] = {{ entry.field_name }}Json;
+{% endif %}
+## endfor
+    }
+## endfor
 ## for entry in meta_register.entries
 {% if entry.type == "Field" %}
     ret["{{ entry.field_name }}"] = Serializer::write(instance.{{ entry.field_name }});
@@ -31,6 +52,36 @@ template<> Json Serializer::write(const ::{{ meta_register.meta_name }}& instanc
 
 template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonContext, ::{{ meta_register.meta_name }}& instance, GObject* outer) {
     assert(jsonContext.is_object());
+## for chainItem in meta_register.chain
+    {
+    ::{{ chainItem.meta_name }}& itemInstance = dynamic_cast<::{{ chainItem.meta_name }}&>(instance);
+## for entry in chainItem.entries
+{% if entry.type == "Field" %}
+    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+        Serializer::read(jsonContext["{{ entry.field_name }}"], itemInstance.{{ entry.field_name }}, nullptr);
+    }
+{% else if entry.type == "CArrayField" %}
+    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+        assert(jsonContext["{{ entry.field_name }}"].is_array());
+        size_t size = jsonContext["{{ entry.field_name }}"].size();
+        assert(size < {{ entry.size }});
+        for(size_t index = 0; index < size; ++index) {
+            Serializer::read(jsonContext["{{ entry.field_name }}"][index], itemInstance.{{ entry.field_name }}[index], nullptr);
+        }
+    }
+{% else if entry.type == "SizeArrayField" %}
+    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+        assert(jsonContext["{{ entry.field_name }}"].is_array());
+        size_t size = jsonContext["{{ entry.field_name }}"].size();
+        itemInstance.{{ entry.field_name }}.resize(size);
+        for(size_t index = 0; index < size; ++index) {
+            Serializer::read(jsonContext["{{ entry.field_name }}"][index], itemInstance.{{ entry.field_name }}[index], nullptr);
+        }
+    }
+{% endif %}
+## endfor   
+    }
+## endfor
 ## for entry in meta_register.entries
 {% if entry.type == "Field" %}
     if(!jsonContext["{{ entry.field_name }}"].is_null()) {
@@ -56,8 +107,10 @@ template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonCon
     }
 {% endif %}
 ## endfor
-    instance.setOuter(outer);
-    instance.onSerializeRead();
+    if(outer != nullptr) {
+        instance.setOuter(outer);
+        instance.onSerializeRead();
+    }
     return instance;
 }
 {% endif %}

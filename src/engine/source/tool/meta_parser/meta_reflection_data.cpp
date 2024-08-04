@@ -1,7 +1,11 @@
 #include "meta_reflection_data.h"
 #include "class.h"
 #include "enum.h"
+#include "inja.hpp"
 
+#include <algorithm>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 MetaReflectionData::MetaReflectionData(const std::string& headname)
@@ -90,3 +94,33 @@ void MetaReflectionData::registerClass(const Class &c) {
   m_data["meta_registers"].emplace_back(meta_register);
 }
 
+void MetaReflectionData::process() {
+  auto &meta_registers = m_data["meta_registers"];
+  for (auto &meta_register : meta_registers) {
+    registers[meta_register["meta_name"].get<std::string>()] = &meta_register;
+  }
+  for (auto &meta_register : meta_registers) {
+    if (meta_register["type"] != "Class")
+      continue;
+    
+    inja::json chain = inja::json::array();
+
+    inja::json* currRegister = &meta_register;
+    while ((*currRegister)["has_super_class"].get<bool>()) {
+      inja::json chainItem;
+      auto it =
+          registers.find((*currRegister)["super_class_name"].get<std::string>());
+      if (it == registers.end())
+        break;
+
+      auto &superClassRegister = *it->second;
+      chainItem["meta_name"] = (*currRegister)["super_class_name"].get<std::string>();
+      chainItem["entries"] = superClassRegister["entries"];
+      chain.emplace_back(chainItem);
+      currRegister = &superClassRegister;
+    }
+
+    std::reverse(chain.begin(), chain.end());
+    meta_register["chain"] = chain;
+  }
+}

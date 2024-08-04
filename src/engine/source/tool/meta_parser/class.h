@@ -14,6 +14,7 @@ public:
   const std::string &getClassName() const;
   const std::vector<Field> &getFieldsList() const;
   const std::vector<Method> &getMethodsList() const;
+  bool hasSuperClass() const { return !m_superClassName.empty(); }
   const std::string &getSuperClassName() const;
   bool isAbstract() const { return m_isAbstract; }
   
