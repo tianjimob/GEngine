@@ -1,6 +1,5 @@
 #pragma once
 
-#include "function/framework/render/renderer/scene.h"
 #include "function/framework/render/rhi/rhi_resource.h"
 #include <memory>
 

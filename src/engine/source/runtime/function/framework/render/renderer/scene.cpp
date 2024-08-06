@@ -1,7 +1,11 @@
 #include "scene.h"
-#include "function/framework/component/primitive/primitive_component.h"
-#include "function/framework/component/primitive/primitive_scene_proxy.h"
+
 #include <memory>
+
+#include "function/framework/component/primitive/primitive_component.h"
+#include "function/framework/component/primitive/primitive_scene_info.h"
+#include "function/framework/component/primitive/primitive_scene_proxy.h"
+
 
 namespace GEngine {
 
@@ -15,8 +19,6 @@ void Scene::addPrimitive(PrimitiveComponent &primitive) {
   addedPrimitiveInfos.emplace(sceneInfo.get());
 }
 
-void Scene::updateAllPrimitiveInfos() {
-  
-}
+void Scene::updateAllPrimitiveInfos() {}
 
-}
+}  // namespace GEngine

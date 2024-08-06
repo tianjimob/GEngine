@@ -6,15 +6,17 @@
 #include "core/misc/config_cache_ini.h"
 #include "function/framework/engine/game_viewport_client.h"
 #include "function/framework/game_instance/game_instance.h"
+#include "function/framework/render/core/rendering_thread.h"
 #include "function/framework/render/rhi/rhi_shader.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi.h"
-#include "function/framework/render/core/rendering_thread.h"
 #include "resource/resource_path.h"
 
-namespace GEngine {
-GameEngine::GameEngine() { GlobalEngine = this; }
 
-DECLARE_LOG_CATEGORY(LogGameEngine);
+namespace GEngine {
+
+static DECLARE_LOG_CATEGORY(LogGameEngine);
+
+GameEngine::GameEngine() { GlobalEngine = this; }
 
 void GameEngine::preInit(const std::string &configPath) {
   Engine::preInit(configPath);
@@ -40,11 +42,9 @@ void GameEngine::preInit(const std::string &configPath) {
     m_gameViewportWindow->setGameViewport(m_sceneViewport);
   }
 
-  {
-    m_gameInstance->createLocalPlayer(false);
-  }
+  { m_gameInstance->createLocalPlayer(false); }
 
-  // initialize RHI after created window                          
+  // initialize RHI after created window
   {
     ConfigCacheIni &config = ConfigCacheIni::instance();
     auto getWindowSettingStr =

@@ -77,6 +77,30 @@ std::shared_ptr<RHIBuffer> VulkanRHI::createBuffer(uint32_t size,
   return ret;
 }
 
+std::shared_ptr<RHIBuffer> VulkanRHI::createVertexBuffer(const void *data,
+                                                         uint32_t size) {
+  std::shared_ptr<RHIBuffer> stagingBuffer =
+      createBuffer(size, RHIBufferUsageFlags::TransferSrc,
+                   RHIMemoryPropertyFlags::HostVisibleAndCoherent);
+  VkDeviceMemory stagingMemory =
+      std::static_pointer_cast<VulkanRHIBuffer>(stagingBuffer)->getMemory();
+
+  std::shared_ptr<VulkanDevice> device = m_device.lock();
+
+  void *dstData;
+  vkMapMemory(device->getDevice(), stagingMemory, 0, size, 0, &dstData);
+  memcpy(dstData, data, size);
+  vkUnmapMemory(device->getDevice(), stagingMemory);
+
+  std::shared_ptr<RHIBuffer> vertexBuffer =
+      createBuffer(size, RHIBufferUsageFlags::TransferSrcAndVertexBuffer,
+                   RHIMemoryPropertyFlags::DeviceLocal);
+
+  device->getGraphicsContext()->RHICopyBuffer(stagingBuffer, vertexBuffer);
+
+  return vertexBuffer;
+}
+
 std::shared_ptr<RHIComputeShader>
 VulkanRHI::createComputeShader(const std::vector<uint8_t> &shaderCode) {
   if (auto device = m_device.lock()) {
@@ -680,6 +704,7 @@ void VulkanRHI::createBuffer(uint32_t size, RHIBufferUsageFlags usage,
                              VkDeviceMemory &memory) {
   VkBufferCreateInfo bufferCreateInfo;
   bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+  bufferCreateInfo.pNext = nullptr;
   bufferCreateInfo.size = size;
   bufferCreateInfo.usage = static_cast<uint32_t>(usage);
   bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;

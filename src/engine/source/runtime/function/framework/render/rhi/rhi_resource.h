@@ -50,7 +50,10 @@ struct RHIComputePipelineState {};
 class RHICommandContext {
 public:
   virtual void RHIDispatchComputeShader(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) = 0;
-  virtual void RHISetComputePipelineState(std::shared_ptr<RHIComputePipelineState>& computePipelineState, const void* parametersData) = 0;
+  virtual void RHISetComputePipelineState(
+      std::shared_ptr<RHIComputePipelineState> &computePipelineState,
+      const void *parametersData) = 0;
+  virtual void RHICopyBuffer(std::shared_ptr<RHIBuffer>& srcBuffer, std::shared_ptr<RHIBuffer>& dstBuffer) = 0;
 };
 
 class RHICommandBufferImmediate {};

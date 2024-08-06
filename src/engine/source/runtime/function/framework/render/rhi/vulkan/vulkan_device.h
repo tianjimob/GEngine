@@ -39,6 +39,14 @@ class VulkanDevice {
     return m_descriptorPoolManager;
   }
 
+  std::shared_ptr<VulkanRHICommandContext> &getGraphicsContext() {
+    return m_graphicsContext;
+  }
+
+  std::shared_ptr<VulkanRHICommandContext> &getComputeContext() {
+    return m_computeContext;
+  }
+
  private:
   struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsIndex;

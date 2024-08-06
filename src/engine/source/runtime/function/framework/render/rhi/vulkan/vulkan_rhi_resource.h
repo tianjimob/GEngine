@@ -16,6 +16,7 @@ public:
 
   void free();
 
+  VkDeviceMemory getMemory() { return m_memory; }
 private:
   VulkanDevice *m_vulkanDevice;
   VkDeviceMemory m_memory;
@@ -32,7 +33,8 @@ public:
 
  ~VulkanRHIBuffer();
 
- virtual void* getHandle() override { return m_buffer; }
+ virtual void *getHandle() override { return m_buffer; }
+ VkDeviceMemory getMemory() { return m_vulkanMemory.getMemory(); }
 
 private:
   VulkanDevice *m_vulkanDevice;

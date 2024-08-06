@@ -26,9 +26,13 @@ class VulkanRHI : public RHI {
   virtual std::shared_ptr<RHIComputePipelineState> createComputePipelineState(std::shared_ptr<RHIComputeShader>& computeShader) override;
 
   virtual std::shared_ptr<RHIUniformBuffer> createUniformBuffer(uint32_t size) override;
+
   virtual std::shared_ptr<RHIBuffer>
   createBuffer(uint32_t size, RHIBufferUsageFlags usage,
                RHIMemoryPropertyFlags property) override;
+
+  virtual std::shared_ptr<RHIBuffer> createVertexBuffer(const void *data, uint32_t size) override;
+  
   virtual std::shared_ptr<RHIComputeShader> createComputeShader(const std::vector<uint8_t>& shaderCode) override;
 
  private:

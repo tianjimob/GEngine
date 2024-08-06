@@ -1,14 +1,16 @@
 #include "vulkan_device.h"
+
+#include <memory>
+#include <set>
+
 #include "core/log/logger.h"
 #include "function/framework/render/rhi/rhi.h"
 #include "function/framework/render/rhi/vulkan/vulkan_context.h"
+#include "function/framework/render/rhi/vulkan/vulkan_rhi.h"
 #include "vulkan/vk_enum_string_helper.h"
 #include "vulkan/vulkan_core.h"
 #include "vulkan_queue.h"
 
-
-#include <memory>
-#include <set>
 
 namespace GEngine {
 
@@ -50,10 +52,12 @@ void VulkanDevice::init() {
   createDevice();
 
   m_graphicsContext = std::make_shared<VulkanRHICommandContext>(
-      GlobalRHI, this, m_graphicsQueue.get(), false);
+      dynamic_cast<VulkanRHI *>(GlobalRHI), this, m_graphicsQueue.get(), false);
 
   if (m_graphicsQueue->getFamilyIndex() != m_computeQueue->getFamilyIndex()) {
-    m_computeContext = std::make_shared<VulkanRHICommandContext>(GlobalRHI, this, m_computeQueue.get(), false);
+    m_computeContext = std::make_shared<VulkanRHICommandContext>(
+        dynamic_cast<VulkanRHI *>(GlobalRHI), this, m_computeQueue.get(),
+        false);
   } else {
     m_computeContext = m_graphicsContext;
   }
@@ -73,10 +77,11 @@ uint32_t VulkanDevice::findMemoryType(uint32_t typeFilter,
   return 0;
 }
 
-VkShaderModule
-VulkanDevice::createShaderModule(const std::vector<uint8_t> &shaderCode) {
+VkShaderModule VulkanDevice::createShaderModule(
+    const std::vector<uint8_t> &shaderCode) {
   VkShaderModuleCreateInfo createInfo;
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+  createInfo.pNext = nullptr;
   createInfo.codeSize = shaderCode.size();
   createInfo.pCode = reinterpret_cast<const uint32_t *>(shaderCode.data());
 
@@ -104,7 +109,7 @@ void VulkanDevice::createDevice() {
 
   auto familyIndices = findQueueFamilies();
   std::vector<VkDeviceQueueCreateInfo>
-      queueCreateInfos; // all queues that need to be created
+      queueCreateInfos;  // all queues that need to be created
   std::set<uint32_t> queueFamilies = {familyIndices.graphicsIndex.value(),
                                       familyIndices.computeIndex.value(),
                                       familyIndices.transferIndex.value()};
@@ -113,7 +118,7 @@ void VulkanDevice::createDevice() {
   {
     float queuePriority = 1.0f;
     int i = 0;
-    for (uint32_t queueFamily : queueFamilies) // for every queue family
+    for (uint32_t queueFamily : queueFamilies)  // for every queue family
     {
       // queue create info
       VkDeviceQueueCreateInfo &queueCreateInfo = queueCreateInfos[i];
@@ -141,8 +146,9 @@ void VulkanDevice::createDevice() {
   VkResult result =
       vkCreateDevice(m_gpu, &deviceCreateInfo, nullptr, &m_device);
   if (result == VK_ERROR_INITIALIZATION_FAILED) {
-    LOG_FATAL(LogVulkanRHI, "Cannot create a Vulkan device. Try updating your "
-                            "video driver to a more recent version.");
+    LOG_FATAL(LogVulkanRHI,
+              "Cannot create a Vulkan device. Try updating your "
+              "video driver to a more recent version.");
 
   } else if (result != VK_SUCCESS) {
     LOG_FATAL(LogVulkanRHI, "{} failed, VkResult={} at {}:{}", "vkCreateDevice",
@@ -227,8 +233,8 @@ std::vector<VulkanExtension> VulkanDevice::getRequiredExtensions() {
   return ret;
 }
 
-std::vector<const char *>
-VulkanDevice::setupLayers(std::vector<VulkanExtension> &requiredExtensions) {
+std::vector<const char *> VulkanDevice::setupLayers(
+    std::vector<VulkanExtension> &requiredExtensions) {
   std::vector<const char *> ret;
 
   auto props = enumerateLayerProperties();
@@ -265,8 +271,7 @@ VulkanDevice::setupLayers(std::vector<VulkanExtension> &requiredExtensions) {
         break;
       }
     }
-    if (extIndex == -1)
-      return false;
+    if (extIndex == -1) return false;
 
     if (!requiredExtensions[extIndex].supported) {
       auto layerIndex = findLayerContainExtension(extensionName, props);
@@ -383,8 +388,7 @@ bool VulkanDevice::addRequestedLayer(
       break;
     }
   }
-  if (index == -1)
-    return false;
+  if (index == -1) return false;
 
   layers.emplace_back(layerName);
 
@@ -405,7 +409,7 @@ VulkanDevice::QueueFamilyIndices VulkanDevice::findQueueFamilies() {
   int i = 0;
   for (const auto &prop : m_queueFamilyProps) {
     if (prop.queueFlags &
-        VK_QUEUE_GRAPHICS_BIT) // if support graphics command queue
+        VK_QUEUE_GRAPHICS_BIT)  // if support graphics command queue
     {
       if (!indices.graphicsIndex.has_value()) {
         indices.graphicsIndex = i;
@@ -415,7 +419,7 @@ VulkanDevice::QueueFamilyIndices VulkanDevice::findQueueFamilies() {
     }
 
     if (prop.queueFlags &
-        VK_QUEUE_COMPUTE_BIT) // if support compute command queue
+        VK_QUEUE_COMPUTE_BIT)  // if support compute command queue
     {
       if (!indices.computeIndex.has_value() && indices.graphicsIndex != i) {
         indices.computeIndex = i;
@@ -450,4 +454,4 @@ void VulkanDevice::setupFormats() {
   // todo: find formats physical device supported
 }
 
-} // namespace GEngine
+}  // namespace GEngine

@@ -76,6 +76,7 @@ void VulkanCommandBuffer::begin() {
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   beginInfo.pNext = nullptr;
   beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  beginInfo.pInheritanceInfo = nullptr;
 
   auto result = vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
   if (result != VK_SUCCESS) {

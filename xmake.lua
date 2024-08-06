@@ -85,19 +85,27 @@ target("generate_cpp")
             writeFile:close()
         end
     end)
-    
-    
 
 target("glad")
     set_kind("static")
     add_includedirs(join_third_party_dir("glad/include"))
     add_files(join_third_party_dir("glad/src/*.c"))
 
+target("ufbx")
+    set_kind("static")
+    add_includedirs(join_third_party_dir("ufbx"))
+    add_files(join_third_party_dir("ufbx/ufbx.c"))
+
+target("tinyobjloader")
+    set_kind("static")
+    add_includedirs(join_third_party_dir("tinyobjloader"))
+    add_files(join_third_party_dir("tinyobjloader/tiny_obj_loader.cc"))
+
 target("GEngineRuntime")
     set_kind("binary")
     set_targetdir("bin")
 
-    add_deps("glad")
+    add_deps("glad", "ufbx", "tinyobjloader")
     
     add_includedirs("src/engine/source/runtime")
     add_includedirs("src/engine/source/third_party")
@@ -106,7 +114,9 @@ target("GEngineRuntime")
                     join_third_party_dir("VulkanSDK/include"), 
                     join_third_party_dir("glad/include"),
                     join_third_party_dir("nlohmann/include"),
-                    join_third_party_dir("libsimdpp/"))
+                    join_third_party_dir("libsimdpp/"),
+                    join_third_party_dir("tinyobjloader"),
+                    join_third_party_dir("ufbx"))
 
     if is_mode("debug") or is_mode("releasedbg") then 
         add_defines("VULKAN_DEBUG_ENABLE", "VULKAN_VALIDATION_ENABLE")

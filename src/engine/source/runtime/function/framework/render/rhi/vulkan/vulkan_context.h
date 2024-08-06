@@ -9,14 +9,14 @@
 
 namespace GEngine {
 
-class VulkanDynamicRHI;
+class VulkanRHI;
 class VulkanDevice;
 class VulkanQueue;
 class VulkanCommandBufferManager;
 
 class VulkanRHICommandContext : public RHICommandContext {
  public:
-  VulkanRHICommandContext(VulkanDynamicRHI *rhi, VulkanDevice *device,
+  VulkanRHICommandContext(VulkanRHI *rhi, VulkanDevice *device,
                           VulkanQueue *queue, bool isImmediate);
   VulkanQueue *getQueue() { return m_queue; }
 
@@ -24,11 +24,13 @@ class VulkanRHICommandContext : public RHICommandContext {
                                         uint32_t groupCountY,
                                         uint32_t groupCountZ) override;
   virtual void RHISetComputePipelineState(
-      std::shared_ptr<RHIComputePipelineState> &computePipelineState, const void* parametersData)
-      override;
+      std::shared_ptr<RHIComputePipelineState> &computePipelineState,
+      const void *parametersData) override;
+
+  virtual void RHICopyBuffer(std::shared_ptr<RHIBuffer>& srcBuffer, std::shared_ptr<RHIBuffer>& dstBuffer) override;
 
  private:
-  VulkanDynamicRHI *m_rhi;
+  VulkanRHI *m_rhi;
   VulkanDevice *m_device;
   VulkanQueue *m_queue;
   bool m_isImmediate;

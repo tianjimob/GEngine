@@ -13,7 +13,9 @@ CLASS(PrimitiveComponent) : public TransformComponent {
 public:
   PrimitiveComponent();
 
-  virtual std::shared_ptr<PrimitiveSceneProxy> createSceneProxy();
+  virtual std::shared_ptr<PrimitiveSceneProxy> createSceneProxy() {
+    return std::make_shared<PrimitiveSceneProxy>();
+  }
 
   void setPrimitiveSceneProxy(std::shared_ptr<PrimitiveSceneProxy> &
                               primitiveSceneProxy) {

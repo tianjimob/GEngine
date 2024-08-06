@@ -1,6 +1,7 @@
 #include "serializer.h"
-#include "core/math/vector4.h"
+
 #include <cassert>
+
 
 namespace GEngine {
 
@@ -9,7 +10,8 @@ Json Serializer::write(const char& instance) {
   return Json(instance);
 }
 template <>
-char& Serializer::read(const Json& json_context, char& instance, GObject* outer) {
+char& Serializer::read(const Json& json_context, char& instance,
+                       GObject* outer) {
   assert(json_context.is_number());
   return instance = json_context.get<char>();
 }
@@ -29,8 +31,8 @@ Json Serializer::write(const unsigned int& instance) {
   return Json(static_cast<int>(instance));
 }
 template <>
-unsigned int& Serializer::read(const Json& json_context,
-                               unsigned int& instance, GObject* outer) {
+unsigned int& Serializer::read(const Json& json_context, unsigned int& instance,
+                               GObject* outer) {
   assert(json_context.is_number());
   return instance = json_context.get<unsigned int>();
 }
@@ -40,7 +42,8 @@ Json Serializer::write(const float& instance) {
   return Json(instance);
 }
 template <>
-float& Serializer::read(const Json& json_context, float& instance, GObject* outer) {
+float& Serializer::read(const Json& json_context, float& instance,
+                        GObject* outer) {
   assert(json_context.is_number());
   return instance = json_context.get<float>();
 }
@@ -50,7 +53,8 @@ Json Serializer::write(const double& instance) {
   return Json(instance);
 }
 template <>
-double& Serializer::read(const Json& json_context, double& instance, GObject* outer) {
+double& Serializer::read(const Json& json_context, double& instance,
+                         GObject* outer) {
   assert(json_context.is_number());
   return instance = json_context.get<double>();
 }
@@ -60,7 +64,8 @@ Json Serializer::write(const bool& instance) {
   return Json(instance);
 }
 template <>
-bool& Serializer::read(const Json& json_context, bool& instance, GObject* outer) {
+bool& Serializer::read(const Json& json_context, bool& instance,
+                       GObject* outer) {
   assert(json_context.is_boolean());
   return instance = json_context.get<bool>();
 }
@@ -70,34 +75,81 @@ Json Serializer::write(const std::string& instance) {
   return Json(instance);
 }
 template <>
-std::string& Serializer::read(const Json& json_context, std::string& instance, GObject* outer) {
+std::string& Serializer::read(const Json& json_context, std::string& instance,
+                              GObject* outer) {
   assert(json_context.is_string());
   return instance = json_context.get<std::string>();
 }
 
-template <> Json Serializer::write(const Vector4 &instance) {
-  return {{"x", instance.x},
-          {"y", instance.y},
-          {"z", instance.z},
-          {"w", instance.w}};
+template <>
+Json Serializer::write(const Vector2& instance) {
+  return {{"x", instance.x}, {"y", instance.y}};
 }
 template <>
-Vector4 &Serializer::read(const Json &json_context, Vector4 &instance, GObject* outer) {
+Vector2& Serializer::read(const Json& json_context, Vector2& instance,
+                          GObject* outer) {
   assert(json_context.is_object());
 
   if (!json_context["x"].is_null()) {
     instance.x = json_context["x"];
   }
 
-  if (!json_context["x"].is_null()) {
+  if (!json_context["y"].is_null()) {
     instance.y = json_context["y"];
   }
 
+  return instance;
+}
+
+template <>
+Json Serializer::write(const Vector3& instance) {
+  return {{"x", instance.x}, {"y", instance.y}, {"z", instance.z}};
+}
+template <>
+Vector3& Serializer::read(const Json& json_context, Vector3& instance,
+                          GObject* outer) {
+  assert(json_context.is_object());
+
   if (!json_context["x"].is_null()) {
+    instance.x = json_context["x"];
+  }
+
+  if (!json_context["y"].is_null()) {
+    instance.y = json_context["y"];
+  }
+
+  if (!json_context["z"].is_null()) {
     instance.z = json_context["z"];
   }
 
+  return instance;
+}
+
+template <>
+Json Serializer::write(const Vector4& instance) {
+  return {{"x", instance.x},
+          {"y", instance.y},
+          {"z", instance.z},
+          {"w", instance.w}};
+}
+template <>
+Vector4& Serializer::read(const Json& json_context, Vector4& instance,
+                          GObject* outer) {
+  assert(json_context.is_object());
+
   if (!json_context["x"].is_null()) {
+    instance.x = json_context["x"];
+  }
+
+  if (!json_context["y"].is_null()) {
+    instance.y = json_context["y"];
+  }
+
+  if (!json_context["z"].is_null()) {
+    instance.z = json_context["z"];
+  }
+
+  if (!json_context["w"].is_null()) {
     instance.w = json_context["w"];
   }
 

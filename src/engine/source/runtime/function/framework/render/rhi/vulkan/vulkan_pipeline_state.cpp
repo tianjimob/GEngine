@@ -21,7 +21,7 @@ VkDescriptorSet VulkanDescriptorPoolManager::allocateDescriptorSet(
     std::shared_ptr<VulkanLayout>& vulkanLayout) {
   const uint32_t MaxSets = 128;
 
-  auto createNewPool = [this, &vulkanLayout]() -> VkDescriptorPool {
+  auto createNewPool = [this, MaxSets, &vulkanLayout]() -> VkDescriptorPool {
     std::vector<VkDescriptorPoolSize> poolSizes;
     for (uint32_t type =
              static_cast<uint32_t>(ShaderParametersType::UniformBuffer);

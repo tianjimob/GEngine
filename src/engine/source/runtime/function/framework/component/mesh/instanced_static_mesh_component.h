@@ -8,6 +8,7 @@
 namespace GEngine {
 
 CLASS(InstancedStaticMeshComponent) : public StaticMeshComponent {
+  REFLECTION_BODY(InstancedStaticMeshComponent)
 public:
   virtual std::shared_ptr<PrimitiveSceneProxy> createSceneProxy() override;
 

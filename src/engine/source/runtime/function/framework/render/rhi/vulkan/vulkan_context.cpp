@@ -11,7 +11,7 @@
 
 namespace GEngine {
 
-VulkanRHICommandContext::VulkanRHICommandContext(VulkanDynamicRHI *rhi,
+VulkanRHICommandContext::VulkanRHICommandContext(VulkanRHI *rhi,
                                                  VulkanDevice *device,
                                                  VulkanQueue *queue,
                                                  bool isImmediate)
@@ -52,9 +52,28 @@ void VulkanRHICommandContext::RHISetComputePipelineState(
     m_currentComputeState = it->second;
   } else {
     m_currentComputeState =
-        std::make_shared<VulkanComputePipelineDescriptorState>(vulkanState, parametersData);
+        std::make_shared<VulkanComputePipelineDescriptorState>(m_device, vulkanState, parametersData);
     m_computeStateMap[vulkanState] = m_currentComputeState;
   }
+}
+
+void VulkanRHICommandContext::RHICopyBuffer(
+    std::shared_ptr<RHIBuffer> &srcBuffer,
+    std::shared_ptr<RHIBuffer> &dstBuffer) {
+  assert(srcBuffer->size() == dstBuffer->size());
+
+  std::shared_ptr<VulkanCommandBuffer> cmdBuffer =
+      m_commandBufferManager->getActiveCommandBuffer();
+  VkCommandBuffer cmd = cmdBuffer->getCommandBuffer();
+
+  VkBufferCopy copyRegion{};
+  copyRegion.size = srcBuffer->size();
+  vkCmdCopyBuffer(cmd, (VkBuffer)srcBuffer->getHandle(),
+                  (VkBuffer)dstBuffer->getHandle(), 1, &copyRegion);
+
+  m_commandBufferManager->submitActiveCommandBuffer(
+      std::vector<std::shared_ptr<VulkanSemaphore>>{});
+  m_commandBufferManager->prepareForNewActiveCommandBuffer();
 }
 
 }  // namespace GEngine

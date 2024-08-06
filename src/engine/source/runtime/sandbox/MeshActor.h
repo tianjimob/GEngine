@@ -1,3 +1,5 @@
+#pragma once
+
 #include "core/reflection/reflection.h"
 #include "function/framework/actor/actor.h"
 #include "function/framework/component/mesh/static_mesh_component.h"
@@ -8,11 +10,11 @@ CLASS(MeshActor) : public Actor {
   REFLECTION_BODY(MeshActor)
 
 public:
-  MeshActor();
+  MeshActor() {}
 
 private:
   META_FIELD()
-  std::shared_ptr<StaticMeshComponent> m_transformComponent;
+  std::shared_ptr<StaticMeshComponent> m_staticMeshComponent;
 };
 
 }
