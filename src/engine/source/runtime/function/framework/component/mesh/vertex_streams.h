@@ -5,10 +5,19 @@
 #include <vector>
 namespace GEngine {
 
+enum class VertexElementType {
+  None,
+  Float1,
+  Float2,
+  Float3,
+  Float4,
+};
+
 struct VertexStream {
   std::shared_ptr<RHIBuffer> vertexBuffer = nullptr;
   uint32_t stride = 0;
   uint32_t offset = 0;
+  VertexElementType elementType = VertexElementType::None;
 };
 
 class VertexStreams {

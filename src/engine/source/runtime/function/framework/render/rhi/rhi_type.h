@@ -15,7 +15,8 @@ enum class RHIBufferUsageFlags : uint32_t {
   IndirectBuffer = 0x00000100,
   ShaderDeviceAddress = 0x00020000,
 
-  TransferSrcAndVertexBuffer = TransferSrc | VertexBuffer,
+  TransferDstAndVertexBuffer = TransferDst | VertexBuffer,
+  TransferDstAndIndexBuffer = TransferDst | IndexBuffer,
 };
 
 enum class RHIMemoryPropertyFlags : uint32_t {

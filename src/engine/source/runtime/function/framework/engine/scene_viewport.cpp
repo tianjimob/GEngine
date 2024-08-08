@@ -17,4 +17,8 @@ bool SceneViewport::onKeyUp(ModifierKey mod, VirtualCode key, uint8_t repeat)
     return m_gameViewportClient->inputKey(repeat >= 2? InputEvent::DoubleClick : InputEvent::Released, mod, key);
 }
 
+void SceneViewport::draw(bool present) {
+  
+}
+
 } // namespace GEngine

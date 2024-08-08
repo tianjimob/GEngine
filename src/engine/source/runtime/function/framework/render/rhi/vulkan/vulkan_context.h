@@ -29,6 +29,8 @@ class VulkanRHICommandContext : public RHICommandContext {
 
   virtual void RHICopyBuffer(std::shared_ptr<RHIBuffer>& srcBuffer, std::shared_ptr<RHIBuffer>& dstBuffer) override;
 
+  void waitIdle();
+
  private:
   VulkanRHI *m_rhi;
   VulkanDevice *m_device;

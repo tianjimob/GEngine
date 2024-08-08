@@ -26,6 +26,8 @@ class VulkanDevice {
 
   VkDevice getDevice() { return m_device; }
 
+  const char* getDeviceName() { return m_gpuProp.deviceName; }
+
   uint32_t findMemoryType(uint32_t typeFilter,
                           VkMemoryPropertyFlags propertiesFlag);
 
@@ -47,16 +49,37 @@ class VulkanDevice {
     return m_computeContext;
   }
 
- private:
-  struct QueueFamilyIndices {
-    std::optional<uint32_t> graphicsIndex;
-    std::optional<uint32_t> computeIndex;
-    std::optional<uint32_t> transferIndex;
+public:
+ // function pointers for this device
+ PFN_vkCmdBeginDebugUtilsLabelEXT vkCmdBeginDebugUtilsLabelEXT;
+ PFN_vkCmdEndDebugUtilsLabelEXT vkCmdEndDebugUtilsLabelEXT;
+ PFN_vkWaitForFences vkWaitForFences;
+ PFN_vkResetFences vkResetFences;
+ PFN_vkResetCommandPool vkResetCommandPool;
+ PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
+ PFN_vkEndCommandBuffer vkEndCommandBuffer;
+ PFN_vkCmdBeginRenderPass vkCmdBeginRenderPass;
+ PFN_vkCmdNextSubpass vkCmdNextSubpass;
+ PFN_vkCmdEndRenderPass vkCmdEndRenderPass;
+ PFN_vkCmdBindPipeline vkCmdBindPipeline;
+ PFN_vkCmdSetViewport vkCmdSetViewport;
+ PFN_vkCmdSetScissor vkCmdSetScissor;
+ PFN_vkCmdBindVertexBuffers vkCmdBindVertexBuffers;
+ PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer;
+ PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets;
+ PFN_vkCmdDrawIndexed vkCmdDrawIndexed;
+ PFN_vkCmdClearAttachments vkCmdClearAttachments;
 
-    bool isComplete() {
-      return graphicsIndex.has_value() && computeIndex.has_value() &&
-             transferIndex.has_value();
-    }
+private:
+ struct QueueFamilyIndices {
+   std::optional<uint32_t> graphicsIndex;
+   std::optional<uint32_t> computeIndex;
+   std::optional<uint32_t> transferIndex;
+
+   bool isComplete() {
+     return graphicsIndex.has_value() && computeIndex.has_value() &&
+            transferIndex.has_value();
+   }
   };
 
   void createDevice();
@@ -101,26 +124,6 @@ class VulkanDevice {
 
   VulkanPipelineStateCacheManager m_pipelineStateCacheManager;
   VulkanDescriptorPoolManager m_descriptorPoolManager;
-
-  // function pointers for this device
-  PFN_vkCmdBeginDebugUtilsLabelEXT _vkCmdBeginDebugUtilsLabelEXT;
-  PFN_vkCmdEndDebugUtilsLabelEXT _vkCmdEndDebugUtilsLabelEXT;
-  PFN_vkWaitForFences _vkWaitForFences;
-  PFN_vkResetFences _vkResetFences;
-  PFN_vkResetCommandPool _vkResetCommandPool;
-  PFN_vkBeginCommandBuffer _vkBeginCommandBuffer;
-  PFN_vkEndCommandBuffer _vkEndCommandBuffer;
-  PFN_vkCmdBeginRenderPass _vkCmdBeginRenderPass;
-  PFN_vkCmdNextSubpass _vkCmdNextSubpass;
-  PFN_vkCmdEndRenderPass _vkCmdEndRenderPass;
-  PFN_vkCmdBindPipeline _vkCmdBindPipeline;
-  PFN_vkCmdSetViewport _vkCmdSetViewport;
-  PFN_vkCmdSetScissor _vkCmdSetScissor;
-  PFN_vkCmdBindVertexBuffers _vkCmdBindVertexBuffers;
-  PFN_vkCmdBindIndexBuffer _vkCmdBindIndexBuffer;
-  PFN_vkCmdBindDescriptorSets _vkCmdBindDescriptorSets;
-  PFN_vkCmdDrawIndexed _vkCmdDrawIndexed;
-  PFN_vkCmdClearAttachments _vkCmdClearAttachments;
 
   bool supportAsyncCompute{false};
 };

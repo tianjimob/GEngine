@@ -5,6 +5,7 @@
 #include "function/framework/render/rhi/rhi.h"
 #include "function/framework/render/rhi/rhi_resource.h"
 #include "function/framework/render/rhi/vulkan/vulkan_command_buffer.h"
+#include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi_resource.h"
 #include "function/framework/render/rhi/vulkan/vulkan_device.h"
 #include "vulkan/vulkan_core.h"
@@ -43,8 +44,9 @@ VkDescriptorSet VulkanDescriptorPoolManager::allocateDescriptorSet(
         size.descriptorCount = num * MaxSets;
         poolSizes.emplace_back(size);
     }
-    
+
     VkDescriptorPoolCreateInfo createInfo;
+    ZERO_VULKAN_STRUCT(createInfo);
     createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     createInfo.poolSizeCount = poolSizes.size();
     createInfo.pPoolSizes = poolSizes.data();
@@ -78,6 +80,7 @@ VkDescriptorSet VulkanDescriptorPoolManager::allocateDescriptorSet(
 
   auto &pool = pools.front();
   VkDescriptorSetAllocateInfo allocateInfo;
+  ZERO_VULKAN_STRUCT(allocateInfo);
   allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
   allocateInfo.descriptorPool = pool;
   allocateInfo.descriptorSetCount = 1;

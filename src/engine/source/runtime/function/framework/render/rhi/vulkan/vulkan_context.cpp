@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "function/framework/render/rhi/vulkan/vulkan_pipeline_state.h"
+#include "function/framework/render/rhi/vulkan/vulkan_queue.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi_resource.h"
 #include "vulkan/vulkan_core.h"
 #include "vulkan_command_buffer.h"
@@ -68,12 +69,19 @@ void VulkanRHICommandContext::RHICopyBuffer(
 
   VkBufferCopy copyRegion{};
   copyRegion.size = srcBuffer->size();
+  copyRegion.srcOffset = 0;
+  copyRegion.dstOffset = 0;
   vkCmdCopyBuffer(cmd, (VkBuffer)srcBuffer->getHandle(),
                   (VkBuffer)dstBuffer->getHandle(), 1, &copyRegion);
 
   m_commandBufferManager->submitActiveCommandBuffer(
       std::vector<std::shared_ptr<VulkanSemaphore>>{});
+  m_queue->waitIdle();
   m_commandBufferManager->prepareForNewActiveCommandBuffer();
+}
+
+void VulkanRHICommandContext::waitIdle() {
+  m_queue->waitIdle();
 }
 
 }  // namespace GEngine

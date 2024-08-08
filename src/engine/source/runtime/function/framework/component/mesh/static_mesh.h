@@ -35,6 +35,7 @@ class StaticMeshModel {
   std::shared_ptr<RHIBuffer> m_tangentBuffer;
   std::shared_ptr<RHIBuffer> m_colorBuffer;
   std::shared_ptr<RHIBuffer> m_uvBuffer;
+  std::shared_ptr<RHIBuffer> m_indexBuffer;
 
   VertexStreams m_vertexStreams;
 

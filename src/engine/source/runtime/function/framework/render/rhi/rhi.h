@@ -24,8 +24,11 @@ public:
   virtual std::shared_ptr<RHIBuffer>
   createBuffer(uint32_t size, RHIBufferUsageFlags usage,
                RHIMemoryPropertyFlags property) = 0;
-  
-  virtual std::shared_ptr<RHIBuffer> createVertexBuffer(const void *data, uint32_t size) = 0;
+
+  virtual std::shared_ptr<RHIBuffer> createVertexBuffer(const void *data,
+                                                        uint32_t size) = 0;
+
+  virtual std::shared_ptr<RHIBuffer> createIndexBuffer(const void *data, uint32_t size) = 0;
 
   virtual std::shared_ptr<RHIComputeShader> createComputeShader(const std::vector<uint8_t>& shaderCode) = 0;
 };

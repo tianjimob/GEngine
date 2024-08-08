@@ -2,10 +2,13 @@
 
 #include <memory>
 #include <set>
+#include <utility>
+#include <vector>
 
 #include "core/log/logger.h"
 #include "function/framework/render/rhi/rhi.h"
 #include "function/framework/render/rhi/vulkan/vulkan_context.h"
+#include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi.h"
 #include "vulkan/vk_enum_string_helper.h"
 #include "vulkan/vulkan_core.h"
@@ -80,8 +83,8 @@ uint32_t VulkanDevice::findMemoryType(uint32_t typeFilter,
 VkShaderModule VulkanDevice::createShaderModule(
     const std::vector<uint8_t> &shaderCode) {
   VkShaderModuleCreateInfo createInfo;
+  ZERO_VULKAN_STRUCT(createInfo);
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  createInfo.pNext = nullptr;
   createInfo.codeSize = shaderCode.size();
   createInfo.pCode = reinterpret_cast<const uint32_t *>(shaderCode.data());
 
@@ -115,24 +118,27 @@ void VulkanDevice::createDevice() {
                                       familyIndices.transferIndex.value()};
   queueCreateInfos.resize(queueFamilies.size());
 
+  std::vector<std::vector<float>> queuePriorities;
   {
-    float queuePriority = 1.0f;
     int i = 0;
     for (uint32_t queueFamily : queueFamilies)  // for every queue family
     {
       // queue create info
       VkDeviceQueueCreateInfo &queueCreateInfo = queueCreateInfos[i];
+      ZERO_VULKAN_STRUCT(queueCreateInfo);
       queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
       queueCreateInfo.queueFamilyIndex = queueFamily;
       queueCreateInfo.queueCount = m_queueFamilyProps[queueFamily].queueCount;
-      queueCreateInfo.pQueuePriorities = &queuePriority;
-
+      std::vector<float> priority(queueCreateInfo.queueCount, 1.0f);
+      queuePriorities.emplace_back(std::move(priority));
+      queueCreateInfo.pQueuePriorities = queuePriorities.back().data();
       ++i;
     }
   }
 
   // device create info
   VkDeviceCreateInfo deviceCreateInfo;
+  ZERO_VULKAN_STRUCT(deviceCreateInfo);
   deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   deviceCreateInfo.pNext = nullptr;
   deviceCreateInfo.pEnabledFeatures = &m_physicalDeviceFeatures;
@@ -165,37 +171,37 @@ void VulkanDevice::createDevice() {
       std::make_shared<VulkanQueue>(*this, familyIndices.transferIndex.value());
 
   // more efficient pointer
-  _vkResetCommandPool = (PFN_vkResetCommandPool)vkGetDeviceProcAddr(
+  vkResetCommandPool = (PFN_vkResetCommandPool)vkGetDeviceProcAddr(
       m_device, "vkResetCommandPool");
-  _vkBeginCommandBuffer = (PFN_vkBeginCommandBuffer)vkGetDeviceProcAddr(
+  vkBeginCommandBuffer = (PFN_vkBeginCommandBuffer)vkGetDeviceProcAddr(
       m_device, "vkBeginCommandBuffer");
-  _vkEndCommandBuffer = (PFN_vkEndCommandBuffer)vkGetDeviceProcAddr(
+  vkEndCommandBuffer = (PFN_vkEndCommandBuffer)vkGetDeviceProcAddr(
       m_device, "vkEndCommandBuffer");
-  _vkCmdBeginRenderPass = (PFN_vkCmdBeginRenderPass)vkGetDeviceProcAddr(
+  vkCmdBeginRenderPass = (PFN_vkCmdBeginRenderPass)vkGetDeviceProcAddr(
       m_device, "vkCmdBeginRenderPass");
-  _vkCmdNextSubpass =
+  vkCmdNextSubpass =
       (PFN_vkCmdNextSubpass)vkGetDeviceProcAddr(m_device, "vkCmdNextSubpass");
-  _vkCmdEndRenderPass = (PFN_vkCmdEndRenderPass)vkGetDeviceProcAddr(
+  vkCmdEndRenderPass = (PFN_vkCmdEndRenderPass)vkGetDeviceProcAddr(
       m_device, "vkCmdEndRenderPass");
-  _vkCmdBindPipeline =
+  vkCmdBindPipeline =
       (PFN_vkCmdBindPipeline)vkGetDeviceProcAddr(m_device, "vkCmdBindPipeline");
-  _vkCmdSetViewport =
+  vkCmdSetViewport =
       (PFN_vkCmdSetViewport)vkGetDeviceProcAddr(m_device, "vkCmdSetViewport");
-  _vkCmdSetScissor =
+  vkCmdSetScissor =
       (PFN_vkCmdSetScissor)vkGetDeviceProcAddr(m_device, "vkCmdSetScissor");
-  _vkWaitForFences =
+  vkWaitForFences =
       (PFN_vkWaitForFences)vkGetDeviceProcAddr(m_device, "vkWaitForFences");
-  _vkResetFences =
+  vkResetFences =
       (PFN_vkResetFences)vkGetDeviceProcAddr(m_device, "vkResetFences");
-  _vkCmdDrawIndexed =
+  vkCmdDrawIndexed =
       (PFN_vkCmdDrawIndexed)vkGetDeviceProcAddr(m_device, "vkCmdDrawIndexed");
-  _vkCmdBindVertexBuffers = (PFN_vkCmdBindVertexBuffers)vkGetDeviceProcAddr(
+  vkCmdBindVertexBuffers = (PFN_vkCmdBindVertexBuffers)vkGetDeviceProcAddr(
       m_device, "vkCmdBindVertexBuffers");
-  _vkCmdBindIndexBuffer = (PFN_vkCmdBindIndexBuffer)vkGetDeviceProcAddr(
+  vkCmdBindIndexBuffer = (PFN_vkCmdBindIndexBuffer)vkGetDeviceProcAddr(
       m_device, "vkCmdBindIndexBuffer");
-  _vkCmdBindDescriptorSets = (PFN_vkCmdBindDescriptorSets)vkGetDeviceProcAddr(
+  vkCmdBindDescriptorSets = (PFN_vkCmdBindDescriptorSets)vkGetDeviceProcAddr(
       m_device, "vkCmdBindDescriptorSets");
-  _vkCmdClearAttachments = (PFN_vkCmdClearAttachments)vkGetDeviceProcAddr(
+  vkCmdClearAttachments = (PFN_vkCmdClearAttachments)vkGetDeviceProcAddr(
       m_device, "vkCmdClearAttachments");
 
   LOG_INFO(LogVulkanRHI, "Using {} device layers {}", deviceLayers.size(),
@@ -291,6 +297,23 @@ std::vector<const char *> VulkanDevice::setupLayers(
   for (auto &extension : requiredExtensions) {
     supportExtension(extension.name);
   }
+
+#if defined(VULKAN_DEBUG_ENABLE) || defined(VULKAN_VALIDATION_ENABLE)
+  // add validation layer
+  if (!addRequestedLayer("VK_LAYER_KHRONOS_validation", props, requiredExtensions,
+                         ret)) {
+    LOG_WARN(LogVulkanRHI,
+             "Unable to find Vulkan instance validation layer "
+             "VK_LAYER_KHRONOS_validation");
+    if (!addRequestedLayer("VK_LAYER_LUNARG_standard_validation", props,
+                           requiredExtensions, ret)) {
+      LOG_WARN(LogVulkanRHI,
+               "Unable to find Vulkan instance validation "
+               "layer VK_LAYER_LUNARG_standard_validation");
+    }
+  }
+  supportExtension(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
+#endif
 
   // deduplicate
   std::sort(ret.begin(), ret.end());

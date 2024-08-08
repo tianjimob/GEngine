@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
 #include "core/math/vector2.h"
@@ -20,6 +21,8 @@ class MeshDescriptor {
   std::vector<Vector3> m_vertexTangents;
   std::vector<Vector4> m_vertexColors;
   std::vector<Vector2> m_vertexUVs;
+
+  std::vector<uint32_t> m_indices;
 };
 
 }  // namespace GEngine

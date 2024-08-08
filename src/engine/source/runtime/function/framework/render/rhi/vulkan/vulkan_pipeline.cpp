@@ -6,6 +6,7 @@
 #include "core/log/logger.h"
 #include "function/framework/render/core/shaders.h"
 #include "function/framework/render/rhi/vulkan/vulkan_device.h"
+#include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi_resource.h"
 #include "vulkan/vulkan_core.h"
 
@@ -51,8 +52,9 @@ VulkanPipelineStateCacheManager::createComputePipeline(
 
   std::shared_ptr<VulkanLayout> layout = findOrCreateLayout(computeShader);
   if(layout == nullptr) return nullptr;
-  
+
   VkComputePipelineCreateInfo createInfo;
+  ZERO_VULKAN_STRUCT(createInfo);
   createInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
   createInfo.stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   createInfo.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
@@ -101,6 +103,7 @@ VulkanPipelineStateCacheManager::findOrCreateLayout(
     }
 
     VkDescriptorSetLayoutCreateInfo setLayoutCreateInfo;
+    ZERO_VULKAN_STRUCT(setLayoutCreateInfo);
     setLayoutCreateInfo.sType =
         VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     setLayoutCreateInfo.bindingCount = layoutBindings.size();
@@ -114,6 +117,7 @@ VulkanPipelineStateCacheManager::findOrCreateLayout(
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
+    ZERO_VULKAN_STRUCT(pipelineLayoutCreateInfo);
     pipelineLayoutCreateInfo.sType =
         VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutCreateInfo.setLayoutCount = 1;

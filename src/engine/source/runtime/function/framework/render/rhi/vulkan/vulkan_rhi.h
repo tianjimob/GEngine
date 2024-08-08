@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "function/framework/render/rhi/rhi.h"
+#include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "vulkan/vulkan_core.h"
 #include "vulkan_com.h"
 #include "vulkan_device.h"
@@ -31,7 +32,10 @@ class VulkanRHI : public RHI {
   createBuffer(uint32_t size, RHIBufferUsageFlags usage,
                RHIMemoryPropertyFlags property) override;
 
-  virtual std::shared_ptr<RHIBuffer> createVertexBuffer(const void *data, uint32_t size) override;
+  virtual std::shared_ptr<RHIBuffer> createVertexBuffer(const void *data,
+                                                        uint32_t size) override;
+
+  virtual std::shared_ptr<RHIBuffer> createIndexBuffer(const void *data, uint32_t size) override;
   
   virtual std::shared_ptr<RHIComputeShader> createComputeShader(const std::vector<uint8_t>& shaderCode) override;
 
@@ -56,6 +60,9 @@ class VulkanRHI : public RHI {
       std::vector<VulkanExtension> &engineExtensions,
       std::vector<const char *> &layers);
 
+  void populateDebugUtilsMessengerCreateInfoEXT(
+      VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+  
   void setupDebugLayerCallback();
 
   bool isDeviceSuitable(const VulkanDevice &physicalDevice);
@@ -64,7 +71,8 @@ class VulkanRHI : public RHI {
                RHIMemoryPropertyFlags property, VkBuffer& buffer, VkDeviceMemory& memory);
 
  private:
-  VkInstance m_instance;
+   VkInstance m_instance;
+   VkDebugUtilsMessengerEXT m_debugMessenger;
 
   std::vector<std::shared_ptr<VulkanDevice>> m_devices;
   std::weak_ptr<VulkanDevice>

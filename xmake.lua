@@ -118,9 +118,7 @@ target("GEngineRuntime")
                     join_third_party_dir("tinyobjloader"),
                     join_third_party_dir("ufbx"))
 
-    if is_mode("debug") or is_mode("releasedbg") then 
-        add_defines("VULKAN_DEBUG_ENABLE", "VULKAN_VALIDATION_ENABLE")
-    end 
+    add_defines("VULKAN_VALIDATION_ENABLE")
 
     add_links("SDL2main", "SDL2")
     if is_os("windows") then 

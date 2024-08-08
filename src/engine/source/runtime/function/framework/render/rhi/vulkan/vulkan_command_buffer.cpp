@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "core/log/logger.h"
+#include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "vulkan/vulkan_core.h"
 #include "vulkan_context.h"
 #include "vulkan_device.h"
@@ -24,8 +25,8 @@ VulkanCommandPool::~VulkanCommandPool() {
 
 void VulkanCommandPool::init(uint32_t queueFamilyIndex) {
   VkCommandPoolCreateInfo createInfo;
+  ZERO_VULKAN_STRUCT(createInfo);
   createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-  createInfo.pNext = nullptr;
   createInfo.queueFamilyIndex = queueFamilyIndex;
   createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
   auto result = vkCreateCommandPool(m_device->getDevice(), &createInfo, nullptr,
@@ -50,6 +51,7 @@ VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevice* device,
 
 void VulkanCommandBuffer::alloc() {
   VkCommandBufferAllocateInfo allocInfo;
+  ZERO_VULKAN_STRUCT(allocInfo);
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   allocInfo.pNext = nullptr;
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -65,17 +67,20 @@ void VulkanCommandBuffer::alloc() {
 }
 
 void VulkanCommandBuffer::begin() {
-  if (m_state == State::NeedReset)
+  if (m_state == State::NeedReset){
+    // vkResetCommandBuffer(m_commandBuffer,
+    //                      0);
     vkResetCommandBuffer(m_commandBuffer,
                          VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
-  else
+    m_state = State::Initial;
+  } else
     assert(m_state == State::Initial);
-  m_state = State::InsideBegin;
 
   VkCommandBufferBeginInfo beginInfo;
+  ZERO_VULKAN_STRUCT(beginInfo);
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   beginInfo.pNext = nullptr;
-  beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  // beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
   beginInfo.pInheritanceInfo = nullptr;
 
   auto result = vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
@@ -83,6 +88,7 @@ void VulkanCommandBuffer::begin() {
     LOG_FATAL(LogVulkanRHI, "{} failed, VkResult={} at {}:{}",
               "vkBeginCommandBuffer", result, __FILE__, __LINE__);
   }
+  m_state = State::InsideBegin;
 }
 
 void VulkanCommandBuffer::end() {
@@ -92,6 +98,7 @@ void VulkanCommandBuffer::end() {
     LOG_FATAL(LogVulkanRHI, "{} failed, VkResult={} at {}:{}",
               "vkEndCommandBuffer", result, __FILE__, __LINE__);
   }
+  m_state = State::Executable;
 }
 
 void VulkanCommandBuffer::endRenderPass()
@@ -138,7 +145,7 @@ void VulkanCommandBufferManager::submitActiveCommandBuffer(std::vector<std::shar
 
   if (m_activeCommandBuffer->isRecording()) {
     if (m_activeCommandBuffer->isInsideRenderPass()) {
-      LOG_WARN(LogVulkanRHI, "Forcing EndRenderPass() for submission");
+      LOG_WARN(LogVulkanRHI, "Forcing endRenderPass() for submission");
       m_activeCommandBuffer->endRenderPass();
     }
 
@@ -148,7 +155,7 @@ void VulkanCommandBufferManager::submitActiveCommandBuffer(std::vector<std::shar
                     semaphores.data());
   }
 
-  m_activeCommandBuffer.reset();
+  // m_activeCommandBuffer.reset();
 }
 
 void VulkanCommandBufferManager::prepareForNewActiveCommandBuffer()

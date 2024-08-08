@@ -9,6 +9,7 @@
 #include "function/framework/render/rhi/rhi.h"
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
 namespace GEngine {
 
@@ -22,6 +23,7 @@ void StaticMeshModel::build() {
     stream.vertexBuffer = m_positionBuffer;
     stream.stride = sizeof(Vector3);
     stream.offset = 0;
+    stream.elementType = VertexElementType::Float3;
     m_vertexStreams.addVertexStream(stream);
   }
 
@@ -34,6 +36,7 @@ void StaticMeshModel::build() {
     stream.vertexBuffer = m_normalBuffer;
     stream.stride = sizeof(Vector3);
     stream.offset = 0;
+    stream.elementType = VertexElementType::Float3;
     m_vertexStreams.addVertexStream(stream);
   }
 
@@ -46,6 +49,7 @@ void StaticMeshModel::build() {
     stream.vertexBuffer = m_tangentBuffer;
     stream.stride = sizeof(Vector3);
     stream.offset = 0;
+    stream.elementType = VertexElementType::Float3;
     m_vertexStreams.addVertexStream(stream);
   }
 
@@ -58,6 +62,7 @@ void StaticMeshModel::build() {
     stream.vertexBuffer = m_colorBuffer;
     stream.stride = sizeof(Vector4);
     stream.offset = 0;
+    stream.elementType = VertexElementType::Float4;
     m_vertexStreams.addVertexStream(stream);
   }
 
@@ -70,7 +75,14 @@ void StaticMeshModel::build() {
     stream.vertexBuffer = m_uvBuffer;
     stream.stride = sizeof(Vector2);
     stream.offset = 0;
+    stream.elementType = VertexElementType::Float2;
     m_vertexStreams.addVertexStream(stream);
+  }
+
+  if (!m_meshDesciptor->m_indices.empty()) {
+    m_indexBuffer = GlobalRHI->createIndexBuffer(
+        m_meshDesciptor->m_indices.data(),
+        m_meshDesciptor->m_indices.size() * sizeof(uint32_t));
   }
 }
 

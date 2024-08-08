@@ -80,7 +80,7 @@ void GameEngine::init() {
 
   Engine::init();
   m_gameInstance->init(m_world);
-  // m_gameInstance->getWorld()->setGameViewport(m_gameViewportClient);
+  m_gameInstance->getWorld()->setGameViewport(m_gameViewportClient);
 }
 
 void GameEngine::tick(float deltaTime) {
@@ -92,6 +92,7 @@ void GameEngine::tick(float deltaTime) {
   // m_gameInstance->tick(deltaTime);
 
   // todo: tick GameViewportClient
+
 }
 
 void GameEngine::exit() {
@@ -102,6 +103,12 @@ void GameEngine::exit() {
   m_gameViewportWindow->exit();
 
   Engine::exit();
+}
+
+void GameEngine::redrawViewports(bool present) {
+  if (m_sceneViewport) {
+    m_sceneViewport->draw(present);
+  }
 }
 
 std::shared_ptr<Window> GameEngine::createGameWindow() {

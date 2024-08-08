@@ -11,9 +11,11 @@ FbxImporter::importStaticMesh(ufbx_node_list &nodes) {
   auto &staticMeshModel = staticMesh->addMeshModel();
   auto *meshDescriptor = staticMeshModel->getMeshDescriptor();
   int vertexCount = 0;
+  int indexCount = 0;
   for (auto &node : nodes) {
     if (node->mesh) {
       vertexCount += node->mesh->num_vertices;
+      indexCount += node->mesh->num_indices;
     }
   }
   meshDescriptor->m_vertexPositions.reserve(vertexCount);
@@ -21,6 +23,8 @@ FbxImporter::importStaticMesh(ufbx_node_list &nodes) {
   meshDescriptor->m_vertexTangents.reserve(vertexCount);
   meshDescriptor->m_vertexColors.reserve(vertexCount);
   meshDescriptor->m_vertexUVs.reserve(vertexCount);
+  meshDescriptor->m_indices.reserve(indexCount);
+  int currCount = 0;
   for (auto &node : nodes) {
     if (node->mesh) {
       auto &mesh = *(node->mesh);
@@ -68,8 +72,15 @@ FbxImporter::importStaticMesh(ufbx_node_list &nodes) {
           meshDescriptor->m_vertexUVs.emplace_back(uv.x, uv.y);
         }
       }
+
+      for (int indexIndex = 0; indexIndex < mesh.num_indices; ++indexIndex) {
+        meshDescriptor->m_indices.emplace_back(mesh.vertex_indices[indexIndex] +
+                                               currCount);
+      }
+      currCount += mesh.num_vertices;
     }
   }
+  
   staticMeshModel->build();
   staticMesh->build();
   return staticMesh;

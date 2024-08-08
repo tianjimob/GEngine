@@ -1,6 +1,7 @@
 #include "vulkan_sync.h"
 
 #include "core/log/logger.h"
+#include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "vulkan_device.h"
 #include <cassert>
 
@@ -11,8 +12,8 @@ static DECLARE_LOG_CATEGORY(LogVulkanRHI);
 
 VulkanSemaphore::VulkanSemaphore(VulkanDevice &device) : m_device(device) {
   VkSemaphoreCreateInfo createInfo;
+  ZERO_VULKAN_STRUCT(createInfo);
   createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-  createInfo.pNext = nullptr;
   auto result = vkCreateSemaphore(m_device.getDevice(), &createInfo, nullptr,
                                   &m_semaphore);
   if (result != VK_SUCCESS) {
@@ -29,8 +30,8 @@ VulkanSemaphore::~VulkanSemaphore()
 VulkanFence::VulkanFence(VulkanDevice &device, bool createSignaled):m_device(device), m_signaled(createSignaled)
 {
   VkFenceCreateInfo createInfo;
+  ZERO_VULKAN_STRUCT(createInfo);
   createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  createInfo.pNext = nullptr;
   createInfo.flags = createSignaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
   if (auto result =
           vkCreateFence(device.getDevice(), &createInfo, nullptr, &m_fence); result != VK_SUCCESS) {

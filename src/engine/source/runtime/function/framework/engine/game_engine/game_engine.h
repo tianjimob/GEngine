@@ -19,6 +19,7 @@ public:
   virtual void init() override;
   virtual void tick(float deltaTime) override;
   virtual void exit() override;
+  void redrawViewports(bool present);
 
   Window* getWindow() { return m_gameViewportWindow.get(); }
 

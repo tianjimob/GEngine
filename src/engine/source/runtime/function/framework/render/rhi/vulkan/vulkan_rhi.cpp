@@ -6,6 +6,7 @@
 #include "function/framework/engine/game_engine/game_engine.h"
 #include "function/framework/render/rhi/rhi_resource.h"
 #include "function/framework/render/rhi/rhi_type.h"
+#include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi_resource.h"
 #include "platform/vulkan/vulkan_vendor.h"
 #include "vulkan/vulkan_core.h"
@@ -93,12 +94,36 @@ std::shared_ptr<RHIBuffer> VulkanRHI::createVertexBuffer(const void *data,
   vkUnmapMemory(device->getDevice(), stagingMemory);
 
   std::shared_ptr<RHIBuffer> vertexBuffer =
-      createBuffer(size, RHIBufferUsageFlags::TransferSrcAndVertexBuffer,
+      createBuffer(size, RHIBufferUsageFlags::TransferDstAndVertexBuffer,
                    RHIMemoryPropertyFlags::DeviceLocal);
 
   device->getGraphicsContext()->RHICopyBuffer(stagingBuffer, vertexBuffer);
 
   return vertexBuffer;
+}
+
+std::shared_ptr<RHIBuffer> VulkanRHI::createIndexBuffer(const void *data,
+                                                        uint32_t size) {
+  std::shared_ptr<RHIBuffer> stagingBuffer =
+      createBuffer(size, RHIBufferUsageFlags::TransferSrc,
+                   RHIMemoryPropertyFlags::HostVisibleAndCoherent);
+  VkDeviceMemory stagingMemory =
+      std::static_pointer_cast<VulkanRHIBuffer>(stagingBuffer)->getMemory();
+
+  std::shared_ptr<VulkanDevice> device = m_device.lock();
+
+  void *dstData;
+  vkMapMemory(device->getDevice(), stagingMemory, 0, size, 0, &dstData);
+  memcpy(dstData, data, size);
+  vkUnmapMemory(device->getDevice(), stagingMemory);
+
+  std::shared_ptr<RHIBuffer> indexBuffer =
+      createBuffer(size, RHIBufferUsageFlags::TransferDstAndIndexBuffer,
+                   RHIMemoryPropertyFlags::DeviceLocal);
+
+  device->getGraphicsContext()->RHICopyBuffer(stagingBuffer, indexBuffer);
+
+  return indexBuffer;
 }
 
 std::shared_ptr<RHIComputeShader>
@@ -119,6 +144,7 @@ VulkanRHI::createComputeShader(const std::vector<uint8_t> &shaderCode) {
 
 void VulkanRHI::createInstance() {
   VkApplicationInfo appInfo;
+  ZERO_VULKAN_STRUCT(appInfo);
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appInfo.pApplicationName = "DefaultApp";
   appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -128,6 +154,7 @@ void VulkanRHI::createInstance() {
   appInfo.pNext = nullptr;
 
   VkInstanceCreateInfo instanceInfo;
+  ZERO_VULKAN_STRUCT(instanceInfo);
   instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   instanceInfo.pApplicationInfo = &appInfo;
   instanceInfo.pNext = nullptr;
@@ -145,6 +172,13 @@ void VulkanRHI::createInstance() {
   instanceInfo.enabledLayerCount = m_instanceLayers.size();
   instanceInfo.ppEnabledLayerNames =
       m_instanceLayers.size() ? m_instanceLayers.data() : nullptr;
+  {
+    if (activeDebugLayerExtension == DebugLayerExtension::DebugUtils) {
+      VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+      populateDebugUtilsMessengerCreateInfoEXT(debugCreateInfo);
+      instanceInfo.pNext = &debugCreateInfo;
+    }
+  }
 
   VkResult result = vkCreateInstance(&instanceInfo, nullptr, &m_instance);
   if (result == VK_ERROR_INCOMPATIBLE_DRIVER) {
@@ -181,9 +215,7 @@ void VulkanRHI::createInstance() {
                             "compatible Vulkan driver (ICD) installed?");
   }
 
-#ifdef VULKAN_DEBUG_ENABLE
   setupDebugLayerCallback();
-#endif
 }
 
 void VulkanRHI::selectDevice() {
@@ -273,6 +305,7 @@ void VulkanRHI::selectDevice() {
   for (const auto &device : rankedPhysicalDevices) {
     if (isDeviceSuitable(*m_devices[device.indexInDevices])) {
       m_device = m_devices[device.indexInDevices];
+      LOG_INFO(LogVulkanRHI, "selected {}", m_device.lock()->getDeviceName());
       break;
     }
   }
@@ -388,6 +421,8 @@ VulkanRHI::setupLayers(std::vector<VulkanExtension> &engineExtensions) {
 
   // add debug layer
   {
+
+#ifdef VULKAN_DEBUG_ENABLE
     if (!addRequestedLayer("VK_LAYER_LUNARG_gfxreconstruct", props,
                            engineExtensions, ret)) {
       if (addRequestedLayer("VK_LAYER_LUNARG_vktrace", props, engineExtensions,
@@ -396,7 +431,6 @@ VulkanRHI::setupLayers(std::vector<VulkanExtension> &engineExtensions) {
     } else
       activeDebugLayerExtension = DebugLayerExtension::Gfxreconstruct;
 
-#ifdef VULKAN_DEBUG_ENABLE
     if (!addRequestedLayer("VK_LAYER_LUNARG_api_dump", props, engineExtensions,
                            ret)) {
       LOG_WARN(LogVulkanRHI,
@@ -427,7 +461,7 @@ VulkanRHI::setupLayers(std::vector<VulkanExtension> &engineExtensions) {
                                "layer VK_LAYER_LUNARG_standard_validation");
       }
     }
-
+    activeDebugLayerExtension = DebugLayerExtension::DebugUtils;
     supportExtension(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
   }
 #endif
@@ -602,6 +636,19 @@ static VkBool32 VKAPI_PTR debugReportCallback(
   return VK_FALSE;
 }
 
+void VulkanRHI::populateDebugUtilsMessengerCreateInfoEXT(
+    VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
+  ZERO_VULKAN_STRUCT(createInfo);
+  createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+  createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+  createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                           VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                           VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+  createInfo.pfnUserCallback = debugUtilCallback;
+}
+
 void VulkanRHI::setupDebugLayerCallback() {
   if (activeDebugLayerExtension == DebugLayerExtension::DebugUtils) {
     PFN_vkCreateDebugUtilsMessengerEXT createDebugUtilsMessengerEXT =
@@ -610,17 +657,9 @@ void VulkanRHI::setupDebugLayerCallback() {
 
     if (createDebugUtilsMessengerEXT) {
       VkDebugUtilsMessengerCreateInfoEXT createInfo;
-      createInfo.sType =
-          VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-      createInfo.messageSeverity =
-          VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-          VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-      createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                               VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-      createInfo.pfnUserCallback = debugUtilCallback;
-      createInfo.pNext = nullptr;
+      populateDebugUtilsMessengerCreateInfoEXT(createInfo);
       assert(VK_SUCCESS == createDebugUtilsMessengerEXT(m_instance, &createInfo,
-                                                        nullptr, nullptr));
+                                                        nullptr, &m_debugMessenger));
     }
   } else if (activeDebugLayerExtension == DebugLayerExtension::DebugReport) {
     PFN_vkCreateDebugReportCallbackEXT createMsgCallback =
@@ -628,8 +667,8 @@ void VulkanRHI::setupDebugLayerCallback() {
             m_instance, "vkCreateDebugReportCallbackEXT");
     if (createMsgCallback) {
       VkDebugReportCallbackCreateInfoEXT createInfo;
+      ZERO_VULKAN_STRUCT(createInfo);
       createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-      createInfo.pNext = nullptr;
       createInfo.flags = VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT |
                          VK_DEBUG_REPORT_WARNING_BIT_EXT |
                          VK_DEBUG_REPORT_ERROR_BIT_EXT;
@@ -703,6 +742,7 @@ void VulkanRHI::createBuffer(uint32_t size, RHIBufferUsageFlags usage,
                              RHIMemoryPropertyFlags property, VkBuffer &buffer,
                              VkDeviceMemory &memory) {
   VkBufferCreateInfo bufferCreateInfo;
+  ZERO_VULKAN_STRUCT(bufferCreateInfo);
   bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
   bufferCreateInfo.pNext = nullptr;
   bufferCreateInfo.size = size;
@@ -724,6 +764,7 @@ void VulkanRHI::createBuffer(uint32_t size, RHIBufferUsageFlags usage,
   vkGetBufferMemoryRequirements(device->getDevice(), buffer, &requirements);
 
   VkMemoryAllocateInfo allocateInfo;
+  ZERO_VULKAN_STRUCT(allocateInfo);
   allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
   allocateInfo.allocationSize = requirements.size;
   allocateInfo.memoryTypeIndex = device->findMemoryType(

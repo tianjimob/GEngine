@@ -36,6 +36,8 @@ public:
   }
   bool onMouseWheel(float delta, double xpos, double ypos) { return false; }
 
+  void draw(bool present);
+
 private:
   // pointer to GameViewportClient
   GameViewportClient* m_gameViewportClient;
