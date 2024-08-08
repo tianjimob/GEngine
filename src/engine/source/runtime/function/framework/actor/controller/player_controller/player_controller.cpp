@@ -1,4 +1,5 @@
 #include "player_controller.h"
+#include "function/framework/camera/player_camera_manager.h"
 #include "function/framework/component/input/input_component.h"
 #include "function/framework/player/player.h"
 #include "function/framework/player/local_player/local_player.h"
@@ -90,6 +91,16 @@ void PlayerController::popInputComponent(InputComponent *inputComponent) {
       m_currentInputStack.begin(), m_currentInputStack.end(),
       [inputComponent](const InputComponent *comp) { return inputComponent == comp; });
   m_currentInputStack.erase(it, m_currentInputStack.end());
+}
+
+void PlayerController::spwanPlayerCameraManager() {
+  m_playerCameraManager =
+      std::make_shared<PlayerCameraManager>(shared_from_this());
+  m_playerCameraManager->setOuter(this);
+  m_playerCameraManager->setViewTarget(
+      std::static_pointer_cast<PlayerController>(shared_from_this()));
+  m_playerCameraManager->updateCamera(0.f);
+  
 }
 
 }  // namespace GEngine

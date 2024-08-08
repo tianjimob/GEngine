@@ -21,4 +21,8 @@ bool GameViewportClient::inputKey(InputEvent event, ModifierKey mod,
   return true;
 }
 
+void GameViewportClient::draw(SceneViewport* viewport) {
+  
+}
+
 } // namespace GEngine

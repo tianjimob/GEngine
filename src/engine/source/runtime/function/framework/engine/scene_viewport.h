@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/math/rect.h"
 #include "function/framework/ui/input.h"
 #include "function/framework/render/core/color_attachment.h"
 #include <cstdint>
@@ -40,7 +41,11 @@ public:
 
 private:
   // pointer to GameViewportClient
-  GameViewportClient* m_gameViewportClient;
+  GameViewportClient *m_gameViewportClient;
+
+  // range in pixels
+  Rect m_viewportRect;
+
 };
 
 } // namespace GEngine

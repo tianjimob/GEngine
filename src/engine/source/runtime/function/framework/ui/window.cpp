@@ -43,9 +43,9 @@ void Window::init() {
 
   auto backendStr = getWindowSettingStr("backend", defBackend);
   if (backendStr == "OpenGL45")
-    createInfo.backend = WindowBackend::OpenGL45;
+    m_backend = createInfo.backend = WindowBackend::OpenGL45;
   else if (backendStr == "Vulkan")
-    createInfo.backend = WindowBackend::Vulkan;
+    m_backend = createInfo.backend = WindowBackend::Vulkan;
 
   switch (createInfo.backend) {
   case WindowBackend::OpenGL45:

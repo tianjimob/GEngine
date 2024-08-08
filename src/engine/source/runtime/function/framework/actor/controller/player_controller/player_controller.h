@@ -4,6 +4,7 @@
 #include "function/framework/actor/actor.h"
 #include "function/framework/actor/controller/controller.h"
 #include "function/framework/actor/pawn/pawn.h"
+#include "function/framework/camera/player_camera_manager.h"
 #include "function/framework/component/input/input_component.h"
 #include <memory>
 #include <vector>
@@ -33,8 +34,10 @@ public:
 
   void setWorld(std::weak_ptr<World> world) { m_world = world; }
   void setPawn(std::weak_ptr<Pawn> pawn) { m_pawn = pawn; }
+  void spwanPlayerCameraManager();
+  Player *getPlayer() { return m_player; }
 
-private:
+ private:
   // bind to player
   Player *m_player;
 
@@ -45,7 +48,9 @@ private:
 
   std::shared_ptr<PlayerInput> m_playerInput;
 
-  std::vector<InputComponent*> m_currentInputStack;
+  std::vector<InputComponent *> m_currentInputStack;
+
+  std::shared_ptr<PlayerCameraManager> m_playerCameraManager;
 
 private:
   void initInputSystem();

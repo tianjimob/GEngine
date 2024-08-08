@@ -1,8 +1,11 @@
 #pragma once
 
+#include "SDL2/SDL_video.h"
+#include "SDL2/SDL_vulkan.h"
 #include "core/log/logger.h"
 
 #include "SDL2/SDL.h"
+#include "core/math/vector2.h"
 #include <memory>
 #include <string>
 
@@ -31,11 +34,27 @@ public:
     m_sceneViewport = sceneViewport;
   }
 
-  void* getNativeHandle() { return m_sdlWindow; }
+  void *getNativeHandle() { return m_sdlWindow; }
+
+  Vector2 getDrawableSize() {
+    int w,h;
+    switch (m_backend) {
+    case WindowBackend::OpenGL45:
+      SDL_GL_GetDrawableSize(m_sdlWindow, &w, &h);
+      break;
+    case WindowBackend::Vulkan:
+      SDL_Vulkan_GetDrawableSize(m_sdlWindow, &w, &h);
+      break;
+    default:
+      break;
+    }
+    return {static_cast<float>(w), static_cast<float>(h)};
+  }
 
 private:
   static const std::string defBackend;
-  
+
+  WindowBackend m_backend;
   SDL_Window *m_sdlWindow { nullptr };
 
   bool m_shouldClose{false};

@@ -86,12 +86,13 @@ void GameEngine::init() {
 void GameEngine::tick(float deltaTime) {
   SCOPE_TIME_GUARD(LogGameEngine);
 
-  // m_gameViewportWindow->pollEvents();
-  // m_shouldClose = m_gameViewportWindow->shouldClose();
+  m_gameViewportWindow->pollEvents();
+  m_shouldClose = m_gameViewportWindow->shouldClose();
 
-  // m_gameInstance->tick(deltaTime);
+  m_gameInstance->tick(deltaTime);
 
   // todo: tick GameViewportClient
+  redrawViewports(true);
 
 }
 

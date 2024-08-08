@@ -21,6 +21,8 @@ CLASS(GameViewportClient) : public GObject {
     m_viewport = viewport;
   }
 
+  void draw(SceneViewport* viewport);
+
  private:
   // pointer to SceneViewport created by GameInstance
   std::weak_ptr<SceneViewport> m_viewport;

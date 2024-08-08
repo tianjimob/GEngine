@@ -9,4 +9,6 @@ bool LocalPlayer::spawnPlayActor(World *world) {
   m_playerController = world->spawnPlayActor(this);
 }
 
+std::shared_ptr<SceneView> LocalPlayer::calcSceneView() {}
+
 }
