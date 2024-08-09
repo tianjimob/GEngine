@@ -46,39 +46,71 @@ const Key Keys::Cmd("Cmd");
 
 void Keys::init() {
   addKeyWithDetails(AnyKey);
+  m_keyToDetails[AnyKey]->isAnalog = false;
 
   addKeyWithDetails(A);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(B);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(C);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(D);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(E);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(F);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(G);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(H);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(I);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(J);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(K);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(L);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(M);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(N);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(O);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(P);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(Q);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(R);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(S);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(T);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(U);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(V);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(W);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(X);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(Y);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(Z);
+  m_keyToDetails[AnyKey]->isAnalog = false;
 
   addKeyWithDetails(SpaceBar);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(Shift);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(Ctrl);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(Alt);
+  m_keyToDetails[AnyKey]->isAnalog = false;
   addKeyWithDetails(Cmd);
+  m_keyToDetails[AnyKey]->isAnalog = false;
 }
 
 }

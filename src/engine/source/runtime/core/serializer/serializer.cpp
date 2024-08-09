@@ -1,4 +1,5 @@
 #include "serializer.h"
+#include "core/reflection/reflection.h"
 
 #include <cassert>
 
@@ -152,6 +153,25 @@ Vector4& Serializer::read(const Json& json_context, Vector4& instance,
   if (!json_context["w"].is_null()) {
     instance.w = json_context["w"];
   }
+
+  return instance;
+}
+
+template <>
+Json Serializer::write(Reflection::ClassDescriptor * const &instance) {
+  return Serializer::write(instance->getClassName());
+}
+
+template <>
+Reflection::ClassDescriptor *&
+Serializer::read(const Json &json_context,
+                 Reflection::ClassDescriptor *&instance, GObject *outer) {
+  assert(json_context.is_object());
+
+  std::string className;
+  Serializer::read(json_context, className, nullptr);
+
+  instance = &GET_CLASS(className);
 
   return instance;
 }

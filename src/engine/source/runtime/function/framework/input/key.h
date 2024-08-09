@@ -3,10 +3,11 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 #include "core/reflection/reflection.h"
 #include "function/framework/object/object.h"
-
+#include "function/framework/ui/input.h"
 
 namespace GEngine {
 
@@ -22,7 +23,8 @@ CLASS(Key) : public GObject {
  public:
   Key() = default;
   Key(const std::string &keyName) : m_keyName(keyName) {}
-  Key(const Key & key) : m_keyName(key.m_keyName), m_keyDetails(key.m_keyDetails) {}
+  Key(const Key &key)
+      : m_keyName(key.m_keyName), m_keyDetails(key.m_keyDetails) {}
 
   const std::string &getKeyName() { return m_keyName; }
   bool operator==(const Key &right) const {
@@ -86,6 +88,59 @@ struct Keys {
 
   static std::shared_ptr<KeyDetails> &getKeyDetails(Key &key) {
     return m_keyToDetails[key];
+  }
+
+  static const Key &getKeyFromVirtualCode(VirtualCode code) {
+    static std::unordered_map<VirtualCode, const Key *> codeToKey{
+        {VirtualCode::a, &A},
+        {VirtualCode::b, &B},
+        {VirtualCode::c, &C},
+        {VirtualCode::d, &D},
+        {VirtualCode::e, &E},
+        {VirtualCode::f, &F},
+        {VirtualCode::g, &G},
+        {VirtualCode::h, &H},
+        {VirtualCode::i, &I},
+        {VirtualCode::j, &J},
+        {VirtualCode::k, &K},
+        {VirtualCode::l, &L},
+        {VirtualCode::m, &M},
+        {VirtualCode::n, &N},
+        {VirtualCode::o, &O},
+        {VirtualCode::p, &P},
+        {VirtualCode::q, &Q},
+        {VirtualCode::r, &R},
+        {VirtualCode::s, &S},
+        {VirtualCode::t, &T},
+        {VirtualCode::u, &U},
+        {VirtualCode::v, &V},
+        {VirtualCode::w, &W},
+        {VirtualCode::x, &X},
+        {VirtualCode::y, &Y},
+        {VirtualCode::z, &Z},
+        {VirtualCode::SPACE, &SpaceBar},
+        {VirtualCode::LSHIFT, &Shift},
+        {VirtualCode::RSHIFT, &Shift},
+        {VirtualCode::LCTRL, &Ctrl},
+        {VirtualCode::RCTRL, &Ctrl},
+        {VirtualCode::LALT, &Alt},
+        {VirtualCode::RALT, &Alt},
+        {VirtualCode::LGUI, &Cmd},
+        {VirtualCode::RGUI, &Cmd},
+    };
+
+    return *codeToKey[code];
+  }
+
+  static const Key &getKeyFromModifierKey(ModifierKey code) {
+    static std::unordered_map<ModifierKey, const Key *> modifierToKey{
+        {ModifierKey::LeftShift, &Shift}, {ModifierKey::RightShift, &Shift},
+        {ModifierKey::LeftCtrl, &Ctrl},   {ModifierKey::RightCtrl, &Ctrl},
+        {ModifierKey::LeftAlt, &Alt},     {ModifierKey::RightAlt, &Alt},
+        {ModifierKey::LeftGui, &Cmd},     {ModifierKey::RightGui, &Cmd},
+    };
+
+    return *modifierToKey[code];
   }
 
  private:

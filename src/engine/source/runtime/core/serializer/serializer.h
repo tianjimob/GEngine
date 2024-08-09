@@ -8,6 +8,7 @@
 #include "core/math/vector3.h"
 #include "core/math/vector4.h"
 #include "core/misc/json.h"
+#include "core/reflection/reflection.h"
 #include "function/framework/object/object.h"
 
 
@@ -44,11 +45,11 @@ class Serializer {
     return instance;
   }
 
-  template <typename T>
-  static Json write(const T &instance);
+  template <typename T> static Json write(const T &instance);
 
   template <typename T>
   static T &read(const Json &json_context, T &instance, GObject *outer);
+
 };
 
 // implementation of base types
@@ -110,5 +111,12 @@ Json Serializer::write(const Vector4 &instance);
 template <>
 Vector4 &Serializer::read(const Json &json_context, Vector4 &instance,
                           GObject *outer);
+
+template <>
+Json Serializer::write(Reflection::ClassDescriptor * const &instance);
+template <>
+Reflection::ClassDescriptor *&Serializer::read(
+    const Json &json_context, Reflection::ClassDescriptor *&instance,
+    GObject *outer);
 
 }  // namespace GEngine

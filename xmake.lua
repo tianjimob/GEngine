@@ -101,11 +101,23 @@ target("tinyobjloader")
     add_includedirs(join_third_party_dir("tinyobjloader"))
     add_files(join_third_party_dir("tinyobjloader/tiny_obj_loader.cc"))
 
+target("imgui")
+    set_kind("static")
+    add_includedirs(join_third_party_dir("imgui"))
+    add_files(join_third_party_dir("imgui/*.cpp"))
+
+target("ImNodeFlow")
+    set_kind("static")
+    add_deps("imgui")
+    add_includedirs(join_third_party_dir("imgui"))
+    add_includedirs(join_third_party_dir("ImNodeFlow/include"))
+    add_files(join_third_party_dir("ImNodeFlow/src/*.cpp"))
+
 target("GEngineRuntime")
     set_kind("binary")
     set_targetdir("bin")
 
-    add_deps("glad", "ufbx", "tinyobjloader")
+    add_deps("glad", "ufbx", "tinyobjloader", "imgui", "ImNodeFlow")
     
     add_includedirs("src/engine/source/runtime")
     add_includedirs("src/engine/source/third_party")
@@ -116,13 +128,14 @@ target("GEngineRuntime")
                     join_third_party_dir("nlohmann/include"),
                     join_third_party_dir("libsimdpp/"),
                     join_third_party_dir("tinyobjloader"),
-                    join_third_party_dir("ufbx"))
+                    join_third_party_dir("ufbx"),
+                    join_third_party_dir("imgui"))
 
     add_defines("VULKAN_VALIDATION_ENABLE")
 
     add_links("SDL2main", "SDL2")
     if is_os("windows") then 
-        add_links("Advapi32", "vulkan-1")
+        add_links("Advapi32", "vulkan-1", "shaderc_combined")
         add_linkdirs(join_third_party_dir("SDL2/lib/windows"), join_third_party_dir("VulkanSDK/lib/windows"))
     elseif is_os("linux") then 
         add_links("vulkan", "m", "stdc++")

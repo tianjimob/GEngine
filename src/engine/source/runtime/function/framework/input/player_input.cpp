@@ -35,24 +35,24 @@ void PlayerInput::tickInputStack(
         InputSettings::instance().getActionsMappingByName(binding.actionName,
                                                           actionKeyMappings);
 
-        for (const auto [key, keyState] : keysWithEvents) {
-          if (keyState->consumed) continue;
-
-          auto it =
+        auto it =
               std::find_if(actionKeyMappings.begin(), actionKeyMappings.end(),
                            [&binding](const InputActionKeyMapping &mapping) {
                              return binding.actionName == mapping.actionName;
                            });
-          if (it == actionKeyMappings.end()) continue;
+        if (it == actionKeyMappings.end()) continue;
+
+        for (const auto [key, keyState] : keysWithEvents) {
+          if (keyState->consumed) continue;
 
           if (*key != it->key) continue;
 
           if (keyState->count[static_cast<int>(binding.event)] == 0) continue;
 
           auto isKeyPressed = [this](const Key &key) {
-            if (m_keyStates.count(Keys::Shift) == 0)
+            if (m_keyStates.count(key) == 0)
               return false;
-            else if (m_keyStates[Keys::Shift]
+            else if (m_keyStates[key]
                          .count[static_cast<int>(InputEvent::Pressed)] == 0)
               return false;
             return true;
@@ -85,9 +85,9 @@ void PlayerInput::tickInputStack(
             continue;
 
           auto isKeyPressed = [this](const Key &key) {
-            if (m_keyStates.count(Keys::Shift) == 0)
+            if (m_keyStates.count(key) == 0)
               return false;
-            else if (m_keyStates[Keys::Shift]
+            else if (m_keyStates[key]
                          .count[static_cast<int>(InputEvent::Pressed)] == 0)
               return false;
             return true;
@@ -116,15 +116,14 @@ void PlayerInput::tickInputStack(
         InputSettings::instance().getAxisMappingByName(binding.axisName,
                                                        axisKeyMappings);
 
+        auto it = std::find_if(axisKeyMappings.begin(), axisKeyMappings.end(),
+                               [&binding](const InputAxisKeyMapping &mapping) {
+                                 return binding.axisName == mapping.axisName;
+                               });
+        if (it == axisKeyMappings.end()) continue;
+
         for (const auto [key, keyState] : keysWithEvents) {
           if (keyState->consumed) continue;
-
-          auto it =
-              std::find_if(axisKeyMappings.begin(), axisKeyMappings.end(),
-                           [&binding](const InputAxisKeyMapping &mapping) {
-                             return binding.axisName == mapping.axisName;
-                           });
-          if (it == axisKeyMappings.end()) continue;
 
           if (*key != it->key) continue;
 

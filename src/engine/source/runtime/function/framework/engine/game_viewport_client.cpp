@@ -1,5 +1,6 @@
 #include "game_viewport_client.h"
 #include "function/framework/engine/engine.h"
+#include "function/framework/engine/scene_view.h"
 #include <memory>
 
 namespace GEngine {
@@ -16,13 +17,20 @@ bool GameViewportClient::inputKey(InputEvent event, ModifierKey mod,
     return false;
 
   auto &player = players[0];
-
+  if (player && player->getPlayerController()) {
+    player->getPlayerController()->inputKey(event, mod, key);
+    return true;
+  } else {
+    return false;
+  }
   
-  return true;
 }
 
 void GameViewportClient::draw(SceneViewport* viewport) {
-  
+  SceneViewFamily viewFamily;
+  for (auto &locaPlayer : GlobalEngine->getLocalPlayers()) {
+    viewFamily.addSceneView(locaPlayer->calcSceneView());
+  }
 }
 
 } // namespace GEngine

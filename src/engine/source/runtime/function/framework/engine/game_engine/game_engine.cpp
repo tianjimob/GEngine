@@ -42,7 +42,7 @@ void GameEngine::preInit(const std::string &configPath) {
     m_gameViewportWindow->setGameViewport(m_sceneViewport);
   }
 
-  { m_gameInstance->createLocalPlayer(false); }
+  m_gameInstance->createLocalPlayer(false);
 
   // initialize RHI after created window
   {
@@ -91,9 +91,7 @@ void GameEngine::tick(float deltaTime) {
 
   m_gameInstance->tick(deltaTime);
 
-  // todo: tick GameViewportClient
   redrawViewports(true);
-
 }
 
 void GameEngine::exit() {

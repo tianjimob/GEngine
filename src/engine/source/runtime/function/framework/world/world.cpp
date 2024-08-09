@@ -3,6 +3,7 @@
 #include "core/log/logger.h"
 
 #include "_generated/serializer/all_serializer.h"
+#include "function/framework/actor/actor.h"
 #include "function/framework/actor/controller/player_controller/player_controller.h"
 #include "function/framework/actor/pawn/pawn.h"
 
@@ -38,11 +39,12 @@ void World::load(const WorldInitializer &worldInitializer, std::weak_ptr<GameIns
   setCurrentLevel(worldInitializer.defautLevelUrl);
   m_owingGameInstance = gameInstance;
 
+  m_gameMode.defaultPawnClass = worldInitializer.gameMode.defaultPawnClass;
   
   PlayerController* controller;
   if (auto level = m_currentLevel.lock()) {
     for (auto &actor : level->getActos()) {
-      if (actor->isA<Pawn>()) {
+      if (actor->is(*m_gameMode.defaultPawnClass)) {
         if (controller == nullptr)
           controller =
               PlayerController::GetPlayControllerFromActor(actor.get());
@@ -57,6 +59,8 @@ void World::load(const WorldInitializer &worldInitializer, std::weak_ptr<GameIns
 }
 
 void World::tick(float deltaTime) {
+  m_persistentLevel->tick(deltaTime);
+
   std::shared_ptr<Level> level = m_currentLevel.lock();
   if (level) {
     level->tick(deltaTime);
@@ -78,6 +82,18 @@ std::shared_ptr<PlayerController> World::spawnPlayActor(Player *player) {
       std::make_shared<PlayerController>();
   retController->setWorld(std::static_pointer_cast<World>(shared_from_this()));
   retController->setPlayer(player);
+  m_persistentLevel->addTrasientActor(
+      std::static_pointer_cast<Actor>(retController));
+
+  if (auto level = m_currentLevel.lock()) {
+    for (auto &actor : level->getActos()) {
+      if (actor->is(*m_gameMode.defaultPawnClass)) {
+        retController->setPawn(std::static_pointer_cast<Pawn>(actor));
+        break;
+      }
+    }
+  }
+  
   return retController;
 }
 

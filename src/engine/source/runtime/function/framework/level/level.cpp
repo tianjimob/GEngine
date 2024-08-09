@@ -4,6 +4,9 @@
 
 namespace GEngine {
 void Level::tick(float deltaTime) {
+  for (auto &actor : m_trasientActor) {
+    actor->tick(deltaTime);
+  }
   for (auto &actor : m_actors) {
     actor->tick(deltaTime);
   }

@@ -12,6 +12,9 @@ CLASS(GameMode) : public Actor {
   REFLECTION_BODY(GameMode)
 
 public:
+  META_FIELD()
+  Reflection::ClassDescriptor* defaultPawnClass;
+
 private:
   
 };

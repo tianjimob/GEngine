@@ -7,6 +7,9 @@
 namespace GEngine {
 
 CLASS(CameraComponent) : public TransformComponent {
+  
+  REFLECTION_BODY(CameraComponent)
+
 public:
   virtual void getCameraView(float deltaTime, CameraViewInfo &viewInfo);
 

@@ -23,7 +23,7 @@ struct CameraViewTarget {
 
 class CameraComponent;
 
-class PlayerCameraManager : public Actor {
+class PlayerCameraManager {
 public:
   PlayerCameraManager(std::shared_ptr<PlayerController> playerController);
 

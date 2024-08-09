@@ -37,6 +37,9 @@ int main(int argc, char **argv) {
   fs::path serSaveDir = saveDir / "_generated" / "serializer";
   fs::path workPath = fs::current_path();
 
+  std::filesystem::remove_all(refSaveDir);
+  std::filesystem::remove_all(serSaveDir);
+
   if (fs::exists(projectDir)) {
     arguments.emplace_back(includeArg.c_str());
     fs::create_directories(refSaveDir);

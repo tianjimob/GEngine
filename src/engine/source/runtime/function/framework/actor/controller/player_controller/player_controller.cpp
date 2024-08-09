@@ -1,6 +1,8 @@
 #include "player_controller.h"
 #include "function/framework/camera/player_camera_manager.h"
 #include "function/framework/component/input/input_component.h"
+#include "function/framework/input/input_types.h"
+#include "function/framework/input/key.h"
 #include "function/framework/player/player.h"
 #include "function/framework/player/local_player/local_player.h"
 #include "function/framework/actor/pawn/pawn.h"
@@ -75,11 +77,12 @@ void PlayerController::tick(float deltaTime) {
   m_playerInput->tickInputStack(inputStack, deltaTime);
 
   inputStack.clear();
+
+  m_playerCameraManager->updateCamera(deltaTime);
 }
 
 void PlayerController::initInputSystem() {
   m_playerInput = std::make_shared<PlayerInput>();
-  m_inputComponent = std::make_shared<InputComponent>();
 }
 
 void PlayerController::pushInputComponent(InputComponent *inputComponent) {
@@ -93,14 +96,19 @@ void PlayerController::popInputComponent(InputComponent *inputComponent) {
   m_currentInputStack.erase(it, m_currentInputStack.end());
 }
 
+void PlayerController::inputKey(InputEvent event, ModifierKey mod,
+                                VirtualCode key) {
+  m_playerInput->inputKey(Keys::getKeyFromVirtualCode(key), event);
+  m_playerInput->inputKey(Keys::getKeyFromModifierKey(mod),
+                          InputEvent::Pressed);
+}
+
 void PlayerController::spwanPlayerCameraManager() {
   m_playerCameraManager =
-      std::make_shared<PlayerCameraManager>(shared_from_this());
-  m_playerCameraManager->setOuter(this);
+      std::make_shared<PlayerCameraManager>(std::static_pointer_cast<PlayerController>(shared_from_this()));
   m_playerCameraManager->setViewTarget(
       std::static_pointer_cast<PlayerController>(shared_from_this()));
   m_playerCameraManager->updateCamera(0.f);
-  
 }
 
 }  // namespace GEngine
