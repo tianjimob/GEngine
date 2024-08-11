@@ -24,6 +24,7 @@ void World::load(const WorldInitializer &worldInitializer, std::weak_ptr<GameIns
     }
     Json data = Json::parse(levelJson);
     std::shared_ptr<Level> level = std::make_shared<Level>();
+    level->setLevelUrl(levelUrl);
     Serializer::read(data, *level, this);
     for (auto &actor : level->getActos()) {
       for (auto &component : actor->getComponents()) {
@@ -37,25 +38,14 @@ void World::load(const WorldInitializer &worldInitializer, std::weak_ptr<GameIns
     addLevel(level);
   }
   setCurrentLevel(worldInitializer.defautLevelUrl);
+
+  m_persistentLevel = std::make_shared<Level>();
+  m_persistentLevel->postLoad(shared_from_this());
+  
   m_owingGameInstance = gameInstance;
 
   m_gameMode.defaultPawnClass = worldInitializer.gameMode.defaultPawnClass;
   
-  PlayerController* controller;
-  if (auto level = m_currentLevel.lock()) {
-    for (auto &actor : level->getActos()) {
-      if (actor->is(*m_gameMode.defaultPawnClass)) {
-        if (controller == nullptr)
-          controller =
-              PlayerController::GetPlayControllerFromActor(actor.get());
-        if (controller) {
-          auto pawn = std::static_pointer_cast<Pawn>(actor);
-          controller->setPawn(pawn);
-          pawn->resetInputComponent();
-        }
-      }
-    }
-  }
 }
 
 void World::tick(float deltaTime) {
@@ -75,6 +65,24 @@ bool World::setCurrentLevel(const std::string& levelUrl){
     }
   }
   return false;
+}
+
+void World::setupPawnFromCurrentLevel() {
+  PlayerController* controller;
+  if (auto level = m_currentLevel.lock()) {
+    for (auto &actor : level->getActos()) {
+      if (actor->is(*m_gameMode.defaultPawnClass)) {
+        if (controller == nullptr)
+          controller =
+              PlayerController::GetPlayControllerFromActor(actor.get());
+        if (controller) {
+          auto pawn = std::static_pointer_cast<Pawn>(actor);
+          controller->setPawn(pawn);
+          pawn->resetInputComponent();
+        }
+      }
+    }
+  }
 }
 
 std::shared_ptr<PlayerController> World::spawnPlayActor(Player *player) {

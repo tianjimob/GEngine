@@ -5,6 +5,7 @@
 #include "core/log/logger.h"
 
 #include "SDL2/SDL.h"
+#include "core/math/ivector2.h"
 #include "core/math/vector2.h"
 #include <memory>
 #include <string>
@@ -36,7 +37,7 @@ public:
 
   void *getNativeHandle() { return m_sdlWindow; }
 
-  Vector2 getDrawableSize() {
+  IVector2 getDrawableSize() {
     int w,h;
     switch (m_backend) {
     case WindowBackend::OpenGL45:
@@ -48,7 +49,7 @@ public:
     default:
       break;
     }
-    return {static_cast<float>(w), static_cast<float>(h)};
+    return {w, h};
   }
 
 private:

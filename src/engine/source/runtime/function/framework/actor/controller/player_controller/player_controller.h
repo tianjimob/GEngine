@@ -39,6 +39,7 @@ public:
   void setPawn(std::weak_ptr<Pawn> pawn) { m_pawn = pawn; }
   void spwanPlayerCameraManager();
   Player *getPlayer() { return m_player; }
+  std::shared_ptr<PlayerCameraManager>& getPlayerCameraManager();
 
  private:
   // bind to player

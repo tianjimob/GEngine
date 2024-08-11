@@ -166,7 +166,6 @@ template <>
 Reflection::ClassDescriptor *&
 Serializer::read(const Json &json_context,
                  Reflection::ClassDescriptor *&instance, GObject *outer) {
-  assert(json_context.is_object());
 
   std::string className;
   Serializer::read(json_context, className, nullptr);

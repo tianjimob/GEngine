@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/math/rect.h"
+#include "core/math/vector2.h"
 #include "function/framework/ui/input.h"
 #include "function/framework/render/core/color_attachment.h"
 #include <cstdint>
@@ -38,6 +39,11 @@ public:
   bool onMouseWheel(float delta, double xpos, double ypos) { return false; }
 
   void draw(bool present);
+
+  IVector2 getSize() { return m_viewportRect.max - m_viewportRect.min; }
+
+  float getNearClipPlane() { return 10.f; }
+  float getFarClipPlane() { return 1000.f; }
 
 private:
   // pointer to GameViewportClient

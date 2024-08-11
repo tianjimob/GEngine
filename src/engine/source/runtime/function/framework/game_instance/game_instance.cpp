@@ -5,6 +5,7 @@
 
 #include "function/framework/engine/engine.h"
 #include "core/misc/config_cache_ini.h"
+#include "function/framework/player/local_player/local_player.h"
 #include "function/framework/world/world.h"
 #include "resource/resource_path.h"
 #include "core/log/logger.h"
@@ -44,6 +45,7 @@ void GameInstance::init(std::shared_ptr<World> &world) {
     localPlayer->spawnPlayActor(world.get());
   }
 
+  world->setupPawnFromCurrentLevel();
 }
 
 void GameInstance::tick(float deltaTime) {
@@ -59,8 +61,10 @@ void GameInstance::exit() {}
 void GameInstance::setEngine(std::weak_ptr<Engine> engine) { m_engine = engine; }
 
 std::shared_ptr<LocalPlayer> &GameInstance::createLocalPlayer(bool shouldSpawnPlayActor) {
-  auto &newPlayer = m_localPlayers.emplace_back();
-  if (auto world = m_world.lock(); shouldSpawnPlayActor && newPlayer && world) {
+  auto &newPlayer =
+      m_localPlayers.emplace_back(std::make_shared<LocalPlayer>());
+  auto world = m_world.lock();
+  if ( shouldSpawnPlayActor && newPlayer && world) {
     if (!newPlayer->spawnPlayActor(world.get())) {
       m_localPlayers.pop_back();
       newPlayer.reset();

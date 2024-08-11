@@ -32,5 +32,4 @@ void SceneViewport::draw(bool present) {
   m_gameViewportClient->draw(this);
   
 }
-
 } // namespace GEngine

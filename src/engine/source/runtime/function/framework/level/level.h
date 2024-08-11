@@ -21,7 +21,7 @@ public:
   void tick(float deltaTime);
 
   const std::string& getLevelUrl() const { return m_path; }
-  void setLevelPath(const std::string &path) { m_path = path; }
+  void setLevelUrl(const std::string &path) { m_path = path; }
 
   virtual void postLoad(std::weak_ptr<GObject> parentObject) override;
 

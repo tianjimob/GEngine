@@ -63,11 +63,11 @@ namespace GEngine
         float v14 {0};
         float v15 {1.f};
     };
-    class Matrix4x4
+    class alignas(16) Matrix4x4
     {
     public:
         /// The matrix entries, indexed by [row][col]
-        float m_mat[4][4];
+        alignas(16) float m[4][4];
 
     public:
         /** Default constructor.
@@ -76,44 +76,44 @@ namespace GEngine
         */
         Matrix4x4(const Matrix4x4_& mat)
         {
-            m_mat[0][0] = mat.v0;
-            m_mat[0][1] = mat.v1;
-            m_mat[0][2] = mat.v2;
-            m_mat[0][3] = mat.v3;
-            m_mat[1][0] = mat.v4;
-            m_mat[1][1] = mat.v5;
-            m_mat[1][2] = mat.v6;
-            m_mat[1][3] = mat.v7;
-            m_mat[2][0] = mat.v8;
-            m_mat[2][1] = mat.v9;
-            m_mat[2][2] = mat.v10;
-            m_mat[2][3] = mat.v11;
-            m_mat[3][0] = mat.v12;
-            m_mat[3][1] = mat.v13;
-            m_mat[3][2] = mat.v14;
-            m_mat[3][3] = mat.v15;
+            m[0][0] = mat.v0;
+            m[0][1] = mat.v1;
+            m[0][2] = mat.v2;
+            m[0][3] = mat.v3;
+            m[1][0] = mat.v4;
+            m[1][1] = mat.v5;
+            m[1][2] = mat.v6;
+            m[1][3] = mat.v7;
+            m[2][0] = mat.v8;
+            m[2][1] = mat.v9;
+            m[2][2] = mat.v10;
+            m[2][3] = mat.v11;
+            m[3][0] = mat.v12;
+            m[3][1] = mat.v13;
+            m[3][2] = mat.v14;
+            m[3][3] = mat.v15;
         }
 
         Matrix4x4_ toMatrix4x4_()
         {
             Matrix4x4_ res;
 
-            res.v0  = m_mat[0][0];
-            res.v1  = m_mat[0][1];
-            res.v2  = m_mat[0][2];
-            res.v3  = m_mat[0][3];
-            res.v4  = m_mat[1][0];
-            res.v5  = m_mat[1][1];
-            res.v6  = m_mat[1][2];
-            res.v7  = m_mat[1][3];
-            res.v8  = m_mat[2][0];
-            res.v9  = m_mat[2][1];
-            res.v10 = m_mat[2][2];
-            res.v11 = m_mat[2][3];
-            res.v12 = m_mat[3][0];
-            res.v13 = m_mat[3][1];
-            res.v14 = m_mat[3][2];
-            res.v15 = m_mat[3][3];
+            res.v0  = m[0][0];
+            res.v1  = m[0][1];
+            res.v2  = m[0][2];
+            res.v3  = m[0][3];
+            res.v4  = m[1][0];
+            res.v5  = m[1][1];
+            res.v6  = m[1][2];
+            res.v7  = m[1][3];
+            res.v8  = m[2][0];
+            res.v9  = m[2][1];
+            res.v10 = m[2][2];
+            res.v11 = m[2][3];
+            res.v12 = m[3][0];
+            res.v13 = m[3][1];
+            res.v14 = m[3][2];
+            res.v15 = m[3][3];
             return res;
         }
 
@@ -121,22 +121,22 @@ namespace GEngine
 
         Matrix4x4(const float (&float_array)[16])
         {
-            m_mat[0][0] = float_array[0];
-            m_mat[0][1] = float_array[1];
-            m_mat[0][2] = float_array[2];
-            m_mat[0][3] = float_array[3];
-            m_mat[1][0] = float_array[4];
-            m_mat[1][1] = float_array[5];
-            m_mat[1][2] = float_array[6];
-            m_mat[1][3] = float_array[7];
-            m_mat[2][0] = float_array[8];
-            m_mat[2][1] = float_array[9];
-            m_mat[2][2] = float_array[10];
-            m_mat[2][3] = float_array[11];
-            m_mat[3][0] = float_array[12];
-            m_mat[3][1] = float_array[13];
-            m_mat[3][2] = float_array[14];
-            m_mat[3][3] = float_array[15];
+            m[0][0] = float_array[0];
+            m[0][1] = float_array[1];
+            m[0][2] = float_array[2];
+            m[0][3] = float_array[3];
+            m[1][0] = float_array[4];
+            m[1][1] = float_array[5];
+            m[1][2] = float_array[6];
+            m[1][3] = float_array[7];
+            m[2][0] = float_array[8];
+            m[2][1] = float_array[9];
+            m[2][2] = float_array[10];
+            m[2][3] = float_array[11];
+            m[3][0] = float_array[12];
+            m[3][1] = float_array[13];
+            m[3][2] = float_array[14];
+            m[3][3] = float_array[15];
         }
 
         Matrix4x4(float m00,
@@ -156,42 +156,42 @@ namespace GEngine
                   float m32,
                   float m33)
         {
-            m_mat[0][0] = m00;
-            m_mat[0][1] = m01;
-            m_mat[0][2] = m02;
-            m_mat[0][3] = m03;
-            m_mat[1][0] = m10;
-            m_mat[1][1] = m11;
-            m_mat[1][2] = m12;
-            m_mat[1][3] = m13;
-            m_mat[2][0] = m20;
-            m_mat[2][1] = m21;
-            m_mat[2][2] = m22;
-            m_mat[2][3] = m23;
-            m_mat[3][0] = m30;
-            m_mat[3][1] = m31;
-            m_mat[3][2] = m32;
-            m_mat[3][3] = m33;
+            m[0][0] = m00;
+            m[0][1] = m01;
+            m[0][2] = m02;
+            m[0][3] = m03;
+            m[1][0] = m10;
+            m[1][1] = m11;
+            m[1][2] = m12;
+            m[1][3] = m13;
+            m[2][0] = m20;
+            m[2][1] = m21;
+            m[2][2] = m22;
+            m[2][3] = m23;
+            m[3][0] = m30;
+            m[3][1] = m31;
+            m[3][2] = m32;
+            m[3][3] = m33;
         }
 
         Matrix4x4(const Vector4& row0, const Vector4& row1, const Vector4& row2, const Vector4& row3)
         {
-            m_mat[0][0] = row0.x;
-            m_mat[0][1] = row0.y;
-            m_mat[0][2] = row0.z;
-            m_mat[0][3] = row0.w;
-            m_mat[1][0] = row1.x;
-            m_mat[1][1] = row1.y;
-            m_mat[1][2] = row1.z;
-            m_mat[1][3] = row1.w;
-            m_mat[2][0] = row2.x;
-            m_mat[2][1] = row2.y;
-            m_mat[2][2] = row2.z;
-            m_mat[2][3] = row2.w;
-            m_mat[3][0] = row3.x;
-            m_mat[3][1] = row3.y;
-            m_mat[3][2] = row3.z;
-            m_mat[3][3] = row3.w;
+            m[0][0] = row0.x;
+            m[0][1] = row0.y;
+            m[0][2] = row0.z;
+            m[0][3] = row0.w;
+            m[1][0] = row1.x;
+            m[1][1] = row1.y;
+            m[1][2] = row1.z;
+            m[1][3] = row1.w;
+            m[2][0] = row2.x;
+            m[2][1] = row2.y;
+            m[2][2] = row2.z;
+            m[2][3] = row2.w;
+            m[3][0] = row3.x;
+            m[3][1] = row3.y;
+            m[3][2] = row3.z;
+            m[3][3] = row3.w;
         }
 
         Matrix4x4(const Vector3& position, const Vector3& scale, const Quaternion& rotation)
@@ -201,42 +201,42 @@ namespace GEngine
 
         void fromData(const float (&float_array)[16])
         {
-            m_mat[0][0] = float_array[0];
-            m_mat[0][1] = float_array[1];
-            m_mat[0][2] = float_array[2];
-            m_mat[0][3] = float_array[3];
-            m_mat[1][0] = float_array[4];
-            m_mat[1][1] = float_array[5];
-            m_mat[1][2] = float_array[6];
-            m_mat[1][3] = float_array[7];
-            m_mat[2][0] = float_array[8];
-            m_mat[2][1] = float_array[9];
-            m_mat[2][2] = float_array[10];
-            m_mat[2][3] = float_array[11];
-            m_mat[3][0] = float_array[12];
-            m_mat[3][1] = float_array[13];
-            m_mat[3][2] = float_array[14];
-            m_mat[3][3] = float_array[15];
+            m[0][0] = float_array[0];
+            m[0][1] = float_array[1];
+            m[0][2] = float_array[2];
+            m[0][3] = float_array[3];
+            m[1][0] = float_array[4];
+            m[1][1] = float_array[5];
+            m[1][2] = float_array[6];
+            m[1][3] = float_array[7];
+            m[2][0] = float_array[8];
+            m[2][1] = float_array[9];
+            m[2][2] = float_array[10];
+            m[2][3] = float_array[11];
+            m[3][0] = float_array[12];
+            m[3][1] = float_array[13];
+            m[3][2] = float_array[14];
+            m[3][3] = float_array[15];
         }
 
         void toData(float (&float_array)[16]) const
         {
-            float_array[0]  = m_mat[0][0];
-            float_array[1]  = m_mat[0][1];
-            float_array[2]  = m_mat[0][2];
-            float_array[3]  = m_mat[0][3];
-            float_array[4]  = m_mat[1][0];
-            float_array[5]  = m_mat[1][1];
-            float_array[6]  = m_mat[1][2];
-            float_array[7]  = m_mat[1][3];
-            float_array[8]  = m_mat[2][0];
-            float_array[9]  = m_mat[2][1];
-            float_array[10] = m_mat[2][2];
-            float_array[11] = m_mat[2][3];
-            float_array[12] = m_mat[3][0];
-            float_array[13] = m_mat[3][1];
-            float_array[14] = m_mat[3][2];
-            float_array[15] = m_mat[3][3];
+            float_array[0]  = m[0][0];
+            float_array[1]  = m[0][1];
+            float_array[2]  = m[0][2];
+            float_array[3]  = m[0][3];
+            float_array[4]  = m[1][0];
+            float_array[5]  = m[1][1];
+            float_array[6]  = m[1][2];
+            float_array[7]  = m[1][3];
+            float_array[8]  = m[2][0];
+            float_array[9]  = m[2][1];
+            float_array[10] = m[2][2];
+            float_array[11] = m[2][3];
+            float_array[12] = m[3][0];
+            float_array[13] = m[3][1];
+            float_array[14] = m[3][2];
+            float_array[15] = m[3][3];
         }
 
         /** Creates a standard 4x4 transformation matrix with a zero translation part from a rotation/scaling 3x3
@@ -244,22 +244,22 @@ namespace GEngine
          */
         void setMatrix3x3(const Matrix3x3& mat3)
         {
-            m_mat[0][0] = mat3.m_mat[0][0];
-            m_mat[0][1] = mat3.m_mat[0][1];
-            m_mat[0][2] = mat3.m_mat[0][2];
-            m_mat[0][3] = 0;
-            m_mat[1][0] = mat3.m_mat[1][0];
-            m_mat[1][1] = mat3.m_mat[1][1];
-            m_mat[1][2] = mat3.m_mat[1][2];
-            m_mat[1][3] = 0;
-            m_mat[2][0] = mat3.m_mat[2][0];
-            m_mat[2][1] = mat3.m_mat[2][1];
-            m_mat[2][2] = mat3.m_mat[2][2];
-            m_mat[2][3] = 0;
-            m_mat[3][0] = 0;
-            m_mat[3][1] = 0;
-            m_mat[3][2] = 0;
-            m_mat[3][3] = 1;
+            m[0][0] = mat3.m_mat[0][0];
+            m[0][1] = mat3.m_mat[0][1];
+            m[0][2] = mat3.m_mat[0][2];
+            m[0][3] = 0;
+            m[1][0] = mat3.m_mat[1][0];
+            m[1][1] = mat3.m_mat[1][1];
+            m[1][2] = mat3.m_mat[1][2];
+            m[1][3] = 0;
+            m[2][0] = mat3.m_mat[2][0];
+            m[2][1] = mat3.m_mat[2][1];
+            m[2][2] = mat3.m_mat[2][2];
+            m[2][3] = 0;
+            m[3][0] = 0;
+            m[3][1] = 0;
+            m[3][2] = 0;
+            m[3][3] = 1;
         }
 
         /** Creates a standard 4x4 transformation matrix with a zero translation part from a rotation/scaling
@@ -276,60 +276,64 @@ namespace GEngine
         float* operator[](size_t row_index)
         {
             assert(row_index < 4);
-            return m_mat[row_index];
+            return m[row_index];
         }
 
         const float* operator[](size_t row_index) const
         {
             assert(row_index < 4);
-            return m_mat[row_index];
+            return m[row_index];
         }
 
         Matrix4x4 concatenate(const Matrix4x4& m2) const
         {
             Matrix4x4 r;
-            r.m_mat[0][0] = m_mat[0][0] * m2.m_mat[0][0] + m_mat[0][1] * m2.m_mat[1][0] + m_mat[0][2] * m2.m_mat[2][0] +
-                            m_mat[0][3] * m2.m_mat[3][0];
-            r.m_mat[0][1] = m_mat[0][0] * m2.m_mat[0][1] + m_mat[0][1] * m2.m_mat[1][1] + m_mat[0][2] * m2.m_mat[2][1] +
-                            m_mat[0][3] * m2.m_mat[3][1];
-            r.m_mat[0][2] = m_mat[0][0] * m2.m_mat[0][2] + m_mat[0][1] * m2.m_mat[1][2] + m_mat[0][2] * m2.m_mat[2][2] +
-                            m_mat[0][3] * m2.m_mat[3][2];
-            r.m_mat[0][3] = m_mat[0][0] * m2.m_mat[0][3] + m_mat[0][1] * m2.m_mat[1][3] + m_mat[0][2] * m2.m_mat[2][3] +
-                            m_mat[0][3] * m2.m_mat[3][3];
+            r.m[0][0] = m[0][0] * m2.m[0][0] + m[0][1] * m2.m[1][0] + m[0][2] * m2.m[2][0] +
+                            m[0][3] * m2.m[3][0];
+            r.m[0][1] = m[0][0] * m2.m[0][1] + m[0][1] * m2.m[1][1] + m[0][2] * m2.m[2][1] +
+                            m[0][3] * m2.m[3][1];
+            r.m[0][2] = m[0][0] * m2.m[0][2] + m[0][1] * m2.m[1][2] + m[0][2] * m2.m[2][2] +
+                            m[0][3] * m2.m[3][2];
+            r.m[0][3] = m[0][0] * m2.m[0][3] + m[0][1] * m2.m[1][3] + m[0][2] * m2.m[2][3] +
+                            m[0][3] * m2.m[3][3];
 
-            r.m_mat[1][0] = m_mat[1][0] * m2.m_mat[0][0] + m_mat[1][1] * m2.m_mat[1][0] + m_mat[1][2] * m2.m_mat[2][0] +
-                            m_mat[1][3] * m2.m_mat[3][0];
-            r.m_mat[1][1] = m_mat[1][0] * m2.m_mat[0][1] + m_mat[1][1] * m2.m_mat[1][1] + m_mat[1][2] * m2.m_mat[2][1] +
-                            m_mat[1][3] * m2.m_mat[3][1];
-            r.m_mat[1][2] = m_mat[1][0] * m2.m_mat[0][2] + m_mat[1][1] * m2.m_mat[1][2] + m_mat[1][2] * m2.m_mat[2][2] +
-                            m_mat[1][3] * m2.m_mat[3][2];
-            r.m_mat[1][3] = m_mat[1][0] * m2.m_mat[0][3] + m_mat[1][1] * m2.m_mat[1][3] + m_mat[1][2] * m2.m_mat[2][3] +
-                            m_mat[1][3] * m2.m_mat[3][3];
+            r.m[1][0] = m[1][0] * m2.m[0][0] + m[1][1] * m2.m[1][0] + m[1][2] * m2.m[2][0] +
+                            m[1][3] * m2.m[3][0];
+            r.m[1][1] = m[1][0] * m2.m[0][1] + m[1][1] * m2.m[1][1] + m[1][2] * m2.m[2][1] +
+                            m[1][3] * m2.m[3][1];
+            r.m[1][2] = m[1][0] * m2.m[0][2] + m[1][1] * m2.m[1][2] + m[1][2] * m2.m[2][2] +
+                            m[1][3] * m2.m[3][2];
+            r.m[1][3] = m[1][0] * m2.m[0][3] + m[1][1] * m2.m[1][3] + m[1][2] * m2.m[2][3] +
+                            m[1][3] * m2.m[3][3];
 
-            r.m_mat[2][0] = m_mat[2][0] * m2.m_mat[0][0] + m_mat[2][1] * m2.m_mat[1][0] + m_mat[2][2] * m2.m_mat[2][0] +
-                            m_mat[2][3] * m2.m_mat[3][0];
-            r.m_mat[2][1] = m_mat[2][0] * m2.m_mat[0][1] + m_mat[2][1] * m2.m_mat[1][1] + m_mat[2][2] * m2.m_mat[2][1] +
-                            m_mat[2][3] * m2.m_mat[3][1];
-            r.m_mat[2][2] = m_mat[2][0] * m2.m_mat[0][2] + m_mat[2][1] * m2.m_mat[1][2] + m_mat[2][2] * m2.m_mat[2][2] +
-                            m_mat[2][3] * m2.m_mat[3][2];
-            r.m_mat[2][3] = m_mat[2][0] * m2.m_mat[0][3] + m_mat[2][1] * m2.m_mat[1][3] + m_mat[2][2] * m2.m_mat[2][3] +
-                            m_mat[2][3] * m2.m_mat[3][3];
+            r.m[2][0] = m[2][0] * m2.m[0][0] + m[2][1] * m2.m[1][0] + m[2][2] * m2.m[2][0] +
+                            m[2][3] * m2.m[3][0];
+            r.m[2][1] = m[2][0] * m2.m[0][1] + m[2][1] * m2.m[1][1] + m[2][2] * m2.m[2][1] +
+                            m[2][3] * m2.m[3][1];
+            r.m[2][2] = m[2][0] * m2.m[0][2] + m[2][1] * m2.m[1][2] + m[2][2] * m2.m[2][2] +
+                            m[2][3] * m2.m[3][2];
+            r.m[2][3] = m[2][0] * m2.m[0][3] + m[2][1] * m2.m[1][3] + m[2][2] * m2.m[2][3] +
+                            m[2][3] * m2.m[3][3];
 
-            r.m_mat[3][0] = m_mat[3][0] * m2.m_mat[0][0] + m_mat[3][1] * m2.m_mat[1][0] + m_mat[3][2] * m2.m_mat[2][0] +
-                            m_mat[3][3] * m2.m_mat[3][0];
-            r.m_mat[3][1] = m_mat[3][0] * m2.m_mat[0][1] + m_mat[3][1] * m2.m_mat[1][1] + m_mat[3][2] * m2.m_mat[2][1] +
-                            m_mat[3][3] * m2.m_mat[3][1];
-            r.m_mat[3][2] = m_mat[3][0] * m2.m_mat[0][2] + m_mat[3][1] * m2.m_mat[1][2] + m_mat[3][2] * m2.m_mat[2][2] +
-                            m_mat[3][3] * m2.m_mat[3][2];
-            r.m_mat[3][3] = m_mat[3][0] * m2.m_mat[0][3] + m_mat[3][1] * m2.m_mat[1][3] + m_mat[3][2] * m2.m_mat[2][3] +
-                            m_mat[3][3] * m2.m_mat[3][3];
+            r.m[3][0] = m[3][0] * m2.m[0][0] + m[3][1] * m2.m[1][0] + m[3][2] * m2.m[2][0] +
+                            m[3][3] * m2.m[3][0];
+            r.m[3][1] = m[3][0] * m2.m[0][1] + m[3][1] * m2.m[1][1] + m[3][2] * m2.m[2][1] +
+                            m[3][3] * m2.m[3][1];
+            r.m[3][2] = m[3][0] * m2.m[0][2] + m[3][1] * m2.m[1][2] + m[3][2] * m2.m[2][2] +
+                            m[3][3] * m2.m[3][2];
+            r.m[3][3] = m[3][0] * m2.m[0][3] + m[3][1] * m2.m[1][3] + m[3][2] * m2.m[2][3] +
+                            m[3][3] * m2.m[3][3];
 
             return r;
         }
 
         /** Matrix concatenation using '*'.
          */
-        Matrix4x4 operator*(const Matrix4x4& m2) const { return concatenate(m2); }
+        Matrix4x4 operator*(const Matrix4x4 &m2) const {
+            Matrix4x4 result;
+            Math::matrix4Multiply(&result, this, &m2);
+            return result;
+        }
 
         /** Vector transformation using '*'.
         @remarks
@@ -344,21 +348,21 @@ namespace GEngine
         {
             Vector3 r;
 
-            float inv_w = 1.0f / (m_mat[3][0] * v.x + m_mat[3][1] * v.y + m_mat[3][2] * v.z + m_mat[3][3]);
+            float inv_w = 1.0f / (m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3]);
 
-            r.x = (m_mat[0][0] * v.x + m_mat[0][1] * v.y + m_mat[0][2] * v.z + m_mat[0][3]) * inv_w;
-            r.y = (m_mat[1][0] * v.x + m_mat[1][1] * v.y + m_mat[1][2] * v.z + m_mat[1][3]) * inv_w;
-            r.z = (m_mat[2][0] * v.x + m_mat[2][1] * v.y + m_mat[2][2] * v.z + m_mat[2][3]) * inv_w;
+            r.x = (m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3]) * inv_w;
+            r.y = (m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3]) * inv_w;
+            r.z = (m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3]) * inv_w;
 
             return r;
         }
 
         Vector4 operator*(const Vector4& v) const
         {
-            return Vector4(m_mat[0][0] * v.x + m_mat[0][1] * v.y + m_mat[0][2] * v.z + m_mat[0][3] * v.w,
-                           m_mat[1][0] * v.x + m_mat[1][1] * v.y + m_mat[1][2] * v.z + m_mat[1][3] * v.w,
-                           m_mat[2][0] * v.x + m_mat[2][1] * v.y + m_mat[2][2] * v.z + m_mat[2][3] * v.w,
-                           m_mat[3][0] * v.x + m_mat[3][1] * v.y + m_mat[3][2] * v.z + m_mat[3][3] * v.w);
+            return Vector4(m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] * v.w,
+                           m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] * v.w,
+                           m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] * v.w,
+                           m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3] * v.w);
         }
 
         /** Matrix addition.
@@ -367,25 +371,25 @@ namespace GEngine
         {
             Matrix4x4 r;
 
-            r.m_mat[0][0] = m_mat[0][0] + m2.m_mat[0][0];
-            r.m_mat[0][1] = m_mat[0][1] + m2.m_mat[0][1];
-            r.m_mat[0][2] = m_mat[0][2] + m2.m_mat[0][2];
-            r.m_mat[0][3] = m_mat[0][3] + m2.m_mat[0][3];
+            r.m[0][0] = m[0][0] + m2.m[0][0];
+            r.m[0][1] = m[0][1] + m2.m[0][1];
+            r.m[0][2] = m[0][2] + m2.m[0][2];
+            r.m[0][3] = m[0][3] + m2.m[0][3];
 
-            r.m_mat[1][0] = m_mat[1][0] + m2.m_mat[1][0];
-            r.m_mat[1][1] = m_mat[1][1] + m2.m_mat[1][1];
-            r.m_mat[1][2] = m_mat[1][2] + m2.m_mat[1][2];
-            r.m_mat[1][3] = m_mat[1][3] + m2.m_mat[1][3];
+            r.m[1][0] = m[1][0] + m2.m[1][0];
+            r.m[1][1] = m[1][1] + m2.m[1][1];
+            r.m[1][2] = m[1][2] + m2.m[1][2];
+            r.m[1][3] = m[1][3] + m2.m[1][3];
 
-            r.m_mat[2][0] = m_mat[2][0] + m2.m_mat[2][0];
-            r.m_mat[2][1] = m_mat[2][1] + m2.m_mat[2][1];
-            r.m_mat[2][2] = m_mat[2][2] + m2.m_mat[2][2];
-            r.m_mat[2][3] = m_mat[2][3] + m2.m_mat[2][3];
+            r.m[2][0] = m[2][0] + m2.m[2][0];
+            r.m[2][1] = m[2][1] + m2.m[2][1];
+            r.m[2][2] = m[2][2] + m2.m[2][2];
+            r.m[2][3] = m[2][3] + m2.m[2][3];
 
-            r.m_mat[3][0] = m_mat[3][0] + m2.m_mat[3][0];
-            r.m_mat[3][1] = m_mat[3][1] + m2.m_mat[3][1];
-            r.m_mat[3][2] = m_mat[3][2] + m2.m_mat[3][2];
-            r.m_mat[3][3] = m_mat[3][3] + m2.m_mat[3][3];
+            r.m[3][0] = m[3][0] + m2.m[3][0];
+            r.m[3][1] = m[3][1] + m2.m[3][1];
+            r.m[3][2] = m[3][2] + m2.m[3][2];
+            r.m[3][3] = m[3][3] + m2.m[3][3];
 
             return r;
         }
@@ -395,99 +399,99 @@ namespace GEngine
         Matrix4x4 operator-(const Matrix4x4& m2) const
         {
             Matrix4x4 r;
-            r.m_mat[0][0] = m_mat[0][0] - m2.m_mat[0][0];
-            r.m_mat[0][1] = m_mat[0][1] - m2.m_mat[0][1];
-            r.m_mat[0][2] = m_mat[0][2] - m2.m_mat[0][2];
-            r.m_mat[0][3] = m_mat[0][3] - m2.m_mat[0][3];
+            r.m[0][0] = m[0][0] - m2.m[0][0];
+            r.m[0][1] = m[0][1] - m2.m[0][1];
+            r.m[0][2] = m[0][2] - m2.m[0][2];
+            r.m[0][3] = m[0][3] - m2.m[0][3];
 
-            r.m_mat[1][0] = m_mat[1][0] - m2.m_mat[1][0];
-            r.m_mat[1][1] = m_mat[1][1] - m2.m_mat[1][1];
-            r.m_mat[1][2] = m_mat[1][2] - m2.m_mat[1][2];
-            r.m_mat[1][3] = m_mat[1][3] - m2.m_mat[1][3];
+            r.m[1][0] = m[1][0] - m2.m[1][0];
+            r.m[1][1] = m[1][1] - m2.m[1][1];
+            r.m[1][2] = m[1][2] - m2.m[1][2];
+            r.m[1][3] = m[1][3] - m2.m[1][3];
 
-            r.m_mat[2][0] = m_mat[2][0] - m2.m_mat[2][0];
-            r.m_mat[2][1] = m_mat[2][1] - m2.m_mat[2][1];
-            r.m_mat[2][2] = m_mat[2][2] - m2.m_mat[2][2];
-            r.m_mat[2][3] = m_mat[2][3] - m2.m_mat[2][3];
+            r.m[2][0] = m[2][0] - m2.m[2][0];
+            r.m[2][1] = m[2][1] - m2.m[2][1];
+            r.m[2][2] = m[2][2] - m2.m[2][2];
+            r.m[2][3] = m[2][3] - m2.m[2][3];
 
-            r.m_mat[3][0] = m_mat[3][0] - m2.m_mat[3][0];
-            r.m_mat[3][1] = m_mat[3][1] - m2.m_mat[3][1];
-            r.m_mat[3][2] = m_mat[3][2] - m2.m_mat[3][2];
-            r.m_mat[3][3] = m_mat[3][3] - m2.m_mat[3][3];
+            r.m[3][0] = m[3][0] - m2.m[3][0];
+            r.m[3][1] = m[3][1] - m2.m[3][1];
+            r.m[3][2] = m[3][2] - m2.m[3][2];
+            r.m[3][3] = m[3][3] - m2.m[3][3];
 
             return r;
         }
 
         Matrix4x4 operator*(float scalar) const
         {
-            return Matrix4x4(scalar * m_mat[0][0],
-                             scalar * m_mat[0][1],
-                             scalar * m_mat[0][2],
-                             scalar * m_mat[0][3],
-                             scalar * m_mat[1][0],
-                             scalar * m_mat[1][1],
-                             scalar * m_mat[1][2],
-                             scalar * m_mat[1][3],
-                             scalar * m_mat[2][0],
-                             scalar * m_mat[2][1],
-                             scalar * m_mat[2][2],
-                             scalar * m_mat[2][3],
-                             scalar * m_mat[3][0],
-                             scalar * m_mat[3][1],
-                             scalar * m_mat[3][2],
-                             scalar * m_mat[3][3]);
+            return Matrix4x4(scalar * m[0][0],
+                             scalar * m[0][1],
+                             scalar * m[0][2],
+                             scalar * m[0][3],
+                             scalar * m[1][0],
+                             scalar * m[1][1],
+                             scalar * m[1][2],
+                             scalar * m[1][3],
+                             scalar * m[2][0],
+                             scalar * m[2][1],
+                             scalar * m[2][2],
+                             scalar * m[2][3],
+                             scalar * m[3][0],
+                             scalar * m[3][1],
+                             scalar * m[3][2],
+                             scalar * m[3][3]);
         }
 
         /** Tests 2 matrices for equality.
          */
         bool operator==(const Matrix4x4& m2) const
         {
-            return !(m_mat[0][0] != m2.m_mat[0][0] || m_mat[0][1] != m2.m_mat[0][1] || m_mat[0][2] != m2.m_mat[0][2] ||
-                m_mat[0][3] != m2.m_mat[0][3] || m_mat[1][0] != m2.m_mat[1][0] || m_mat[1][1] != m2.m_mat[1][1] ||
-                m_mat[1][2] != m2.m_mat[1][2] || m_mat[1][3] != m2.m_mat[1][3] || m_mat[2][0] != m2.m_mat[2][0] ||
-                m_mat[2][1] != m2.m_mat[2][1] || m_mat[2][2] != m2.m_mat[2][2] || m_mat[2][3] != m2.m_mat[2][3] ||
-                m_mat[3][0] != m2.m_mat[3][0] || m_mat[3][1] != m2.m_mat[3][1] || m_mat[3][2] != m2.m_mat[3][2] ||
-                m_mat[3][3] != m2.m_mat[3][3]);
+            return !(m[0][0] != m2.m[0][0] || m[0][1] != m2.m[0][1] || m[0][2] != m2.m[0][2] ||
+                m[0][3] != m2.m[0][3] || m[1][0] != m2.m[1][0] || m[1][1] != m2.m[1][1] ||
+                m[1][2] != m2.m[1][2] || m[1][3] != m2.m[1][3] || m[2][0] != m2.m[2][0] ||
+                m[2][1] != m2.m[2][1] || m[2][2] != m2.m[2][2] || m[2][3] != m2.m[2][3] ||
+                m[3][0] != m2.m[3][0] || m[3][1] != m2.m[3][1] || m[3][2] != m2.m[3][2] ||
+                m[3][3] != m2.m[3][3]);
         }
 
         /** Tests 2 matrices for inequality.
          */
         bool operator!=(const Matrix4x4& m2) const
         {
-            return m_mat[0][0] != m2.m_mat[0][0] || m_mat[0][1] != m2.m_mat[0][1] || m_mat[0][2] != m2.m_mat[0][2] ||
-                m_mat[0][3] != m2.m_mat[0][3] || m_mat[1][0] != m2.m_mat[1][0] || m_mat[1][1] != m2.m_mat[1][1] ||
-                m_mat[1][2] != m2.m_mat[1][2] || m_mat[1][3] != m2.m_mat[1][3] || m_mat[2][0] != m2.m_mat[2][0] ||
-                m_mat[2][1] != m2.m_mat[2][1] || m_mat[2][2] != m2.m_mat[2][2] || m_mat[2][3] != m2.m_mat[2][3] ||
-                m_mat[3][0] != m2.m_mat[3][0] || m_mat[3][1] != m2.m_mat[3][1] || m_mat[3][2] != m2.m_mat[3][2] ||
-                m_mat[3][3] != m2.m_mat[3][3];
+            return m[0][0] != m2.m[0][0] || m[0][1] != m2.m[0][1] || m[0][2] != m2.m[0][2] ||
+                m[0][3] != m2.m[0][3] || m[1][0] != m2.m[1][0] || m[1][1] != m2.m[1][1] ||
+                m[1][2] != m2.m[1][2] || m[1][3] != m2.m[1][3] || m[2][0] != m2.m[2][0] ||
+                m[2][1] != m2.m[2][1] || m[2][2] != m2.m[2][2] || m[2][3] != m2.m[2][3] ||
+                m[3][0] != m2.m[3][0] || m[3][1] != m2.m[3][1] || m[3][2] != m2.m[3][2] ||
+                m[3][3] != m2.m[3][3];
         }
 
         Matrix4x4 transpose() const
         {
-            return Matrix4x4(m_mat[0][0],
-                             m_mat[1][0],
-                             m_mat[2][0],
-                             m_mat[3][0],
-                             m_mat[0][1],
-                             m_mat[1][1],
-                             m_mat[2][1],
-                             m_mat[3][1],
-                             m_mat[0][2],
-                             m_mat[1][2],
-                             m_mat[2][2],
-                             m_mat[3][2],
-                             m_mat[0][3],
-                             m_mat[1][3],
-                             m_mat[2][3],
-                             m_mat[3][3]);
+            return Matrix4x4(m[0][0],
+                             m[1][0],
+                             m[2][0],
+                             m[3][0],
+                             m[0][1],
+                             m[1][1],
+                             m[2][1],
+                             m[3][1],
+                             m[0][2],
+                             m[1][2],
+                             m[2][2],
+                             m[3][2],
+                             m[0][3],
+                             m[1][3],
+                             m[2][3],
+                             m[3][3]);
         }
 
         //-----------------------------------------------------------------------
         float getMinor(size_t r0, size_t r1, size_t r2, size_t c0, size_t c1, size_t c2) const
         {
-            return m_mat[r0][c0] * (m_mat[r1][c1] * m_mat[r2][c2] - m_mat[r2][c1] * m_mat[r1][c2]) -
-                   m_mat[r0][c1] * (m_mat[r1][c0] * m_mat[r2][c2] - m_mat[r2][c0] * m_mat[r1][c2]) +
-                   m_mat[r0][c2] * (m_mat[r1][c0] * m_mat[r2][c1] - m_mat[r2][c0] * m_mat[r1][c1]);
+            return m[r0][c0] * (m[r1][c1] * m[r2][c2] - m[r2][c1] * m[r1][c2]) -
+                   m[r0][c1] * (m[r1][c0] * m[r2][c2] - m[r2][c0] * m[r1][c2]) +
+                   m[r0][c2] * (m[r1][c0] * m[r2][c1] - m[r2][c0] * m[r1][c1]);
         }
 
         /*
@@ -499,14 +503,14 @@ namespace GEngine
          */
         void setTrans(const Vector3& v)
         {
-            m_mat[0][3] = v.x;
-            m_mat[1][3] = v.y;
-            m_mat[2][3] = v.z;
+            m[0][3] = v.x;
+            m[1][3] = v.y;
+            m[2][3] = v.z;
         }
 
         /** Extracts the translation transformation part of the matrix.
          */
-        Vector3 getTrans() const { return Vector3(m_mat[0][3], m_mat[1][3], m_mat[2][3]); }
+        Vector3 getTrans() const { return Vector3(m[0][3], m[1][3], m[2][3]); }
 
         Matrix4x4 buildViewportMatrix(uint32_t width, uint32_t height)
         {
@@ -531,25 +535,25 @@ namespace GEngine
         static Matrix4x4 mirrorMatrix(Vector4 mirror_plane)
         {
             Matrix4x4 result;
-            result.m_mat[0][0] = -2 * mirror_plane.x * mirror_plane.x + 1;
-            result.m_mat[1][0] = -2 * mirror_plane.x * mirror_plane.y;
-            result.m_mat[2][0] = -2 * mirror_plane.x * mirror_plane.z;
-            result.m_mat[3][0] = 0;
+            result.m[0][0] = -2 * mirror_plane.x * mirror_plane.x + 1;
+            result.m[1][0] = -2 * mirror_plane.x * mirror_plane.y;
+            result.m[2][0] = -2 * mirror_plane.x * mirror_plane.z;
+            result.m[3][0] = 0;
 
-            result.m_mat[0][1] = -2 * mirror_plane.y * mirror_plane.x;
-            result.m_mat[1][1] = -2 * mirror_plane.y * mirror_plane.y + 1;
-            result.m_mat[2][1] = -2 * mirror_plane.y * mirror_plane.z;
-            result.m_mat[3][1] = 0;
+            result.m[0][1] = -2 * mirror_plane.y * mirror_plane.x;
+            result.m[1][1] = -2 * mirror_plane.y * mirror_plane.y + 1;
+            result.m[2][1] = -2 * mirror_plane.y * mirror_plane.z;
+            result.m[3][1] = 0;
 
-            result.m_mat[0][2] = -2 * mirror_plane.z * mirror_plane.x;
-            result.m_mat[1][2] = -2 * mirror_plane.z * mirror_plane.y;
-            result.m_mat[2][2] = -2 * mirror_plane.z * mirror_plane.z + 1;
-            result.m_mat[3][2] = 0;
+            result.m[0][2] = -2 * mirror_plane.z * mirror_plane.x;
+            result.m[1][2] = -2 * mirror_plane.z * mirror_plane.y;
+            result.m[2][2] = -2 * mirror_plane.z * mirror_plane.z + 1;
+            result.m[3][2] = 0;
 
-            result.m_mat[0][3] = -2 * mirror_plane.w * mirror_plane.x;
-            result.m_mat[1][3] = -2 * mirror_plane.w * mirror_plane.y;
-            result.m_mat[2][3] = -2 * mirror_plane.w * mirror_plane.z;
-            result.m_mat[3][3] = 1;
+            result.m[0][3] = -2 * mirror_plane.w * mirror_plane.x;
+            result.m[1][3] = -2 * mirror_plane.w * mirror_plane.y;
+            result.m[2][3] = -2 * mirror_plane.w * mirror_plane.z;
+            result.m[3][3] = 1;
 
             return result;
         }
@@ -578,42 +582,42 @@ namespace GEngine
          */
         void makeTrans(const Vector3& v)
         {
-            m_mat[0][0] = 1.0;
-            m_mat[0][1] = 0.0;
-            m_mat[0][2] = 0.0;
-            m_mat[0][3] = v.x;
-            m_mat[1][0] = 0.0;
-            m_mat[1][1] = 1.0;
-            m_mat[1][2] = 0.0;
-            m_mat[1][3] = v.y;
-            m_mat[2][0] = 0.0;
-            m_mat[2][1] = 0.0;
-            m_mat[2][2] = 1.0;
-            m_mat[2][3] = v.z;
-            m_mat[3][0] = 0.0;
-            m_mat[3][1] = 0.0;
-            m_mat[3][2] = 0.0;
-            m_mat[3][3] = 1.0;
+            m[0][0] = 1.0;
+            m[0][1] = 0.0;
+            m[0][2] = 0.0;
+            m[0][3] = v.x;
+            m[1][0] = 0.0;
+            m[1][1] = 1.0;
+            m[1][2] = 0.0;
+            m[1][3] = v.y;
+            m[2][0] = 0.0;
+            m[2][1] = 0.0;
+            m[2][2] = 1.0;
+            m[2][3] = v.z;
+            m[3][0] = 0.0;
+            m[3][1] = 0.0;
+            m[3][2] = 0.0;
+            m[3][3] = 1.0;
         }
 
         void makeTrans(float tx, float ty, float tz)
         {
-            m_mat[0][0] = 1.0;
-            m_mat[0][1] = 0.0;
-            m_mat[0][2] = 0.0;
-            m_mat[0][3] = tx;
-            m_mat[1][0] = 0.0;
-            m_mat[1][1] = 1.0;
-            m_mat[1][2] = 0.0;
-            m_mat[1][3] = ty;
-            m_mat[2][0] = 0.0;
-            m_mat[2][1] = 0.0;
-            m_mat[2][2] = 1.0;
-            m_mat[2][3] = tz;
-            m_mat[3][0] = 0.0;
-            m_mat[3][1] = 0.0;
-            m_mat[3][2] = 0.0;
-            m_mat[3][3] = 1.0;
+            m[0][0] = 1.0;
+            m[0][1] = 0.0;
+            m[0][2] = 0.0;
+            m[0][3] = tx;
+            m[1][0] = 0.0;
+            m[1][1] = 1.0;
+            m[1][2] = 0.0;
+            m[1][3] = ty;
+            m[2][0] = 0.0;
+            m[2][1] = 0.0;
+            m[2][2] = 1.0;
+            m[2][3] = tz;
+            m[3][0] = 0.0;
+            m[3][1] = 0.0;
+            m[3][2] = 0.0;
+            m[3][3] = 1.0;
         }
 
         /** Gets a translation matrix.
@@ -622,22 +626,22 @@ namespace GEngine
         {
             Matrix4x4 r;
 
-            r.m_mat[0][0] = 1.0;
-            r.m_mat[0][1] = 0.0;
-            r.m_mat[0][2] = 0.0;
-            r.m_mat[0][3] = v.x;
-            r.m_mat[1][0] = 0.0;
-            r.m_mat[1][1] = 1.0;
-            r.m_mat[1][2] = 0.0;
-            r.m_mat[1][3] = v.y;
-            r.m_mat[2][0] = 0.0;
-            r.m_mat[2][1] = 0.0;
-            r.m_mat[2][2] = 1.0;
-            r.m_mat[2][3] = v.z;
-            r.m_mat[3][0] = 0.0;
-            r.m_mat[3][1] = 0.0;
-            r.m_mat[3][2] = 0.0;
-            r.m_mat[3][3] = 1.0;
+            r.m[0][0] = 1.0;
+            r.m[0][1] = 0.0;
+            r.m[0][2] = 0.0;
+            r.m[0][3] = v.x;
+            r.m[1][0] = 0.0;
+            r.m[1][1] = 1.0;
+            r.m[1][2] = 0.0;
+            r.m[1][3] = v.y;
+            r.m[2][0] = 0.0;
+            r.m[2][1] = 0.0;
+            r.m[2][2] = 1.0;
+            r.m[2][3] = v.z;
+            r.m[3][0] = 0.0;
+            r.m[3][1] = 0.0;
+            r.m[3][2] = 0.0;
+            r.m[3][3] = 1.0;
 
             return r;
         }
@@ -648,22 +652,22 @@ namespace GEngine
         {
             Matrix4x4 r;
 
-            r.m_mat[0][0] = 1.0;
-            r.m_mat[0][1] = 0.0;
-            r.m_mat[0][2] = 0.0;
-            r.m_mat[0][3] = t_x;
-            r.m_mat[1][0] = 0.0;
-            r.m_mat[1][1] = 1.0;
-            r.m_mat[1][2] = 0.0;
-            r.m_mat[1][3] = t_y;
-            r.m_mat[2][0] = 0.0;
-            r.m_mat[2][1] = 0.0;
-            r.m_mat[2][2] = 1.0;
-            r.m_mat[2][3] = t_z;
-            r.m_mat[3][0] = 0.0;
-            r.m_mat[3][1] = 0.0;
-            r.m_mat[3][2] = 0.0;
-            r.m_mat[3][3] = 1.0;
+            r.m[0][0] = 1.0;
+            r.m[0][1] = 0.0;
+            r.m[0][2] = 0.0;
+            r.m[0][3] = t_x;
+            r.m[1][0] = 0.0;
+            r.m[1][1] = 1.0;
+            r.m[1][2] = 0.0;
+            r.m[1][3] = t_y;
+            r.m[2][0] = 0.0;
+            r.m[2][1] = 0.0;
+            r.m[2][2] = 1.0;
+            r.m[2][3] = t_z;
+            r.m[3][0] = 0.0;
+            r.m[3][1] = 0.0;
+            r.m[3][2] = 0.0;
+            r.m[3][3] = 1.0;
 
             return r;
         }
@@ -677,9 +681,9 @@ namespace GEngine
          */
         void setScale(const Vector3& v)
         {
-            m_mat[0][0] = v.x;
-            m_mat[1][1] = v.y;
-            m_mat[2][2] = v.z;
+            m[0][0] = v.x;
+            m[1][1] = v.y;
+            m[2][2] = v.z;
         }
 
         /** Gets a scale matrix.
@@ -687,22 +691,22 @@ namespace GEngine
         static Matrix4x4 getScale(const Vector3& v)
         {
             Matrix4x4 r;
-            r.m_mat[0][0] = v.x;
-            r.m_mat[0][1] = 0.0;
-            r.m_mat[0][2] = 0.0;
-            r.m_mat[0][3] = 0.0;
-            r.m_mat[1][0] = 0.0;
-            r.m_mat[1][1] = v.y;
-            r.m_mat[1][2] = 0.0;
-            r.m_mat[1][3] = 0.0;
-            r.m_mat[2][0] = 0.0;
-            r.m_mat[2][1] = 0.0;
-            r.m_mat[2][2] = v.z;
-            r.m_mat[2][3] = 0.0;
-            r.m_mat[3][0] = 0.0;
-            r.m_mat[3][1] = 0.0;
-            r.m_mat[3][2] = 0.0;
-            r.m_mat[3][3] = 1.0;
+            r.m[0][0] = v.x;
+            r.m[0][1] = 0.0;
+            r.m[0][2] = 0.0;
+            r.m[0][3] = 0.0;
+            r.m[1][0] = 0.0;
+            r.m[1][1] = v.y;
+            r.m[1][2] = 0.0;
+            r.m[1][3] = 0.0;
+            r.m[2][0] = 0.0;
+            r.m[2][1] = 0.0;
+            r.m[2][2] = v.z;
+            r.m[2][3] = 0.0;
+            r.m[3][0] = 0.0;
+            r.m[3][1] = 0.0;
+            r.m[3][2] = 0.0;
+            r.m[3][3] = 1.0;
 
             return r;
         }
@@ -712,22 +716,22 @@ namespace GEngine
         static Matrix4x4 buildScaleMatrix(float s_x, float s_y, float s_z)
         {
             Matrix4x4 r;
-            r.m_mat[0][0] = s_x;
-            r.m_mat[0][1] = 0.0;
-            r.m_mat[0][2] = 0.0;
-            r.m_mat[0][3] = 0.0;
-            r.m_mat[1][0] = 0.0;
-            r.m_mat[1][1] = s_y;
-            r.m_mat[1][2] = 0.0;
-            r.m_mat[1][3] = 0.0;
-            r.m_mat[2][0] = 0.0;
-            r.m_mat[2][1] = 0.0;
-            r.m_mat[2][2] = s_z;
-            r.m_mat[2][3] = 0.0;
-            r.m_mat[3][0] = 0.0;
-            r.m_mat[3][1] = 0.0;
-            r.m_mat[3][2] = 0.0;
-            r.m_mat[3][3] = 1.0;
+            r.m[0][0] = s_x;
+            r.m[0][1] = 0.0;
+            r.m[0][2] = 0.0;
+            r.m[0][3] = 0.0;
+            r.m[1][0] = 0.0;
+            r.m[1][1] = s_y;
+            r.m[1][2] = 0.0;
+            r.m[1][3] = 0.0;
+            r.m[2][0] = 0.0;
+            r.m[2][1] = 0.0;
+            r.m[2][2] = s_z;
+            r.m[2][3] = 0.0;
+            r.m[3][0] = 0.0;
+            r.m[3][1] = 0.0;
+            r.m[3][2] = 0.0;
+            r.m[3][3] = 1.0;
 
             return r;
         }
@@ -737,24 +741,24 @@ namespace GEngine
         */
         void extract3x3Matrix(Matrix3x3& m3x3) const
         {
-            m3x3.m_mat[0][0] = m_mat[0][0];
-            m3x3.m_mat[0][1] = m_mat[0][1];
-            m3x3.m_mat[0][2] = m_mat[0][2];
-            m3x3.m_mat[1][0] = m_mat[1][0];
-            m3x3.m_mat[1][1] = m_mat[1][1];
-            m3x3.m_mat[1][2] = m_mat[1][2];
-            m3x3.m_mat[2][0] = m_mat[2][0];
-            m3x3.m_mat[2][1] = m_mat[2][1];
-            m3x3.m_mat[2][2] = m_mat[2][2];
+            m3x3.m_mat[0][0] = m[0][0];
+            m3x3.m_mat[0][1] = m[0][1];
+            m3x3.m_mat[0][2] = m[0][2];
+            m3x3.m_mat[1][0] = m[1][0];
+            m3x3.m_mat[1][1] = m[1][1];
+            m3x3.m_mat[1][2] = m[1][2];
+            m3x3.m_mat[2][0] = m[2][0];
+            m3x3.m_mat[2][1] = m[2][1];
+            m3x3.m_mat[2][2] = m[2][2];
         }
 
         void extractAxes(Vector3& out_x, Vector3& out_y, Vector3& out_z) const
         {
-            out_x = Vector3(m_mat[0][0], m_mat[1][0], m_mat[2][0]);
+            out_x = Vector3(m[0][0], m[1][0], m[2][0]);
             out_x.normalise();
-            out_y = Vector3(m_mat[0][1], m_mat[1][1], m_mat[2][1]);
+            out_y = Vector3(m[0][1], m[1][1], m[2][1]);
             out_y.normalise();
-            out_z = Vector3(m_mat[0][2], m_mat[1][2], m_mat[2][2]);
+            out_z = Vector3(m[0][2], m[1][2], m[2][2]);
             out_z.normalise();
         }
 
@@ -762,13 +766,13 @@ namespace GEngine
         bool hasScale() const
         {
             // check magnitude of column vectors (==local axes)
-            float t = m_mat[0][0] * m_mat[0][0] + m_mat[1][0] * m_mat[1][0] + m_mat[2][0] * m_mat[2][0];
+            float t = m[0][0] * m[0][0] + m[1][0] * m[1][0] + m[2][0] * m[2][0];
             if (!Math::realEqual(t, 1.0, (float)1e-04))
                 return true;
-            t = m_mat[0][1] * m_mat[0][1] + m_mat[1][1] * m_mat[1][1] + m_mat[2][1] * m_mat[2][1];
+            t = m[0][1] * m[0][1] + m[1][1] * m[1][1] + m[2][1] * m[2][1];
             if (!Math::realEqual(t, 1.0, (float)1e-04))
                 return true;
-            t = m_mat[0][2] * m_mat[0][2] + m_mat[1][2] * m_mat[1][2] + m_mat[2][2] * m_mat[2][2];
+            t = m[0][2] * m[0][2] + m[1][2] * m[1][2] + m[2][2] * m[2][2];
             return !Math::realEqual(t, 1.0, (float)1e-04);
         }
 
@@ -788,8 +792,8 @@ namespace GEngine
 
         float determinant() const
         {
-            return m_mat[0][0] * getMinor(1, 2, 3, 1, 2, 3) - m_mat[0][1] * getMinor(1, 2, 3, 0, 2, 3) +
-                   m_mat[0][2] * getMinor(1, 2, 3, 0, 1, 3) - m_mat[0][3] * getMinor(1, 2, 3, 0, 1, 2);
+            return m[0][0] * getMinor(1, 2, 3, 1, 2, 3) - m[0][1] * getMinor(1, 2, 3, 0, 2, 3) +
+                   m[0][2] * getMinor(1, 2, 3, 0, 1, 3) - m[0][3] * getMinor(1, 2, 3, 0, 1, 2);
         }
 
         /** Building a Matrix4 from orientation / scale / position.
@@ -820,7 +824,7 @@ namespace GEngine
         */
         bool isAffine(void) const
         {
-            return m_mat[3][0] == 0 && m_mat[3][1] == 0 && m_mat[3][2] == 0 && m_mat[3][3] == 1;
+            return m[3][0] == 0 && m[3][1] == 0 && m[3][2] == 0 && m[3][3] == 1;
         }
 
         /** Returns the inverse of the affine matrix.
@@ -837,23 +841,23 @@ namespace GEngine
         {
             assert(isAffine() && m2.isAffine());
 
-            return Matrix4x4(m_mat[0][0] * m2.m_mat[0][0] + m_mat[0][1] * m2.m_mat[1][0] + m_mat[0][2] * m2.m_mat[2][0],
-                             m_mat[0][0] * m2.m_mat[0][1] + m_mat[0][1] * m2.m_mat[1][1] + m_mat[0][2] * m2.m_mat[2][1],
-                             m_mat[0][0] * m2.m_mat[0][2] + m_mat[0][1] * m2.m_mat[1][2] + m_mat[0][2] * m2.m_mat[2][2],
-                             m_mat[0][0] * m2.m_mat[0][3] + m_mat[0][1] * m2.m_mat[1][3] +
-                                 m_mat[0][2] * m2.m_mat[2][3] + m_mat[0][3],
+            return Matrix4x4(m[0][0] * m2.m[0][0] + m[0][1] * m2.m[1][0] + m[0][2] * m2.m[2][0],
+                             m[0][0] * m2.m[0][1] + m[0][1] * m2.m[1][1] + m[0][2] * m2.m[2][1],
+                             m[0][0] * m2.m[0][2] + m[0][1] * m2.m[1][2] + m[0][2] * m2.m[2][2],
+                             m[0][0] * m2.m[0][3] + m[0][1] * m2.m[1][3] +
+                                 m[0][2] * m2.m[2][3] + m[0][3],
 
-                             m_mat[1][0] * m2.m_mat[0][0] + m_mat[1][1] * m2.m_mat[1][0] + m_mat[1][2] * m2.m_mat[2][0],
-                             m_mat[1][0] * m2.m_mat[0][1] + m_mat[1][1] * m2.m_mat[1][1] + m_mat[1][2] * m2.m_mat[2][1],
-                             m_mat[1][0] * m2.m_mat[0][2] + m_mat[1][1] * m2.m_mat[1][2] + m_mat[1][2] * m2.m_mat[2][2],
-                             m_mat[1][0] * m2.m_mat[0][3] + m_mat[1][1] * m2.m_mat[1][3] +
-                                 m_mat[1][2] * m2.m_mat[2][3] + m_mat[1][3],
+                             m[1][0] * m2.m[0][0] + m[1][1] * m2.m[1][0] + m[1][2] * m2.m[2][0],
+                             m[1][0] * m2.m[0][1] + m[1][1] * m2.m[1][1] + m[1][2] * m2.m[2][1],
+                             m[1][0] * m2.m[0][2] + m[1][1] * m2.m[1][2] + m[1][2] * m2.m[2][2],
+                             m[1][0] * m2.m[0][3] + m[1][1] * m2.m[1][3] +
+                                 m[1][2] * m2.m[2][3] + m[1][3],
 
-                             m_mat[2][0] * m2.m_mat[0][0] + m_mat[2][1] * m2.m_mat[1][0] + m_mat[2][2] * m2.m_mat[2][0],
-                             m_mat[2][0] * m2.m_mat[0][1] + m_mat[2][1] * m2.m_mat[1][1] + m_mat[2][2] * m2.m_mat[2][1],
-                             m_mat[2][0] * m2.m_mat[0][2] + m_mat[2][1] * m2.m_mat[1][2] + m_mat[2][2] * m2.m_mat[2][2],
-                             m_mat[2][0] * m2.m_mat[0][3] + m_mat[2][1] * m2.m_mat[1][3] +
-                                 m_mat[2][2] * m2.m_mat[2][3] + m_mat[2][3],
+                             m[2][0] * m2.m[0][0] + m[2][1] * m2.m[1][0] + m[2][2] * m2.m[2][0],
+                             m[2][0] * m2.m[0][1] + m[2][1] * m2.m[1][1] + m[2][2] * m2.m[2][1],
+                             m[2][0] * m2.m[0][2] + m[2][1] * m2.m[1][2] + m[2][2] * m2.m[2][2],
+                             m[2][0] * m2.m[0][3] + m[2][1] * m2.m[1][3] +
+                                 m[2][2] * m2.m[2][3] + m[2][3],
                              0,
                              0,
                              0,
@@ -871,9 +875,9 @@ namespace GEngine
         {
             assert(isAffine());
 
-            return Vector3(m_mat[0][0] * v.x + m_mat[0][1] * v.y + m_mat[0][2] * v.z + m_mat[0][3],
-                           m_mat[1][0] * v.x + m_mat[1][1] * v.y + m_mat[1][2] * v.z + m_mat[1][3],
-                           m_mat[2][0] * v.x + m_mat[2][1] * v.y + m_mat[2][2] * v.z + m_mat[2][3]);
+            return Vector3(m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3],
+                           m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3],
+                           m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3]);
         }
 
         /** 4-D Vector transformation specially for an affine matrix.
@@ -884,18 +888,18 @@ namespace GEngine
         {
             assert(isAffine());
 
-            return Vector4(m_mat[0][0] * v.x + m_mat[0][1] * v.y + m_mat[0][2] * v.z + m_mat[0][3] * v.w,
-                           m_mat[1][0] * v.x + m_mat[1][1] * v.y + m_mat[1][2] * v.z + m_mat[1][3] * v.w,
-                           m_mat[2][0] * v.x + m_mat[2][1] * v.y + m_mat[2][2] * v.z + m_mat[2][3] * v.w,
+            return Vector4(m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] * v.w,
+                           m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] * v.w,
+                           m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] * v.w,
                            v.w);
         }
 
         Matrix4x4 inverse() const
         {
-            float m00 = m_mat[0][0], m01 = m_mat[0][1], m02 = m_mat[0][2], m03 = m_mat[0][3];
-            float m10 = m_mat[1][0], m11 = m_mat[1][1], m12 = m_mat[1][2], m13 = m_mat[1][3];
-            float m20 = m_mat[2][0], m21 = m_mat[2][1], m22 = m_mat[2][2], m23 = m_mat[2][3];
-            float m30 = m_mat[3][0], m31 = m_mat[3][1], m32 = m_mat[3][2], m33 = m_mat[3][3];
+            float m00 = m[0][0], m01 = m[0][1], m02 = m[0][2], m03 = m[0][3];
+            float m10 = m[1][0], m11 = m[1][1], m12 = m[1][2], m13 = m[1][3];
+            float m20 = m[2][0], m21 = m[2][1], m22 = m[2][2], m23 = m[2][3];
+            float m30 = m[3][0], m31 = m[3][1], m32 = m[3][2], m33 = m[3][3];
 
             float v0 = m20 * m31 - m21 * m30;
             float v1 = m20 * m32 - m22 * m30;

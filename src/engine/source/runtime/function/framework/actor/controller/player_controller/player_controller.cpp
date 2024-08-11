@@ -31,7 +31,7 @@ PlayerController *PlayerController::GetPlayControllerFromActor(Actor *actor) {
     return nullptr;
 
   for (auto &localPlayer : gameInstance->getLocalPlayers()) {
-    if (auto playerController = localPlayer->getPlayerController()) {
+    if (auto& playerController = localPlayer->getPlayerController(); playerController) {
       return playerController.get();
     }
   }

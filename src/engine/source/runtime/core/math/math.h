@@ -1,8 +1,11 @@
 #pragma once
 
+#include "core/math/ivector4.h"
+#include "core/math/math_sse.h"
 #include <algorithm>
 #include <cmath>
 #include <cfloat>
+#include <cstdint>
 #include <limits>
 
 #define CMP(x, y) (fabsf(x - y) < FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
@@ -211,6 +214,16 @@ namespace GEngine
         static bool  realEqual(float a, float b, float tolerance = std::numeric_limits<float>::epsilon());
         static float clamp(float v, float min, float max) { return std::clamp(v, min, max); }
         static float getMaxElement(float x, float y, float z) { return std::max({x, y, z}); }
+        static int32_t truncToInt32(float f) { return simdTruncToInt32(f); }
+        static void truncToInt32(IVector4* iv4, const Vector4* fv4) {
+          return simdStore(reinterpret_cast<int32_t*>(iv4),
+                           simdTruncToInt32(simdLoadFloat4(
+                               reinterpret_cast<const float*>(fv4))));
+        }
+        static void matrix4Multiply(Matrix4x4 *result, const Matrix4x4 *left,
+                                    const Matrix4x4 *right) {
+          simdMatrix4Multiply(result, left, right);
+        }
 
         static float degreesToRadians(float degrees);
         static float radiansToDegrees(float radians);

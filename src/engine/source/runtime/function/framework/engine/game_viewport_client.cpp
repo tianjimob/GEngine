@@ -29,7 +29,7 @@ bool GameViewportClient::inputKey(InputEvent event, ModifierKey mod,
 void GameViewportClient::draw(SceneViewport* viewport) {
   SceneViewFamily viewFamily;
   for (auto &locaPlayer : GlobalEngine->getLocalPlayers()) {
-    viewFamily.addSceneView(locaPlayer->calcSceneView());
+    viewFamily.addSceneView(locaPlayer->calcSceneView(viewport));
   }
 }
 

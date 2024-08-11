@@ -57,11 +57,11 @@ template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonCon
     ::{{ chainItem.meta_name }}& itemInstance = dynamic_cast<::{{ chainItem.meta_name }}&>(instance);
 ## for entry in chainItem.entries
 {% if entry.type == "Field" %}
-    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+    if(auto it = jsonContext.find("{{ entry.field_name }}"); it != jsonContext.end() && !it->is_null()) {
         Serializer::read(jsonContext["{{ entry.field_name }}"], itemInstance.{{ entry.field_name }}, nullptr);
     }
 {% else if entry.type == "CArrayField" %}
-    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+    if(auto it = jsonContext.find("{{ entry.field_name }}"); it != jsonContext.end() && !it->is_null()) {
         assert(jsonContext["{{ entry.field_name }}"].is_array());
         size_t size = jsonContext["{{ entry.field_name }}"].size();
         assert(size < {{ entry.size }});
@@ -70,7 +70,7 @@ template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonCon
         }
     }
 {% else if entry.type == "SizeArrayField" %}
-    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+    if(auto it = jsonContext.find("{{ entry.field_name }}"); it != jsonContext.end() && !it->is_null()) {
         assert(jsonContext["{{ entry.field_name }}"].is_array());
         size_t size = jsonContext["{{ entry.field_name }}"].size();
         itemInstance.{{ entry.field_name }}.resize(size);
@@ -84,11 +84,11 @@ template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonCon
 ## endfor
 ## for entry in meta_register.entries
 {% if entry.type == "Field" %}
-    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+    if(auto it = jsonContext.find("{{ entry.field_name }}"); it != jsonContext.end() && !it->is_null()) {
         Serializer::read(jsonContext["{{ entry.field_name }}"], instance.{{ entry.field_name }}, &instance);
     }
 {% else if entry.type == "CArrayField" %}
-    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+    if(auto it = jsonContext.find("{{ entry.field_name }}"); it != jsonContext.end() && !it->is_null()) {
         assert(jsonContext["{{ entry.field_name }}"].is_array());
         size_t size = jsonContext["{{ entry.field_name }}"].size();
         assert(size < {{ entry.size }});
@@ -97,7 +97,7 @@ template<> ::{{ meta_register.meta_name }}& Serializer::read(const Json& jsonCon
         }
     }
 {% else if entry.type == "SizeArrayField" %}
-    if(!jsonContext["{{ entry.field_name }}"].is_null()) {
+    if(auto it = jsonContext.find("{{ entry.field_name }}"); it != jsonContext.end() && !it->is_null()) {
         assert(jsonContext["{{ entry.field_name }}"].is_array());
         size_t size = jsonContext["{{ entry.field_name }}"].size();
         instance.{{ entry.field_name }}.resize(size);

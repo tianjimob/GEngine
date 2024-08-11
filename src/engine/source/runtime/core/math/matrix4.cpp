@@ -38,14 +38,14 @@ namespace GEngine
     {
         assert(isAffine());
 
-        float m10 = m_mat[1][0], m11 = m_mat[1][1], m12 = m_mat[1][2];
-        float m20 = m_mat[2][0], m21 = m_mat[2][1], m22 = m_mat[2][2];
+        float m10 = m[1][0], m11 = m[1][1], m12 = m[1][2];
+        float m20 = m[2][0], m21 = m[2][1], m22 = m[2][2];
 
         float t00 = m22 * m11 - m21 * m12;
         float t10 = m20 * m12 - m22 * m10;
         float t20 = m21 * m10 - m20 * m11;
 
-        float m00 = m_mat[0][0], m01 = m_mat[0][1], m02 = m_mat[0][2];
+        float m00 = m[0][0], m01 = m[0][1], m02 = m[0][2];
 
         float inv_det = 1 / (m00 * t00 + m01 * t10 + m02 * t20);
 
@@ -69,7 +69,7 @@ namespace GEngine
         float r21 = m01 * m20 - m00 * m21;
         float r22 = m00 * m11 - m01 * m10;
 
-        float m03 = m_mat[0][3], m13 = m_mat[1][3], m23 = m_mat[2][3];
+        float m03 = m[0][3], m13 = m[1][3], m23 = m[2][3];
 
         float r03 = -(r00 * m03 + r01 * m13 + r02 * m23);
         float r13 = -(r10 * m03 + r11 * m13 + r12 * m23);
@@ -89,24 +89,24 @@ namespace GEngine
         orientation.toRotationMatrix(rot3x3);
 
         // Set up final matrix with scale, rotation and translation
-        m_mat[0][0] = scale.x * rot3x3[0][0];
-        m_mat[0][1] = scale.y * rot3x3[0][1];
-        m_mat[0][2] = scale.z * rot3x3[0][2];
-        m_mat[0][3] = position.x;
-        m_mat[1][0] = scale.x * rot3x3[1][0];
-        m_mat[1][1] = scale.y * rot3x3[1][1];
-        m_mat[1][2] = scale.z * rot3x3[1][2];
-        m_mat[1][3] = position.y;
-        m_mat[2][0] = scale.x * rot3x3[2][0];
-        m_mat[2][1] = scale.y * rot3x3[2][1];
-        m_mat[2][2] = scale.z * rot3x3[2][2];
-        m_mat[2][3] = position.z;
+        m[0][0] = scale.x * rot3x3[0][0];
+        m[0][1] = scale.y * rot3x3[0][1];
+        m[0][2] = scale.z * rot3x3[0][2];
+        m[0][3] = position.x;
+        m[1][0] = scale.x * rot3x3[1][0];
+        m[1][1] = scale.y * rot3x3[1][1];
+        m[1][2] = scale.z * rot3x3[1][2];
+        m[1][3] = position.y;
+        m[2][0] = scale.x * rot3x3[2][0];
+        m[2][1] = scale.y * rot3x3[2][1];
+        m[2][2] = scale.z * rot3x3[2][2];
+        m[2][3] = position.z;
 
         // No projection term
-        m_mat[3][0] = 0;
-        m_mat[3][1] = 0;
-        m_mat[3][2] = 0;
-        m_mat[3][3] = 1;
+        m[3][0] = 0;
+        m[3][1] = 0;
+        m[3][2] = 0;
+        m[3][3] = 1;
     }
 
     //-----------------------------------------------------------------------
@@ -127,24 +127,24 @@ namespace GEngine
         inv_rot.toRotationMatrix(rot3x3);
 
         // Set up final matrix with scale, rotation and translation
-        m_mat[0][0] = inv_scale.x * rot3x3[0][0];
-        m_mat[0][1] = inv_scale.x * rot3x3[0][1];
-        m_mat[0][2] = inv_scale.x * rot3x3[0][2];
-        m_mat[0][3] = inv_translate.x;
-        m_mat[1][0] = inv_scale.y * rot3x3[1][0];
-        m_mat[1][1] = inv_scale.y * rot3x3[1][1];
-        m_mat[1][2] = inv_scale.y * rot3x3[1][2];
-        m_mat[1][3] = inv_translate.y;
-        m_mat[2][0] = inv_scale.z * rot3x3[2][0];
-        m_mat[2][1] = inv_scale.z * rot3x3[2][1];
-        m_mat[2][2] = inv_scale.z * rot3x3[2][2];
-        m_mat[2][3] = inv_translate.z;
+        m[0][0] = inv_scale.x * rot3x3[0][0];
+        m[0][1] = inv_scale.x * rot3x3[0][1];
+        m[0][2] = inv_scale.x * rot3x3[0][2];
+        m[0][3] = inv_translate.x;
+        m[1][0] = inv_scale.y * rot3x3[1][0];
+        m[1][1] = inv_scale.y * rot3x3[1][1];
+        m[1][2] = inv_scale.y * rot3x3[1][2];
+        m[1][3] = inv_translate.y;
+        m[2][0] = inv_scale.z * rot3x3[2][0];
+        m[2][1] = inv_scale.z * rot3x3[2][1];
+        m[2][2] = inv_scale.z * rot3x3[2][2];
+        m[2][3] = inv_translate.z;
 
         // No projection term
-        m_mat[3][0] = 0;
-        m_mat[3][1] = 0;
-        m_mat[3][2] = 0;
-        m_mat[3][3] = 1;
+        m[3][0] = 0;
+        m[3][1] = 0;
+        m[3][2] = 0;
+        m[3][3] = 1;
     }
     //-----------------------------------------------------------------------
     void Matrix4x4::decomposition(Vector3& position, Vector3& scale, Quaternion& orientation) const
@@ -159,7 +159,7 @@ namespace GEngine
         m3x3.calculateQDUDecomposition(mat_q, scale, vec_u);
 
         orientation = Quaternion(mat_q);
-        position    = Vector3(m_mat[0][3], m_mat[1][3], m_mat[2][3]);
+        position    = Vector3(m[0][3], m[1][3], m[2][3]);
     }
 
     //-----------------------------------------------------------------------
@@ -176,7 +176,7 @@ namespace GEngine
         m3x3.calculateQDUDecomposition(mat_q, scale, vec_u);
 
         rotation = Quaternion(mat_q);
-        position = Vector3(m_mat[0][3], m_mat[1][3], m_mat[2][3]);
+        position = Vector3(m[0][3], m[1][3], m[2][3]);
     }
 
     Vector4 operator*(const Vector4& v, const Matrix4x4& mat)

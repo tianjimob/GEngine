@@ -25,6 +25,9 @@ private:
 
   META_FIELD()
   PostProcessSetting m_postProcessSetting;
+
+  META_FIELD()
+  bool m_isConstrainAspectRatio;
 };
 
 }

@@ -2,7 +2,6 @@
 
 #include "core/math/math.h"
 #include "core/math/vector3.h"
-#include "core/reflection/reflection.h"
 
 namespace GEngine {
 

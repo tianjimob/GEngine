@@ -268,7 +268,7 @@ public:
   void *construct() { return m_constructor(); }
 
   bool isSubclassOf(ClassDescriptor &base) {
-    for (auto *curr = this; curr != nullptr; curr = m_superClass) {
+    for (auto *curr = this; curr != nullptr; curr = curr->getSuperClass()) {
       if (curr->m_classId == base.m_classId)
         return true;
     }

@@ -42,8 +42,6 @@ void GameEngine::preInit(const std::string &configPath) {
     m_gameViewportWindow->setGameViewport(m_sceneViewport);
   }
 
-  m_gameInstance->createLocalPlayer(false);
-
   // initialize RHI after created window
   {
     ConfigCacheIni &config = ConfigCacheIni::instance();
@@ -79,6 +77,7 @@ void GameEngine::init() {
   LOG_INFO(LogGameEngine, "Initializing Game...");
 
   Engine::init();
+  m_gameInstance->createLocalPlayer(false);
   m_gameInstance->init(m_world);
   m_gameInstance->getWorld()->setGameViewport(m_gameViewportClient);
 }

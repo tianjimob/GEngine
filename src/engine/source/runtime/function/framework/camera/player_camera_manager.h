@@ -10,10 +10,18 @@ namespace GEngine {
 struct CameraViewInfo {
   Vector3 location;
   Rotator rotator;
+
+  // horizontal, fovx
   float fov;
+
+  // width / height
   float aspectRatio;
   float postProcessBlendWeight;
   PostProcessSetting postProcessSetting;
+
+  // black bars will be added if the destination view has a different aspect
+  // ratio than this camera requested.
+  bool isConstrainAspectRatio;
 };
 
 struct CameraViewTarget {
@@ -29,6 +37,10 @@ public:
 
   void setViewTarget(std::shared_ptr<Actor> actor);
   void updateCamera(float deltaTime);
+  const CameraViewInfo &getCameraViewInfo() {
+    return m_cameraViewTarget.cameraViewInfo;
+  }
+  std::shared_ptr<Actor> getCameraViewActor() { return m_cameraViewTarget.actor.lock(); }
 
 private:
   std::weak_ptr<PlayerController> m_pcOwner;

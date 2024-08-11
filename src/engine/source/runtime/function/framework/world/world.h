@@ -37,10 +37,6 @@ CLASS(World) : public GObject {
   REFLECTION_BODY(World)
 
  public:
-  World() {
-    m_persistentLevel = std::make_shared<Level>();
-    m_persistentLevel->postLoad(shared_from_this());
-  }
 
   void load(const WorldInitializer& worldInitializer,
             std::weak_ptr<GameInstance> gameInstance);
@@ -58,6 +54,8 @@ CLASS(World) : public GObject {
   std::shared_ptr<PlayerController> spawnPlayActor(Player * player);
 
   auto getGameInstance() { return m_owingGameInstance; }
+
+  void setupPawnFromCurrentLevel();
 
  private:
   std::shared_ptr<Level> m_persistentLevel;
