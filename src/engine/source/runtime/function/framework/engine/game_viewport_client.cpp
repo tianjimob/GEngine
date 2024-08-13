@@ -1,6 +1,7 @@
 #include "game_viewport_client.h"
 #include "function/framework/engine/engine.h"
 #include "function/framework/engine/scene_view.h"
+#include "function/framework/render/renderer/renderer_module.h"
 #include <memory>
 
 namespace GEngine {
@@ -26,11 +27,17 @@ bool GameViewportClient::inputKey(InputEvent event, ModifierKey mod,
   
 }
 
-void GameViewportClient::draw(SceneViewport* viewport) {
-  SceneViewFamily viewFamily;
-  for (auto &locaPlayer : GlobalEngine->getLocalPlayers()) {
-    viewFamily.addSceneView(locaPlayer->calcSceneView(viewport));
+void GameViewportClient::draw(SceneViewport *viewport) {
+  std::shared_ptr<World> world;
+  if (GlobalEngine) {
+    world = GlobalEngine->getWorld();
   }
+  SceneViewFamily viewFamily(world);
+  for (auto &locaPlayer : GlobalEngine->getLocalPlayers()) {
+    auto view = locaPlayer->calcSceneView(&viewFamily, viewport);
+    viewFamily.addSceneView(view);
+  }
+  RendererModule::instance().renderViewFamily(viewFamily);
 }
 
 } // namespace GEngine

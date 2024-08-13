@@ -14,7 +14,7 @@ public:
   PrimitiveComponent();
 
   virtual std::shared_ptr<PrimitiveSceneProxy> createSceneProxy() {
-    return std::make_shared<PrimitiveSceneProxy>();
+    return std::make_shared<PrimitiveSceneProxy>(*this);
   }
 
   void setPrimitiveSceneProxy(std::shared_ptr<PrimitiveSceneProxy> &

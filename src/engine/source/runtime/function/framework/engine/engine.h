@@ -27,6 +27,8 @@ public:
   bool shouldClose() { return m_shouldClose; }
   std::vector<std::shared_ptr<LocalPlayer>> &getLocalPlayers();
 
+  std::shared_ptr<World>& getWorld() { return m_world; }
+
 protected:
   std::shared_ptr<GameViewportClient> m_gameViewportClient;
   std::shared_ptr<World> m_world;

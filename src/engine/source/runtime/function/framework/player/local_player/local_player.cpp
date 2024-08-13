@@ -20,10 +20,11 @@ bool LocalPlayer::spawnPlayActor(World *world) {
   return true;
 }
 
-std::shared_ptr<SceneView> LocalPlayer::calcSceneView(SceneViewport* viewport) {
+std::shared_ptr<SceneView> LocalPlayer::calcSceneView(SceneViewFamily* family, SceneViewport* viewport) {
   const CameraViewInfo& viewInfo =
       m_playerController->getPlayerCameraManager()->getCameraViewInfo();
   SceneViewInitOptions initOptions;
+  initOptions.viewFamily = family;
   initOptions.viewActor = m_playerController->getPlayerCameraManager()->getCameraViewActor();
   initOptions.unconstrainedViewRect = calcViewRect(viewport);
   initOptions.constrainedViewRect = calcConstrainedViewRect(

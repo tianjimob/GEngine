@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <set>
@@ -12,14 +13,16 @@
 #include "core/math/vector4.h"
 #include "function/framework/actor/actor.h"
 #include "function/framework/engine/scene_types.h"
+#include "function/framework/render/renderer/scene.h"
 
 namespace GEngine {
 
 class SceneViewFamily;
 class Actor;
+class World;
 
 struct SceneViewInitOptions {
-  std::shared_ptr<SceneViewFamily> viewFamily;
+  SceneViewFamily* viewFamily;
   std::shared_ptr<Actor> viewActor;
 
   Rect constrainedViewRect;
@@ -76,7 +79,7 @@ class SceneView {
  public:
   SceneView(const SceneViewInitOptions &initOptions);
 
-  std::weak_ptr<SceneViewFamily> family;
+  SceneViewFamily* family;
 
   // The actor which is being viewed from.
   std::shared_ptr<Actor> viewActor;
@@ -101,7 +104,7 @@ class SceneView {
   float fovx;
 
   // The antialiasing method.
-	AntiAliasingMethod AntiAliasingMethod;
+	AntiAliasingMethod antiAliasingMethod;
 
   std::set<uint32_t> hiddenPrimitives;
 };
@@ -109,12 +112,25 @@ class SceneView {
 // A set of views into a scene which only have different view transforms and
 // owner actors.
 class SceneViewFamily {
- public:
+public:
+  SceneViewFamily(std::shared_ptr<World>& world);
   void addSceneView(std::shared_ptr<SceneView> sceneView) {
     m_sceneViews.emplace_back(sceneView);
   }
 
- private:
+  std::shared_ptr<SceneView> &operator[](uint32_t index) {
+    assert(index < m_sceneViews.size());
+    return m_sceneViews[index];
+  }
+
+  std::shared_ptr<Scene> &getScene() { return m_scene; }
+
+public:
+  uint32_t frameNumber;
+
+private:
+  std::shared_ptr<Scene> m_scene;
+
   std::vector<std::shared_ptr<SceneView>> m_sceneViews;
 };
 

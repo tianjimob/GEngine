@@ -8,6 +8,7 @@
 #include "function/framework/actor/game_mode/game_mode.h"
 #include "function/framework/level/level.h"
 #include "function/framework/object/object.h"
+#include "function/framework/render/renderer/scene.h"
 
 
 namespace GEngine {
@@ -57,6 +58,11 @@ CLASS(World) : public GObject {
 
   void setupPawnFromCurrentLevel();
 
+  // for component->doDeferredUpdates_Concurrent()
+  void doDeferredUpdates();
+
+  std::shared_ptr<Scene>& getScene() { return m_scene; }
+
  private:
   std::shared_ptr<Level> m_persistentLevel;
 
@@ -70,6 +76,8 @@ CLASS(World) : public GObject {
   // pointer to GameViewportClient created by GameInstance who's belong to
   // GameEngine
   std::weak_ptr<GameViewportClient> m_gameViewport;
+
+  std::shared_ptr<Scene> m_scene;
 
   GameMode m_gameMode;
 

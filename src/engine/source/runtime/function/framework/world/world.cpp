@@ -6,6 +6,7 @@
 #include "function/framework/actor/actor.h"
 #include "function/framework/actor/controller/player_controller/player_controller.h"
 #include "function/framework/actor/pawn/pawn.h"
+#include "function/framework/render/renderer/renderer_module.h"
 
 #include <memory>
 #include <fstream>
@@ -37,12 +38,16 @@ void World::load(const WorldInitializer &worldInitializer, std::weak_ptr<GameIns
     level->postLoad(weak_from_this());
     addLevel(level);
   }
+
   setCurrentLevel(worldInitializer.defautLevelUrl);
 
   m_persistentLevel = std::make_shared<Level>();
   m_persistentLevel->postLoad(shared_from_this());
-  
+
   m_owingGameInstance = gameInstance;
+
+  m_scene = RendererModule::instance().allocateScene(
+      std::static_pointer_cast<World>(shared_from_this()));
 
   m_gameMode.defaultPawnClass = worldInitializer.gameMode.defaultPawnClass;
   

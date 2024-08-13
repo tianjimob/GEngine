@@ -23,7 +23,7 @@ CLASS(LocalPlayer) : public Player {
 public:
   bool spawnPlayActor(World * world);
   std::shared_ptr<PlayerController> &getPlayerController() { return m_playerController; }
-  std::shared_ptr<SceneView> calcSceneView(SceneViewport* viewport);
+  std::shared_ptr<SceneView> calcSceneView(SceneViewFamily* family, SceneViewport* viewport);
 
 private:
   std::shared_ptr<PlayerController> m_playerController;
