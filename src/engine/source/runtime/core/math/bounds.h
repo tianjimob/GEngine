@@ -32,12 +32,12 @@ struct Bounds {
 
   Bounds operator+(const Bounds &other) const { return Bounds{*this} += other; }
 
-  Vector3 getCenter() {
+  Vector3 getCenter() const {
     auto sum = (max + min) * 0.5;
     return {sum.x, sum.y, sum.z};
   }
 
-  Vector3 getExtent() {
+  Vector3 getExtent() const {
     auto diff = (max - min) * 0.5;
     return {diff.x, diff.y, diff.z};
   }

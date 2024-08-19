@@ -23,7 +23,8 @@ VulkanDevice::VulkanDevice(VulkanRHI *rhi, VkPhysicalDevice gpu)
     : m_rhi(rhi),
       m_gpu(gpu),
       m_pipelineStateCacheManager(this),
-      m_descriptorPoolManager(this) {
+      m_descriptorPoolManager(this),
+      m_renderPassManager(this) {
   vkGetPhysicalDeviceProperties(gpu, &m_gpuProp);
   vkGetPhysicalDeviceMemoryProperties(gpu, &m_physicalDeviceMemoryProperties);
 

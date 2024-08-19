@@ -37,9 +37,10 @@ void VulkanRHICommandContext::RHIDispatchComputeShader(uint32_t groupCountX,
   VkCommandBuffer cmd = cmdBuffer->getCommandBuffer();
   m_currentComputeState->bind(cmd);
   vkCmdDispatch(cmd, groupCountX, groupCountY, groupCountZ);
-  
+
   m_commandBufferManager->submitActiveCommandBuffer(
       std::vector<std::shared_ptr<VulkanSemaphore>>{});
+  m_queue->waitIdle();
   m_commandBufferManager->prepareForNewActiveCommandBuffer();
 }
 
@@ -50,6 +51,7 @@ void VulkanRHICommandContext::RHISetComputePipelineState(
           computePipelineState);
   if (auto it = m_computeStateMap.find(vulkanState);
       it != m_computeStateMap.end()) {
+    it->second->updateDescriptorSets(parametersData);
     m_currentComputeState = it->second;
   } else {
     m_currentComputeState =

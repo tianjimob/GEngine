@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "function/framework/render/rhi/rhi.h"
-#include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "vulkan/vulkan_core.h"
 #include "vulkan_com.h"
 #include "vulkan_device.h"
@@ -20,10 +19,9 @@ class VulkanRHI : public RHI {
   virtual void init() override;
   virtual std::string_view getName() override { return "Vulkan"; }
 
-  virtual RHIGraphicsPipelineStateRef createGraphicsPipelineState(
-      const RHIGraphicsPipelineStateCreateInfo &createInfo) override {
-    return {};
-  }
+  virtual std::shared_ptr<RHIGraphicsPipelineState> createGraphicsPipelineState(
+      const RHIGraphicsPipelineStateInitiazlier &createInfo) override;
+  
   virtual std::shared_ptr<RHIComputePipelineState> createComputePipelineState(std::shared_ptr<RHIComputeShader>& computeShader) override;
 
   virtual std::shared_ptr<RHIUniformBuffer> createUniformBuffer(uint32_t size) override;
@@ -36,8 +34,24 @@ class VulkanRHI : public RHI {
                                                         uint32_t size) override;
 
   virtual std::shared_ptr<RHIBuffer> createIndexBuffer(const void *data, uint32_t size) override;
-  
-  virtual std::shared_ptr<RHIComputeShader> createComputeShader(const std::vector<uint8_t>& shaderCode) override;
+
+  virtual std::shared_ptr<RHIComputeShader>
+  createComputeShader(const std::vector<uint8_t> &shaderCode) override;
+
+  virtual std::shared_ptr<RHIRasterizerState> createRasterizerState(
+      const RHIRasterizerStateInitializer &initializer) override;
+
+  virtual std::shared_ptr<RHIDepthStencilState> createDepthStencilweState(
+      const RHIDepthStencilStateInitializer &initializer) override;
+
+  virtual std::shared_ptr<RHIBlendState>
+  createBlendState(const RHIBlendStateInitializer &initializer) override;
+
+  virtual void mapBuffer(void *data, std::shared_ptr<RHIBuffer> &buffer) override;
+
+  virtual void unmapBuffer(std::shared_ptr<RHIBuffer> &buffer) override;
+
+  virtual std::shared_ptr<RHICommandContext> getComputeContext() override;
 
  private:
   void createInstance();

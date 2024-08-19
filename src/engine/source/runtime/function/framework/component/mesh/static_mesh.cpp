@@ -5,7 +5,6 @@
 #include "core/math/vector2.h"
 #include "core/math/vector3.h"
 #include "core/math/vector4.h"
-#include "function/framework/component/mesh/vertex_streams.h"
 #include "function/framework/render/rhi/rhi.h"
 #include <algorithm>
 #include <cmath>

@@ -129,6 +129,7 @@ target("GEngineRuntime")
                     join_third_party_dir("libsimdpp/"),
                     join_third_party_dir("tinyobjloader"),
                     join_third_party_dir("ufbx"),
+                    join_third_party_dir("CRCpp/inc"),
                     join_third_party_dir("imgui"))
 
     add_defines("VULKAN_VALIDATION_ENABLE")

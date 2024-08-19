@@ -8,6 +8,7 @@
 #include "function/framework/render/rhi/vulkan/vulkan_context.h"
 #include "function/framework/render/rhi/vulkan/vulkan_pipeline.h"
 #include "function/framework/render/rhi/vulkan/vulkan_pipeline_state.h"
+#include "function/framework/render/rhi/vulkan/vulkan_render_pass.h"
 #include "vulkan/vulkan_core.h"
 #include "vulkan_com.h"
 
@@ -40,6 +41,8 @@ class VulkanDevice {
   VulkanDescriptorPoolManager &getDescriptorPoolManager() {
     return m_descriptorPoolManager;
   }
+
+  VulkanRenerPassManager &getRenderPassManager() { return m_renderPassManager; }
 
   std::shared_ptr<VulkanRHICommandContext> &getGraphicsContext() {
     return m_graphicsContext;
@@ -124,6 +127,7 @@ private:
 
   VulkanPipelineStateCacheManager m_pipelineStateCacheManager;
   VulkanDescriptorPoolManager m_descriptorPoolManager;
+  VulkanRenerPassManager  m_renderPassManager;
 
   bool supportAsyncCompute{false};
 };

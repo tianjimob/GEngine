@@ -1,5 +1,15 @@
 #include "vulkan_rhi.h"
 
+#include <malloc.h>
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <memory>
+#include <vector>
+
 #include "SDL2/SDL_vulkan.h"
 #include "core/log/logger.h"
 #include "function/framework/engine/engine.h"
@@ -8,22 +18,14 @@
 #include "function/framework/render/rhi/rhi_type.h"
 #include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi_resource.h"
+#include "function/framework/render/rhi/vulkan/vulkan_utils.h"
 #include "platform/vulkan/vulkan_vendor.h"
 #include "vulkan/vulkan_core.h"
 
-#include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
-#include <malloc.h>
-#include <memory>
-#include <vector>
-
 namespace GEngine {
 
-#define GENGINE_VULKAN_API_VERSION                                             \
-  ((((uint32_t)(0)) << 29) | (((uint32_t)(1)) << 22) |                         \
+#define GENGINE_VULKAN_API_VERSION                     \
+  ((((uint32_t)(0)) << 29) | (((uint32_t)(1)) << 22) | \
    (((uint32_t)(2)) << 12) | ((uint32_t)(0)))
 
 static DECLARE_LOG_CATEGORY(LogVulkanRHI);
@@ -44,8 +46,17 @@ void VulkanRHI::init() {
   }
 }
 
-std::shared_ptr<RHIComputePipelineState>
-VulkanRHI::createComputePipelineState(std::shared_ptr<RHIComputeShader>& computeShader) {
+std::shared_ptr<RHIGraphicsPipelineState>
+VulkanRHI::createGraphicsPipelineState(
+    const RHIGraphicsPipelineStateInitiazlier &createInfo) {
+  if (auto it = m_device.lock()) {
+    return it->getPipelineManager().getOrCreateGraphicsPipeline(createInfo);
+  }
+  return nullptr;
+}
+
+std::shared_ptr<RHIComputePipelineState> VulkanRHI::createComputePipelineState(
+    std::shared_ptr<RHIComputeShader> &computeShader) {
   if (auto it = m_device.lock()) {
     return it->getPipelineManager().getOrCreateComputePipeline(
         std::static_pointer_cast<VulkanRHIComputeShader>(computeShader));
@@ -53,7 +64,8 @@ VulkanRHI::createComputePipelineState(std::shared_ptr<RHIComputeShader>& compute
   return nullptr;
 }
 
-std::shared_ptr<RHIUniformBuffer> VulkanRHI::createUniformBuffer(uint32_t size) {
+std::shared_ptr<RHIUniformBuffer> VulkanRHI::createUniformBuffer(
+    uint32_t size) {
   VkBuffer buffer;
   VkDeviceMemory memory;
   createBuffer(size, RHIBufferUsageFlags::UniformBuffer,
@@ -66,15 +78,14 @@ std::shared_ptr<RHIUniformBuffer> VulkanRHI::createUniformBuffer(uint32_t size) 
                                                   vulkanMemory, mapped);
 }
 
-std::shared_ptr<RHIBuffer> VulkanRHI::createBuffer(uint32_t size,
-                                                   RHIBufferUsageFlags usage, RHIMemoryPropertyFlags property) {
-
+std::shared_ptr<RHIBuffer> VulkanRHI::createBuffer(
+    uint32_t size, RHIBufferUsageFlags usage, RHIMemoryPropertyFlags property) {
   VkBuffer buffer;
   VkDeviceMemory memory;
-  createBuffer(size,usage,property, buffer, memory);                                                  
+  createBuffer(size, usage, property, buffer, memory);
   VulkanMemory vulkanMemory{m_device.lock().get(), memory};
   std::shared_ptr<RHIBuffer> ret = std::make_shared<VulkanRHIBuffer>(
-      size,  m_device.lock().get(), buffer,vulkanMemory);
+      size, m_device.lock().get(), buffer, vulkanMemory);
   return ret;
 }
 
@@ -126,8 +137,8 @@ std::shared_ptr<RHIBuffer> VulkanRHI::createIndexBuffer(const void *data,
   return indexBuffer;
 }
 
-std::shared_ptr<RHIComputeShader>
-VulkanRHI::createComputeShader(const std::vector<uint8_t> &shaderCode) {
+std::shared_ptr<RHIComputeShader> VulkanRHI::createComputeShader(
+    const std::vector<uint8_t> &shaderCode) {
   if (auto device = m_device.lock()) {
     VkShaderModule shaderModule = device->createShaderModule(shaderCode);
     if (shaderModule != VK_NULL_HANDLE) {
@@ -140,6 +151,80 @@ VulkanRHI::createComputeShader(const std::vector<uint8_t> &shaderCode) {
     }
   }
   return nullptr;
+}
+
+std::shared_ptr<RHIRasterizerState> VulkanRHI::createRasterizerState(
+    const RHIRasterizerStateInitializer &initializer) {
+  std::shared_ptr<VulkanRHIRasterizerState> rasterizerState =
+      std::make_shared<VulkanRHIRasterizerState>();
+  rasterizerState->cullMode =
+      VulkanUtils::getVkCullModeFlags(initializer.cullMode);
+  rasterizerState->polygonMode =
+      VulkanUtils::getVkPolygonMode(initializer.polgonMode);
+  return std::static_pointer_cast<RHIRasterizerState>(rasterizerState);
+}
+
+std::shared_ptr<RHIDepthStencilState> VulkanRHI::createDepthStencilweState(
+    const RHIDepthStencilStateInitializer &initializer) {
+  std::shared_ptr<VulkanRHIDepthStencilState> depthStencilState =
+      std::make_shared<VulkanRHIDepthStencilState>();
+  depthStencilState->enableDepthTest = initializer.enableDepthTest;
+  depthStencilState->depthCompareOp = initializer.depthCompareOp;
+  depthStencilState->enableDepthWrite = initializer.enableDepthWrite;
+  depthStencilState->enableStencilTest = initializer.enableStencilTest;
+  depthStencilState->frontFailOp = initializer.frontFailOp;
+  depthStencilState->frontPassOp = initializer.frontPassOp;
+  depthStencilState->frontDepthFailOp = initializer.frontDepthFailOp;
+  depthStencilState->frontCompareOp = initializer.frontCompareOp;
+  depthStencilState->backFailOp = initializer.backFailOp;
+  depthStencilState->backPassOp = initializer.backPassOp;
+  depthStencilState->backDepthFailOp = initializer.backDepthFailOp;
+  depthStencilState->backCompareOp = initializer.backCompareOp;
+  return std::static_pointer_cast<RHIDepthStencilState>(depthStencilState);
+}
+
+std::shared_ptr<RHIBlendState> VulkanRHI::createBlendState(
+    const RHIBlendStateInitializer &initializer) {
+  std::shared_ptr<VulkanRHIBlendState> blendState =
+      std::make_shared<VulkanRHIBlendState>();
+  int blendStateCount = initializer.blendStates.size();
+  blendState->blendStates.resize(blendStateCount);
+  for (int i = 0; i < blendStateCount; ++i) {
+    auto &state = blendState->blendStates[i];
+    auto &initState = initializer.blendStates[i];
+    state.blendEnable = initState.blendEnable;
+    state.srcColorBlendFactor =
+        VulkanUtils::getVkBlendFactor(initState.srcColorBlendFactor);
+    state.dstColorBlendFactor =
+        VulkanUtils::getVkBlendFactor(initState.dstColorBlendFactor);
+    state.colorBlendOp = VulkanUtils::getVkBlendOp(initState.colorBlendOp);
+    state.srcAlphaBlendFactor =
+        VulkanUtils::getVkBlendFactor(initState.srcAlphaBlendFactor);
+    state.dstAlphaBlendFactor =
+        VulkanUtils::getVkBlendFactor(initState.dstAlphaBlendFactor);
+    state.alphaBlendOp = VulkanUtils::getVkBlendOp(initState.alphaBlendOp);
+    state.colorWriteMask =
+        VulkanUtils::getVkColorComponentFlags(initState.colorWriteMask);
+  }
+  return std::static_pointer_cast<RHIBlendState>(blendState);
+}
+
+void VulkanRHI::mapBuffer(void *data, std::shared_ptr<RHIBuffer> &buffer) {
+  std::shared_ptr<VulkanRHIBuffer> vulkanBuffer =
+      std::static_pointer_cast<VulkanRHIBuffer>(buffer);
+  vkMapMemory(vulkanBuffer->m_vulkanDevice->getDevice(),
+              vulkanBuffer->getMemory(), 0, vulkanBuffer->size(), 0, &data);
+}
+
+void VulkanRHI::unmapBuffer(std::shared_ptr<RHIBuffer> &buffer) {
+  std::shared_ptr<VulkanRHIBuffer> vulkanBuffer =
+      std::static_pointer_cast<VulkanRHIBuffer>(buffer);
+  vkUnmapMemory(vulkanBuffer->m_vulkanDevice->getDevice(),
+                vulkanBuffer->getMemory());
+}
+
+std::shared_ptr<RHICommandContext> VulkanRHI::getComputeContext() {
+  return m_device.lock()->getComputeContext();
 }
 
 void VulkanRHI::createInstance() {
@@ -211,8 +296,9 @@ void VulkanRHI::createInstance() {
               "Vulkan driver doesn't contain specified extensions! make sure "
               "your layers path is set appropriately.");
   } else if (result != VK_SUCCESS) {
-    LOG_FATAL(LogVulkanRHI, "Vulkan failed to create instance. Do you have a "
-                            "compatible Vulkan driver (ICD) installed?");
+    LOG_FATAL(LogVulkanRHI,
+              "Vulkan failed to create instance. Do you have a "
+              "compatible Vulkan driver (ICD) installed?");
   }
 
   setupDebugLayerCallback();
@@ -252,7 +338,8 @@ void VulkanRHI::selectDevice() {
   std::vector<RankDevice> rankedPhysicalDevices;
   int i = 0;
   for (VkPhysicalDevice device : physicalDevices) {
-    auto &vulkanDevice = m_devices.emplace_back(std::make_shared<VulkanDevice>(this, device));
+    auto &vulkanDevice =
+        m_devices.emplace_back(std::make_shared<VulkanDevice>(this, device));
 
     const auto &prop = vulkanDevice->getGpuProperties();
 
@@ -271,26 +358,26 @@ void VulkanRHI::selectDevice() {
       score += 20;
 
     switch (prop.vendorID) {
-    case VULKAN_VENDOR_NVIDIA:
-      score += 100;
-      break;
-    case VULKAN_VENDOR_AMD:
-      score += 90;
-      break;
-    case VULKAN_VENDOR_INTEL:
-      score += 70;
-      break;
-    case VULKAN_VENDOR_APPLE:
-      score += 70;
-      break;
-    case VULKAN_VENDOR_ARM:
-      score += 40;
-      break;
-    case VULKAN_VENDOR_QUALCOMM:
-      score += 40;
-      break;
-    default:
-      break;
+      case VULKAN_VENDOR_NVIDIA:
+        score += 100;
+        break;
+      case VULKAN_VENDOR_AMD:
+        score += 90;
+        break;
+      case VULKAN_VENDOR_INTEL:
+        score += 70;
+        break;
+      case VULKAN_VENDOR_APPLE:
+        score += 70;
+        break;
+      case VULKAN_VENDOR_ARM:
+        score += 40;
+        break;
+      case VULKAN_VENDOR_QUALCOMM:
+        score += 40;
+        break;
+      default:
+        break;
     }
 
     rankedPhysicalDevices.push_back({score, i});
@@ -355,8 +442,8 @@ std::vector<VulkanExtension> VulkanRHI::getRequiredExtensions() {
   return engineExtensions;
 }
 
-std::vector<const char *>
-VulkanRHI::setupLayers(std::vector<VulkanExtension> &engineExtensions) {
+std::vector<const char *> VulkanRHI::setupLayers(
+    std::vector<VulkanExtension> &engineExtensions) {
   std::vector<const char *> ret;
 
   auto props = enumerateLayerProperties();
@@ -392,8 +479,7 @@ VulkanRHI::setupLayers(std::vector<VulkanExtension> &engineExtensions) {
         break;
       }
     }
-    if (extIndex == -1)
-      return false;
+    if (extIndex == -1) return false;
 
     if (!engineExtensions[extIndex].supported) {
       auto layerIndex = findLayerContainExtension(extensionName, props);
@@ -421,7 +507,6 @@ VulkanRHI::setupLayers(std::vector<VulkanExtension> &engineExtensions) {
 
   // add debug layer
   {
-
 #ifdef VULKAN_DEBUG_ENABLE
     if (!addRequestedLayer("VK_LAYER_LUNARG_gfxreconstruct", props,
                            engineExtensions, ret)) {
@@ -453,12 +538,14 @@ VulkanRHI::setupLayers(std::vector<VulkanExtension> &engineExtensions) {
   if (activeDebugLayerExtension == DebugLayerExtension::None) {
     if (!addRequestedLayer("VK_LAYER_KHRONOS_validation", props,
                            engineExtensions, ret)) {
-      LOG_WARN(LogVulkanRHI, "Unable to find Vulkan instance validation layer "
-                             "VK_LAYER_KHRONOS_validation");
+      LOG_WARN(LogVulkanRHI,
+               "Unable to find Vulkan instance validation layer "
+               "VK_LAYER_KHRONOS_validation");
       if (!addRequestedLayer("VK_LAYER_LUNARG_standard_validation", props,
                              engineExtensions, ret)) {
-        LOG_WARN(LogVulkanRHI, "Unable to find Vulkan instance validation "
-                               "layer VK_LAYER_LUNARG_standard_validation");
+        LOG_WARN(LogVulkanRHI,
+                 "Unable to find Vulkan instance validation "
+                 "layer VK_LAYER_LUNARG_standard_validation");
       }
     }
     activeDebugLayerExtension = DebugLayerExtension::DebugUtils;
@@ -486,8 +573,7 @@ bool VulkanRHI::addRequestedLayer(
       break;
     }
   }
-  if (index == -1)
-    return false;
+  if (index == -1) return false;
 
   layers.emplace_back(layerName);
 
@@ -507,7 +593,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT severity,
     VkDebugUtilsMessageTypeFlagsEXT type,
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *userData) {
-
   const char *serverityStr = nullptr;
   if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
     serverityStr = "Error";
@@ -659,7 +744,8 @@ void VulkanRHI::setupDebugLayerCallback() {
       VkDebugUtilsMessengerCreateInfoEXT createInfo;
       populateDebugUtilsMessengerCreateInfoEXT(createInfo);
       assert(VK_SUCCESS == createDebugUtilsMessengerEXT(m_instance, &createInfo,
-                                                        nullptr, &m_debugMessenger));
+                                                        nullptr,
+                                                        &m_debugMessenger));
     }
   } else if (activeDebugLayerExtension == DebugLayerExtension::DebugReport) {
     PFN_vkCreateDebugReportCallbackEXT createMsgCallback =
@@ -686,9 +772,10 @@ void VulkanRHI::setupDebugLayerCallback() {
                  result);
       }
     }
-    LOG_WARN(LogVulkanRHI, "GetProcAddr: Unable to find "
-                           "vkDbgCreateMsgCallback/vkGetInstanceProcAddr; "
-                           "debug reporting skipped!");
+    LOG_WARN(LogVulkanRHI,
+             "GetProcAddr: Unable to find "
+             "vkDbgCreateMsgCallback/vkGetInstanceProcAddr; "
+             "debug reporting skipped!");
   }
 }
 
@@ -696,8 +783,7 @@ bool VulkanRHI::isDeviceSuitable(const VulkanDevice &physicalDevice) {
   return true;
 }
 
-std::vector<LayerWithExtensions>
-VulkanRHI::enumerateLayerProperties() {
+std::vector<LayerWithExtensions> VulkanRHI::enumerateLayerProperties() {
   std::vector<LayerWithExtensions> ret;
   std::vector<VkLayerProperties> layerProperties;
 
@@ -814,4 +900,4 @@ VulkanRHI::getDriverSupportedInstanceExtensions(const char *layerName) {
   return ret;
 }
 
-} // namespace GEngine
+}  // namespace GEngine

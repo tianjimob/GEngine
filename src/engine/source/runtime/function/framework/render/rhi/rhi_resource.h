@@ -1,7 +1,11 @@
 #pragma once
 
 #include "function/framework/render/core/shaders.h"
+#include "function/framework/render/mesh_pipeline/vertex_streams.h"
+#include "function/framework/render/rhi/rhi_type.h"
+#include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -44,6 +48,10 @@ private:
 
 class RHIGraphicsShader : public RHIShader {};
 
+class RHIVertexShader : public RHIShader {};
+
+class RHIPixelShader : public RHIShader {};
+
 class RHIComputeShader : public RHIShader {};
 
 struct RHIComputePipelineState {};
@@ -70,15 +78,53 @@ private:
 
 class RHIImage {};
 
-struct RHIGraphicsPipelineState {};
+struct RHIBlendState {};
 
-using RHIGraphicsPipelineStateRef = std::shared_ptr<RHIGraphicsPipelineState>;
+struct RHIRasterizerState {};
 
-class RHIGraphicsPipelineStateCreateInfo {
- public:
+struct RHIDepthStencilState {};
+
+struct PipelineShaderState {
+  std::shared_ptr<RHIVertexShader> vertexShader;
+  std::shared_ptr<RHIPixelShader> pixelShader;
+};
+
+class RHIGraphicsPipelineStateInitiazlier {
+public:
+  PipelineShaderState shaderState;
+  VertexStreams vertexStreams;
+  std::shared_ptr<RHIRasterizerState> rasterizerState;
+  std::shared_ptr<RHIDepthStencilState> depthStencilState;
+  std::shared_ptr<RHIBlendState> blendState;
+
+  RHIPrimitiveType primitiveType;
+  uint16_t numSamples;
+
+  // renderpass-----------------
+  std::vector<RHIFormat> colorAttachmentFormats;
+  bool hasDepthAttachment;
+  RHIFormat depthAttachmentFormat;
+  AttachmentLoadOp depthLoadOp;
+  AttachmentStoreOp depthStoreOp;
+  AttachmentLoadOp stencilLoadOp;
+  AttachmentStoreOp stencilStoreOp;
+  SubpassType subpassType;
+  // renderpass------------------
+
+  int getAttachmentsSize() const{
+    if (numSamples == 1) {
+      return hasDepthAttachment ? colorAttachmentFormats.size() + 1 : colorAttachmentFormats.size();
+    } else {
+      return hasDepthAttachment ? colorAttachmentFormats.size() * 2 + 1
+                                : colorAttachmentFormats.size() * 2;
+    }
+  }
+
+  uint32_t getRenderPassHash() const;
+
  private:
 };
 
-
+struct RHIGraphicsPipelineState {};
 
 }  // namespace GEngine

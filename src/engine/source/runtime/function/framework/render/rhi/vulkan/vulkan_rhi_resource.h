@@ -3,6 +3,7 @@
 #include "function/framework/render/rhi/rhi_resource.h"
 #include "vulkan/vulkan_core.h"
 #include <memory>
+#include <vector>
 namespace GEngine {
 
 class VulkanDevice;
@@ -51,6 +52,8 @@ public:
       : m_vulkanDevice(device), m_buffer(buffer), m_vulkanMemory(memory),
         m_mapped(mapped) {}
 
+  ~VulkanRHIUniformBuffer();
+
   VkBuffer getUniformBuffer() { return m_buffer; }
   void* getMapped() { return m_mapped; }
 
@@ -98,6 +101,68 @@ private:
  std::shared_ptr<VulkanRHIComputeShader> m_computeShader;
  VkPipeline m_pipeline;
  std::shared_ptr<VulkanLayout> m_vulkanLayout;
+};
+
+class VulkanRHIVertexShader : public RHIVertexShader {
+public:
+ VulkanRHIVertexShader(VulkanDevice *device, VkShaderModule shaderModule)
+     : m_device(device), m_shaderModule(shaderModule) {}
+
+ virtual ~VulkanRHIVertexShader();
+ VkShaderModule& getVkShaderModule() { return m_shaderModule; }
+
+ private:
+  VulkanDevice* m_device;
+  VkShaderModule m_shaderModule;
+};
+
+class VulkanRHIPixelShader : public RHIPixelShader {
+public:
+ VulkanRHIPixelShader(VulkanDevice *device, VkShaderModule shaderModule)
+     : m_device(device), m_shaderModule(shaderModule) {}
+
+ virtual ~VulkanRHIPixelShader();
+ VkShaderModule& getVkShaderModule() { return m_shaderModule; }
+
+ private:
+  VulkanDevice* m_device;
+  VkShaderModule m_shaderModule;
+};
+
+struct VulkanRHIRasterizerState : public RHIRasterizerState {
+  VkPolygonMode polygonMode;
+  VkCullModeFlags cullMode;
+};
+
+struct VulkanRHIDepthStencilState : public RHIDepthStencilState {
+  bool enableDepthTest;
+  CompareOperator depthCompareOp;
+  bool enableDepthWrite;
+  bool enableStencilTest;
+  StencilOperator frontFailOp;
+  StencilOperator frontPassOp;
+  StencilOperator frontDepthFailOp;
+  CompareOperator frontCompareOp;
+  StencilOperator backFailOp;
+  StencilOperator backPassOp;
+  StencilOperator backDepthFailOp;
+  CompareOperator backCompareOp;
+};
+
+struct VulkanRHIBlendState : public RHIBlendState {
+  std::vector<VkPipelineColorBlendAttachmentState> blendStates;
+};
+
+class VulkanRHIGraphicsPipelineState : public RHIGraphicsPipelineState {
+public:
+ VulkanRHIGraphicsPipelineState(VulkanDevice *device, VkPipeline pipeline,
+                                std::shared_ptr<VulkanLayout> &layout)
+     : m_device(device), m_pipeline(pipeline), m_vulkanLayout(layout) {}
+
+private:
+  VulkanDevice *m_device;
+  VkPipeline m_pipeline;
+  std::shared_ptr<VulkanLayout> m_vulkanLayout;
 };
 
 }

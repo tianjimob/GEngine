@@ -6,7 +6,7 @@
 #include "core/math/box_sphere_bounds.h"
 #include "core/reflection/reflection.h"
 #include "function/framework/component/mesh/mesh_descriptor.h"
-#include "function/framework/component/mesh/vertex_streams.h"
+#include "function/framework/render/mesh_pipeline/vertex_streams.h"
 #include "function/framework/object/object.h"
 #include "function/framework/render/rhi/rhi_resource.h"
 

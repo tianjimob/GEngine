@@ -1,13 +1,14 @@
 #pragma once
 
-#include "function/framework/render/rhi/rhi_resource.h"
 #include <memory>
 #include <vector>
 namespace GEngine {
 
+class RHIBuffer;
+
 enum class VertexElementType {
   None,
-  Float1,
+  Float1 = 0,
   Float2,
   Float3,
   Float4,
@@ -25,6 +26,8 @@ public:
   void addVertexStream(VertexStream &vertexStream) {
     m_vertexStreams.emplace_back(vertexStream);
   }
+
+  const std::vector<VertexStream>& getVertexStreams() const { return m_vertexStreams; }
 private:
   std::vector<VertexStream> m_vertexStreams;
 };

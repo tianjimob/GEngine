@@ -1,25 +1,28 @@
 #include "vulkan_pipeline_state.h"
 
+#include <cassert>
+#include <cstring>
+#include <memory>
+#include <vector>
+
 #include "core/log/logger.h"
 #include "function/framework/render/core/shaders.h"
 #include "function/framework/render/rhi/rhi.h"
 #include "function/framework/render/rhi/rhi_resource.h"
 #include "function/framework/render/rhi/vulkan/vulkan_command_buffer.h"
+#include "function/framework/render/rhi/vulkan/vulkan_device.h"
 #include "function/framework/render/rhi/vulkan/vulkan_macros.h"
 #include "function/framework/render/rhi/vulkan/vulkan_rhi_resource.h"
-#include "function/framework/render/rhi/vulkan/vulkan_device.h"
+#include "function/framework/render/rhi/vulkan/vulkan_utils.h"
 #include "vulkan/vulkan_core.h"
-#include <cassert>
-#include <cstring>
-#include <memory>
-#include <vector>
+
 
 namespace GEngine {
 
 static DECLARE_LOG_CATEGORY(LogVulkanRHI);
 
 VkDescriptorSet VulkanDescriptorPoolManager::allocateDescriptorSet(
-    std::shared_ptr<VulkanLayout>& vulkanLayout) {
+    std::shared_ptr<VulkanLayout> &vulkanLayout) {
   const uint32_t MaxSets = 128;
 
   auto createNewPool = [this, MaxSets, &vulkanLayout]() -> VkDescriptorPool {
@@ -31,18 +34,10 @@ VkDescriptorSet VulkanDescriptorPoolManager::allocateDescriptorSet(
       uint32_t num =
           vulkanLayout->getTypeUsed(static_cast<ShaderParametersType>(type));
       VkDescriptorPoolSize size;
-      switch (type) {
-        case static_cast<uint32_t>(ShaderParametersType::UniformBuffer):
-          size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-          break;
-        case static_cast<uint32_t>(ShaderParametersType::StorageBuffer):
-          size.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-          break;
-        default:
-          break;
-        }
-        size.descriptorCount = num * MaxSets;
-        poolSizes.emplace_back(size);
+      size.type = VulkanUtils::getVkDescriptorType(
+          static_cast<ShaderParametersType>(type));
+      size.descriptorCount = num * MaxSets;
+      poolSizes.emplace_back(size);
     }
 
     VkDescriptorPoolCreateInfo createInfo;
@@ -61,18 +56,17 @@ VkDescriptorSet VulkanDescriptorPoolManager::allocateDescriptorSet(
       return pool;
   };
 
-
-  PoolsList* poolList = nullptr;
-  if (auto it = m_poolsListMap.find(vulkanLayout->getLayoutName());
+  PoolsList *poolList = nullptr;
+  if (auto it = m_poolsListMap.find(vulkanLayout->getLayoutHash());
       it != m_poolsListMap.end()) {
     poolList = &it->second;
   } else {
     auto [itNew, _] =
-        m_poolsListMap.emplace(vulkanLayout->getLayoutName(), PoolsList());
+        m_poolsListMap.emplace(vulkanLayout->getLayoutHash(), PoolsList());
     poolList = &itNew->second;
   }
 
-  auto& pools = *poolList;
+  auto &pools = *poolList;
   if (pools.empty()) {
     VkDescriptorPool pool = createNewPool();
     if (pool != VK_NULL_HANDLE) pools.emplace_front(pool);
@@ -83,8 +77,8 @@ VkDescriptorSet VulkanDescriptorPoolManager::allocateDescriptorSet(
   ZERO_VULKAN_STRUCT(allocateInfo);
   allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
   allocateInfo.descriptorPool = pool;
-  allocateInfo.descriptorSetCount = 1;
-  allocateInfo.pSetLayouts = &vulkanLayout->getSetLayout();
+  allocateInfo.descriptorSetCount = vulkanLayout->getSetLayouts().size();
+  allocateInfo.pSetLayouts = vulkanLayout->getSetLayouts().data();
 
   VkDescriptorSet descriptorSet;
   VkResult result = vkAllocateDescriptorSets(m_device->getDevice(),
@@ -116,8 +110,7 @@ VkDescriptorSet VulkanDescriptorPoolManager::allocateDescriptorSet(
 void VulkanDescriptorPoolManager::tryReleasePool() {
   for (auto &pools : m_PoolsListMap) {
     auto it = pools.begin();
-    if (it != pools.end())
-      ++it;
+    if (it != pools.end()) ++it;
     for (; it != pools.end(); ++it) {
       vkDestroyDescriptorPool(m_device->getDevice(), *it, nullptr);
     }
@@ -129,8 +122,9 @@ VulkanComputePipelineDescriptorState::VulkanComputePipelineDescriptorState(
     VulkanDevice *device,
     std::shared_ptr<VulkanRHIComputePipelineState> &computePipelineState,
     const void *parametersData)
-    : m_computePipelineState(computePipelineState) {
-  m_descriptorSet = device->getDescriptorPoolManager().allocateDescriptorSet(computePipelineState->getLayout());
+    : m_device(device), m_computePipelineState(computePipelineState) {
+  m_descriptorSet = device->getDescriptorPoolManager().allocateDescriptorSet(
+      computePipelineState->getLayout());
   auto &members = m_computePipelineState->getComputeShader()->getMembers();
   for (auto &member : members) {
     VkWriteDescriptorSet descriptorWrite;
@@ -140,41 +134,81 @@ VulkanComputePipelineDescriptorState::VulkanComputePipelineDescriptorState(
     descriptorWrite.dstArrayElement = member.elements;
     descriptorWrite.descriptorCount = 1;
     switch (member.type) {
-    case ShaderParametersType::UniformBuffer:
-      descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-      {
-        std::shared_ptr<VulkanRHIUniformBuffer> uniformBuffer =
-            std::static_pointer_cast<VulkanRHIUniformBuffer>(
-                GlobalRHI->createUniformBuffer(member.size));
-        m_uniformBuffers.emplace_back(uniformBuffer);
+      case ShaderParametersType::UniformBuffer:
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        {
+          std::shared_ptr<VulkanRHIUniformBuffer> uniformBuffer =
+              std::static_pointer_cast<VulkanRHIUniformBuffer>(
+                  GlobalRHI->createUniformBuffer(member.size));
+          m_uniformBuffers.emplace_back(uniformBuffer);
 
-        VkDescriptorBufferInfo bufferInfo;
-        bufferInfo.buffer = uniformBuffer->getUniformBuffer();
-        bufferInfo.offset = 0;
-        bufferInfo.range = member.size;
-        m_uniformBufferInfos.emplace_back(bufferInfo);
-        descriptorWrite.pBufferInfo = &m_uniformBufferInfos.back();
-        memcpy(uniformBuffer->getMapped(), (char*)parametersData + member.offset, member.size);
-      }
-      break;
-    case ShaderParametersType::StorageBuffer:
-      descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-      {
-        RHIBuffer* rhiBuffer = (RHIBuffer*)((char *)parametersData + member.offset);
-        VkDescriptorBufferInfo bufferInfo;
+          VkDescriptorBufferInfo bufferInfo;
+          bufferInfo.buffer = uniformBuffer->getUniformBuffer();
+          bufferInfo.offset = 0;
+          bufferInfo.range = member.size;
+          m_uniformBufferInfos.emplace_back(bufferInfo);
+          descriptorWrite.pBufferInfo = &m_uniformBufferInfos.back();
+          memcpy(uniformBuffer->getMapped(),
+                 (uint8_t *)parametersData + member.offset, member.size);
+        }
+        break;
+      case ShaderParametersType::StorageBuffer:
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        {
+          RHIBuffer *rhiBuffer =
+              (RHIBuffer *)((uint8_t *)parametersData + member.offset);
+          VkDescriptorBufferInfo bufferInfo;
+          bufferInfo.buffer = (VkBuffer)rhiBuffer->getHandle();
+          bufferInfo.offset = 0;
+          bufferInfo.range = rhiBuffer->size();
+          m_storageBufferInfos.emplace_back(bufferInfo);
+          descriptorWrite.pBufferInfo = &m_storageBufferInfos.back();
+        }
+        break;
+      default:
+        break;
+    }
+    m_descriptorWrites.emplace_back(descriptorWrite);
+  }
+  vkUpdateDescriptorSets(device->getDevice(), m_descriptorWrites.size(),
+                         m_descriptorWrites.data(), 0, nullptr);
+}
+
+VulkanComputePipelineDescriptorState::~VulkanComputePipelineDescriptorState() {}
+
+void VulkanComputePipelineDescriptorState::updateDescriptorSets(const void *parametersData) {
+  m_descriptorSet = m_device->getDescriptorPoolManager().allocateDescriptorSet(
+      m_computePipelineState->getLayout());
+  if (parametersData == nullptr)
+    return;
+
+  auto &members = m_computePipelineState->getComputeShader()->getMembers();
+  int uniformIndex = 0;
+  int storageIndex = 0;
+  int memberIndex = 0;
+  for (auto &descriptorWrite : m_descriptorWrites) {
+    auto& member = members[memberIndex];
+    switch (descriptorWrite.descriptorType) {
+      case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER: {
+        auto &uniformBuffer = m_uniformBuffers[uniformIndex++];
+        memcpy(uniformBuffer->getMapped(),
+                 (uint8_t *)parametersData + member.offset, member.size);
+      } break;
+      case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER: {
+        RHIBuffer *rhiBuffer =
+            (RHIBuffer *)((uint8_t *)parametersData + member.offset);
+        auto &bufferInfo = m_storageBufferInfos[storageIndex++];
         bufferInfo.buffer = (VkBuffer)rhiBuffer->getHandle();
-        bufferInfo.offset = 0;
         bufferInfo.range = rhiBuffer->size();
-        m_storageBufferInfos.emplace_back(bufferInfo);
-        descriptorWrite.pBufferInfo = &m_storageBufferInfos.back();
-      }
+        }
       break;
     default:
       break;
     }
-    m_descriptorWrites.emplace_back(descriptorWrite);
   }
-  vkUpdateDescriptorSets(device->getDevice(), m_descriptorWrites.size(), m_descriptorWrites.data(), 0, nullptr);
+
+  vkUpdateDescriptorSets(m_device->getDevice(), m_descriptorWrites.size(),
+                         m_descriptorWrites.data(), 0, nullptr);
 }
 
 }  // namespace GEngine

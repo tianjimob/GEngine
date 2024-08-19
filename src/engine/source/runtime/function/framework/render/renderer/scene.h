@@ -38,8 +38,9 @@ public:
 
 public:
   // updated by updateAllPrimitiveInfos()
-  
+
   std::vector<PrimitiveSceneInfo *> primitives;
+  std::vector<PrimitiveSceneProxy*> primitiveSceneProxies;
   std::vector<Matrix4x4> primitiveTransforms;
   std::vector<BoxSphereBounds> bounds;
   std::vector<uint32_t> primitiveComponentIds;
