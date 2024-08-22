@@ -227,6 +227,16 @@ std::shared_ptr<RHICommandContext> VulkanRHI::getComputeContext() {
   return m_device.lock()->getComputeContext();
 }
 
+std::shared_ptr<RHICommandContext> VulkanRHI::getGraphicsContext() {
+  return m_device.lock()->getGraphicsContext();
+}
+
+std::shared_ptr<RHIViewport> VulkanRHI::createViewport() {
+  assert(GlobalEngine);
+  GameEngine* engine = reinterpret_cast<GameEngine*>(GlobalEngine);
+  return std::make_shared<VulkanRHIViewport>(engine->getWindow());
+}
+
 void VulkanRHI::createInstance() {
   VkApplicationInfo appInfo;
   ZERO_VULKAN_STRUCT(appInfo);

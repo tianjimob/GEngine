@@ -31,7 +31,7 @@ struct MeshDrawCommand {
     } IndirectArgs;
   };
 
-  
+  void submitDraw(const void *parametersData);
 };
 
 }

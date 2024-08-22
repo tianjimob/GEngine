@@ -2,6 +2,7 @@
 
 #include "core/math/rect.h"
 #include "core/math/vector2.h"
+#include "function/framework/render/rhi/rhi_resource.h"
 #include "function/framework/ui/input.h"
 #include "function/framework/render/core/color_attachment.h"
 #include <cstdint>
@@ -13,9 +14,10 @@ namespace GEngine {
 class Window;
 class GameViewportClient;
 
-class SceneViewport : public ColorAttachment {
+class SceneViewport {
 public:
   void setGameViewportClient(GameViewportClient* client);
+  void initViewport();
 
   bool onSizeChanged(Window *window, int32_t width, int32_t height,
                      bool wasMinimized) {
@@ -52,6 +54,7 @@ private:
   // range in pixels
   Rect m_viewportRect;
 
+  std::shared_ptr<RHIViewport> m_rhiViewport;
 };
 
 } // namespace GEngine

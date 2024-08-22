@@ -60,6 +60,33 @@ void VulkanRHICommandContext::RHISetComputePipelineState(
   }
 }
 
+void VulkanRHICommandContext::RHIDrawIndexedPrimitive(std::shared_ptr<RHIBuffer> &IndexBufferRHI,
+                             int32_t BaseVertexIndex, uint32_t FirstInstance,
+                             uint32_t NumVertices, uint32_t StartIndex,
+                             uint32_t NumPrimitives, uint32_t NumInstances) {
+  std::shared_ptr<VulkanCommandBuffer> cmdBuffer =
+      m_commandBufferManager->getActiveCommandBuffer();
+  assert(cmdBuffer->isInsideRenderPass());
+      }
+
+void VulkanRHICommandContext::RHISetGraphicsPipelineState(
+    std::shared_ptr<RHIGraphicsPipelineState> &graphicsPipelineState,
+    const void *parametersData) {
+  std::shared_ptr<VulkanRHIGraphicsPipelineState> vulkanState =
+      std::static_pointer_cast<VulkanRHIGraphicsPipelineState>(
+          graphicsPipelineState);
+  if (auto it = m_graphicsStateMap.find(vulkanState);
+      it != m_graphicsStateMap.end()) {
+    it->second->updateDescriptorSets(parametersData);
+    m_currentGraphicsState = it->second;
+  } else {
+    m_currentGraphicsState =
+        std::make_shared<VulkanGraphicsPipelineDescriptorState>(
+            m_device, vulkanState, parametersData);
+    m_graphicsStateMap[vulkanState] = m_currentGraphicsState;
+  }
+}
+
 void VulkanRHICommandContext::RHICopyBuffer(
     std::shared_ptr<RHIBuffer> &srcBuffer,
     std::shared_ptr<RHIBuffer> &dstBuffer) {

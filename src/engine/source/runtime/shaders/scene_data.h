@@ -11,7 +11,7 @@ class PrimitiveSceneProxy;
 struct PrimitiveSceneData {
   static constexpr int DataStrideInFloat4s = 13;
   StaticArray<Vector4, DataStrideInFloat4s> data;
-  PrimitiveSceneData(const PrimitiveSceneProxy* primitiveSceneProxy);
+  PrimitiveSceneData(const PrimitiveSceneProxy* primitiveSceneProxy, uint32_t primitiveId);
 };
 
 struct PrimitiveInstanceSceneData {

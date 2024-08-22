@@ -5,6 +5,7 @@
 
 #include "function/framework/render/rhi/rhi_resource.h"
 #include "function/framework/render/rhi/vulkan/vulkan_pipeline_state.h"
+#include "function/framework/render/rhi/vulkan/vulkan_rhi_resource.h"
 
 
 namespace GEngine {
@@ -27,6 +28,14 @@ class VulkanRHICommandContext : public RHICommandContext {
       std::shared_ptr<RHIComputePipelineState> &computePipelineState,
       const void *parametersData) override;
 
+  virtual void RHIDrawIndexedPrimitive(
+      std::shared_ptr<RHIBuffer> &IndexBufferRHI, int32_t BaseVertexIndex,
+      uint32_t FirstInstance, uint32_t NumVertices, uint32_t StartIndex,
+      uint32_t NumPrimitives, uint32_t NumInstances) override;
+  virtual void RHISetGraphicsPipelineState(
+      std::shared_ptr<RHIGraphicsPipelineState> &graphicsPipelineState,
+      const void *parametersData) override;
+
   virtual void RHICopyBuffer(std::shared_ptr<RHIBuffer>& srcBuffer, std::shared_ptr<RHIBuffer>& dstBuffer) override;
 
   void waitIdle();
@@ -42,7 +51,11 @@ class VulkanRHICommandContext : public RHICommandContext {
   std::unordered_map<std::shared_ptr<VulkanRHIComputePipelineState>,
                      std::shared_ptr<VulkanComputePipelineDescriptorState>>
       m_computeStateMap;
+  std::unordered_map<std::shared_ptr<VulkanRHIGraphicsPipelineState>,
+                     std::shared_ptr<VulkanGraphicsPipelineDescriptorState>>
+      m_graphicsStateMap;
   std::shared_ptr<VulkanComputePipelineDescriptorState> m_currentComputeState;
+  std::shared_ptr<VulkanGraphicsPipelineDescriptorState> m_currentGraphicsState;
 };
 
 }  // namespace GEngine

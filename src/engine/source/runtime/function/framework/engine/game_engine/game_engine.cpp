@@ -62,6 +62,7 @@ void GameEngine::preInit(const std::string &configPath) {
     }
 
     GlobalRHI->init();
+    m_sceneViewport->initViewport();
     RHIShaders::init();
   }
 

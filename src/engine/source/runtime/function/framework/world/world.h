@@ -37,7 +37,8 @@ STRUCT(WorldInitializer) : public GObject {
 CLASS(World) : public GObject {
   REFLECTION_BODY(World)
 
- public:
+public:
+  static World& GetWorld();
 
   void load(const WorldInitializer& worldInitializer,
             std::weak_ptr<GameInstance> gameInstance);

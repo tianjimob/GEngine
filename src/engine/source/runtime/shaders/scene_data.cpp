@@ -6,7 +6,7 @@
 namespace GEngine {
 
 PrimitiveSceneData::PrimitiveSceneData(
-    const PrimitiveSceneProxy *primitiveSceneProxy) {
+    const PrimitiveSceneProxy *primitiveSceneProxy, uint32_t primitiveId) {
   const auto& localToWorld = primitiveSceneProxy->getLocalToWorld().transpose();
   data[0] = *reinterpret_cast<const Vector4 *>(&localToWorld[0][0]);
   data[1] = *reinterpret_cast<const Vector4 *>(&localToWorld[1][0]);
@@ -31,6 +31,7 @@ PrimitiveSceneData::PrimitiveSceneData(
       static_cast<float>(primitiveSceneProxy->getInstanceSceneDataOffset());
   data[12].y =
       static_cast<float>(primitiveSceneProxy->getNumInstanceSceneDataEntries());
+  data[12].z = static_cast<float>(primitiveId);
 }
 
 PrimitiveInstanceSceneData::PrimitiveInstanceSceneData(

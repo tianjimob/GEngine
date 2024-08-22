@@ -8,6 +8,7 @@ DeferredSceneRenderer::DeferredSceneRenderer(SceneViewFamily &viewFamily)
 
 void DeferredSceneRenderer::render() {
   scene->updateAllPrimitiveInfos();
+  scene->gpuScene.update(scene);
 }
 
 }

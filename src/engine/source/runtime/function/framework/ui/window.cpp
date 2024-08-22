@@ -1,5 +1,6 @@
 #include "window.h"
 
+#include "SDL2/SDL_vulkan.h"
 #include "core/misc/config_cache_ini.h"
 #include "function/framework/engine/scene_viewport.h"
 #include "function/framework/ui/input.h"

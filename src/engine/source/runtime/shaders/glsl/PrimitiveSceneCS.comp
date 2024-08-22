@@ -1,0 +1,38 @@
+#version 450
+
+#extension GL_GOOGLE_include_directive : enable
+
+#include "../include/scene_data.inl"
+
+layout(binding = 0) uniform UpdateInfo {
+    uint updateSize;
+} info;
+
+layout(std430, binding = 1) readonly buffer ssboSrc {
+    PrimitiveSceneDatafloat primitiveSceneDataFloat[];
+};
+
+layout(std430, binding = 2) buffer ssboDst {
+    PrimitiveSceneData primitiveSceneData[];
+};
+
+layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+void main() {
+    if(gl_GlobalInvocationID.x < info.updateSize) {
+        int primitiveId = int(primitiveSceneDataFloat[gl_GlobalInvocationID.x].ptimitiveId);
+        primitiveSceneData[primitiveId].localToWorld                = primitiveSceneDataFloat[gl_GlobalInvocationID.x].localToWorld;
+        primitiveSceneData[primitiveId].worldToLocal                = primitiveSceneDataFloat[gl_GlobalInvocationID.x].worldToLocal;
+        primitiveSceneData[primitiveId].actorWorldPosition          = primitiveSceneDataFloat[gl_GlobalInvocationID.x].actorWorldPosition;
+        primitiveSceneData[primitiveId].worldBoundsExtentX          = primitiveSceneDataFloat[gl_GlobalInvocationID.x].worldBoundsExtentX;
+        primitiveSceneData[primitiveId].worldBoundsOrigin           = primitiveSceneDataFloat[gl_GlobalInvocationID.x].worldBoundsOrigin;
+        primitiveSceneData[primitiveId].worldBoundsRadius           = primitiveSceneDataFloat[gl_GlobalInvocationID.x].worldBoundsRadius;
+        primitiveSceneData[primitiveId].localBoundsMin              = primitiveSceneDataFloat[gl_GlobalInvocationID.x].localBoundsMin;
+        primitiveSceneData[primitiveId].worldBoundsExtentY          = primitiveSceneDataFloat[gl_GlobalInvocationID.x].worldBoundsExtentY;
+        primitiveSceneData[primitiveId].localBoundsMax              = primitiveSceneDataFloat[gl_GlobalInvocationID.x].localBoundsMax;
+        primitiveSceneData[primitiveId].worldBoundsExtentZ          = primitiveSceneDataFloat[gl_GlobalInvocationID.x].worldBoundsExtentZ;
+        primitiveSceneData[primitiveId].instanceSceneDataOffset     = int(primitiveSceneDataFloat[gl_GlobalInvocationID.x].instanceSceneDataOffset);
+        primitiveSceneData[primitiveId].numInstanceSceneDataEntries = int(primitiveSceneDataFloat[gl_GlobalInvocationID.x].numInstanceSceneDataEntries);
+        primitiveSceneData[primitiveId].ptimitiveId                 = primitiveId;
+    }
+}

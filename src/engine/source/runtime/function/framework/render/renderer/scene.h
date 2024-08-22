@@ -14,6 +14,7 @@
 namespace GEngine {
 
 class World;
+class MeshDrawCommand;
 class Scene : public std::enable_shared_from_this<Scene> {
 public:
   Scene(std::shared_ptr<World> world);
@@ -46,8 +47,12 @@ public:
   std::vector<uint32_t> primitiveComponentIds;
   GPUScene gpuScene;
 
-private:
+  std::vector<MeshDrawCommand> m_meshDrawCommands;
+
+ private:
   uint32_t m_sceneFrameNumber;
+
+ 
 };
 
 }

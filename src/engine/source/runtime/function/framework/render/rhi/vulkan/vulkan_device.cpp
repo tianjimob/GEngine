@@ -1,5 +1,6 @@
 #include "vulkan_device.h"
 
+#include <cstdint>
 #include <memory>
 #include <set>
 #include <utility>
@@ -95,6 +96,34 @@ VkShaderModule VulkanDevice::createShaderModule(
     return VK_NULL_HANDLE;
   }
   return shaderModule;
+}
+
+void VulkanDevice::setupPresentQueue(VkSurfaceKHR surface) {
+  if (!m_presentQueue) {
+    const auto SupportsPresent = [surface](
+                                     VkPhysicalDevice PhysicalDevice,
+                                     std::shared_ptr<VulkanQueue> &queue) {
+      VkBool32 bSupportsPresent = VK_FALSE;
+      const uint32_t FamilyIndex = queue->getFamilyIndex();
+      if (vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice, FamilyIndex,
+                                               surface, &bSupportsPresent) !=
+          VK_SUCCESS) {
+        LOG_FATAL(LogVulkanRHI, "vkGetPhysicalDeviceSurfaceSupportKHR failed!");
+      }
+      if (bSupportsPresent) {
+        LOG_INFO(LogVulkanRHI, "Queue Family {}: Supports Present",
+                 FamilyIndex);
+      }
+      return (bSupportsPresent == VK_TRUE);
+    };
+
+    bool bGfx = SupportsPresent(m_gpu, m_graphicsQueue);
+    if (!bGfx) {
+      LOG_FATAL(LogVulkanRHI, "Cannot find a compatible Vulkan device that supports surface presentation.");
+    }
+    m_presentQueue = m_graphicsQueue;
+    
+  }
 }
 
 void VulkanDevice::createDevice() {

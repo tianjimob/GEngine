@@ -81,6 +81,10 @@ public:
   virtual void unmapBuffer(std::shared_ptr<RHIBuffer> &buffer) = 0;
 
   virtual std::shared_ptr<RHICommandContext> getComputeContext() = 0;
+
+  virtual std::shared_ptr<RHICommandContext> getGraphicsContext() = 0;
+
+  virtual std::shared_ptr<RHIViewport> createViewport() = 0;
 };
 
 extern RHI *GlobalRHI;

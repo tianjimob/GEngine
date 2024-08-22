@@ -11,7 +11,7 @@ public:
   StaticMeshSceneProxy(StaticMeshComponent &component);
   
 protected:
-  std::weak_ptr<StaticMesh> m_staticMesh;
+  std::shared_ptr<StaticMesh> m_staticMesh;
 };
 
 }

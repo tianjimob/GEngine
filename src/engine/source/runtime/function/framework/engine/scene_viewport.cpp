@@ -3,10 +3,15 @@
 #include "function/framework/engine/engine.h"
 #include "function/framework/engine/game_engine/game_engine.h"
 #include "function/framework/engine/game_viewport_client.h"
+#include "function/framework/render/rhi/rhi.h"
 
 namespace GEngine {
 void SceneViewport::setGameViewportClient(GameViewportClient* client) {
   m_gameViewportClient = client;
+}
+
+void SceneViewport::initViewport() {
+  m_rhiViewport = GlobalRHI->createViewport();
 }
 
 bool SceneViewport::onKeyDown(ModifierKey mod, VirtualCode key, uint8_t repeat)

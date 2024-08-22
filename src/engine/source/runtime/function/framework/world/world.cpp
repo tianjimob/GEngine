@@ -6,14 +6,22 @@
 #include "function/framework/actor/actor.h"
 #include "function/framework/actor/controller/player_controller/player_controller.h"
 #include "function/framework/actor/pawn/pawn.h"
+#include "function/framework/engine/engine.h"
 #include "function/framework/render/renderer/renderer_module.h"
 
+#include <cassert>
 #include <memory>
 #include <fstream>
 
 namespace GEngine {
 
 DECLARE_LOG_CATEGORY(LogWorld)
+
+World &World::GetWorld() {
+  assert(GlobalEngine);
+
+  return *GlobalEngine->getWorld();
+}
 
 void World::load(const WorldInitializer &worldInitializer, std::weak_ptr<GameInstance> gameInstance) {
   for (auto &levelUrl : worldInitializer.levelUrls) {

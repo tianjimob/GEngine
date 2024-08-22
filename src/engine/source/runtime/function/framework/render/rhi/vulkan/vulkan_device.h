@@ -23,6 +23,8 @@ class VulkanDevice {
 
   void init();
 
+  VkPhysicalDevice getPhysicalDevice() { return m_gpu; }
+
   const VkPhysicalDeviceProperties &getGpuProperties() { return m_gpuProp; }
 
   VkDevice getDevice() { return m_device; }
@@ -51,6 +53,8 @@ class VulkanDevice {
   std::shared_ptr<VulkanRHICommandContext> &getComputeContext() {
     return m_computeContext;
   }
+
+  void setupPresentQueue(VkSurfaceKHR surface);
 
 public:
  // function pointers for this device
@@ -121,6 +125,7 @@ private:
   std::shared_ptr<VulkanQueue> m_graphicsQueue;
   std::shared_ptr<VulkanQueue> m_computeQueue;
   std::shared_ptr<VulkanQueue> m_transferQueue;
+  std::shared_ptr<VulkanQueue> m_presentQueue;
 
   std::shared_ptr<VulkanRHICommandContext> m_graphicsContext;
   std::shared_ptr<VulkanRHICommandContext> m_computeContext;

@@ -9,7 +9,7 @@
 namespace GEngine {
 
 Scene::Scene(std::shared_ptr<World> world)
-    :world(world),m_sceneFrameNumber(0) {}
+    : world(world), m_sceneFrameNumber(0) {}
 
 void Scene::addPrimitive(PrimitiveComponent &primitive) {
   std::shared_ptr<PrimitiveSceneProxy> sceneProxy =

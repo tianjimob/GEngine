@@ -16,6 +16,9 @@ class VulkanRHI : public RHI {
  public:
   VulkanRHI();
 
+  VkInstance getInstance() { return m_instance; }
+  std::shared_ptr<VulkanDevice> getActiveDevice() { return m_device.lock(); }
+
   virtual void init() override;
   virtual std::string_view getName() override { return "Vulkan"; }
 
@@ -53,6 +56,10 @@ class VulkanRHI : public RHI {
 
   virtual std::shared_ptr<RHICommandContext> getComputeContext() override;
 
+  virtual std::shared_ptr<RHICommandContext> getGraphicsContext() override;
+
+  virtual std::shared_ptr<RHIViewport> createViewport() override;
+
  private:
   void createInstance();
 
@@ -85,8 +92,8 @@ class VulkanRHI : public RHI {
                RHIMemoryPropertyFlags property, VkBuffer& buffer, VkDeviceMemory& memory);
 
  private:
-   VkInstance m_instance;
-   VkDebugUtilsMessengerEXT m_debugMessenger;
+  VkInstance m_instance;
+  VkDebugUtilsMessengerEXT m_debugMessenger;
 
   std::vector<std::shared_ptr<VulkanDevice>> m_devices;
   std::weak_ptr<VulkanDevice>

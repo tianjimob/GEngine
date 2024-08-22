@@ -33,7 +33,9 @@ CLASS(Actor) : public GObject {
 
   const Transform &actorToWorld() const {return {};}
 
-  std::shared_ptr<TransformComponent> getRootComponent() const { return {}; }
+  std::shared_ptr<TransformComponent> getRootComponent() const {
+    return m_rootComponent;
+  }
 
   std::shared_ptr<InputComponent> getInputComponent() {
     return m_inputComponent;
@@ -45,7 +47,7 @@ CLASS(Actor) : public GObject {
   void addComponent(std::weak_ptr<ActorComponent> componet);
 
 protected:
-
+  META_FIELD()
   std::shared_ptr<TransformComponent> m_rootComponent;
 
   std::shared_ptr<InputComponent> m_inputComponent;

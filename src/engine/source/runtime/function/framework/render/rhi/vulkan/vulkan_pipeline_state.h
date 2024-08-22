@@ -43,8 +43,6 @@ public:
                             &m_descriptorSet, 0, nullptr);
   }
 
-
-
   void updateDescriptorSets(const void *parametersData);
 
 private:
@@ -55,7 +53,34 @@ private:
   std::vector<VkDescriptorBufferInfo> m_uniformBufferInfos;
   std::vector<VkDescriptorBufferInfo> m_storageBufferInfos;
   std::vector<std::shared_ptr<VulkanRHIUniformBuffer>> m_uniformBuffers;
+};
 
+class VulkanGraphicsPipelineDescriptorState {
+public:
+  VulkanGraphicsPipelineDescriptorState(
+      VulkanDevice *device,
+      std::shared_ptr<VulkanRHIGraphicsPipelineState> &graphicsPipelineState,
+      const void *parametersData);
+
+  ~VulkanGraphicsPipelineDescriptorState();
+
+  void bind(VkCommandBuffer commandBuffer) {
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                      m_graphicsPipelineState->getPipeline());
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            m_graphicsPipelineState->getPipelineLayout(), 0, 1,
+                            &m_descriptorSet, 0, nullptr);
+  }
+
+  void updateDescriptorSets(const void *parametersData);
+private:
+  VulkanDevice *m_device;
+  std::shared_ptr<VulkanRHIGraphicsPipelineState> m_graphicsPipelineState;
+  VkDescriptorSet m_descriptorSet;
+  std::vector<VkWriteDescriptorSet> m_descriptorWrites;
+  std::vector<VkDescriptorBufferInfo> m_uniformBufferInfos;
+  std::vector<VkDescriptorBufferInfo> m_storageBufferInfos;
+  std::vector<std::shared_ptr<VulkanRHIUniformBuffer>> m_uniformBuffers;
 };
 
 }

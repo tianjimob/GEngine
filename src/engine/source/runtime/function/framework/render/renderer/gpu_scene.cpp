@@ -21,29 +21,7 @@ namespace GEngine {
 void GPUScene::update(std::shared_ptr<Scene> &scene) {
   updateBufferState(scene);
 
-  // upload
-  {
-    UploadBuffer primitiveUploader;
-
-    primitiveUploader.begin(bufferState.primitiveBuffer, m_primitivesToUpdate.size(), sizeof(PrimitiveSceneData::data));
-
-    // prepare data
-    {
-      std::for_each(std::execution::par, m_primitivesToUpdate.begin(),
-                    m_primitivesToUpdate.end(),
-                    [&scene, &primitiveUploader](uint32_t index) {
-                      const auto *primitiveSceneProxy =
-                          scene->primitiveSceneProxies[index];
-                      PrimitiveSceneData sceneData{primitiveSceneProxy};
-                      Vector4 *dstData = reinterpret_cast<Vector4 *>(
-                          primitiveUploader.getMappedVector4(index));
-                      for (int i = 0;
-                           i < PrimitiveSceneData::DataStrideInFloat4s; ++i) {
-                        dstData[i] = sceneData.data[i];
-                      }
-                    });
-    }
-  }
+  upload(scene);
 }
 void GPUScene::updateBufferState(std::shared_ptr<Scene> &scene) {
   constexpr int32_t initialBufferSize = 256;
@@ -77,6 +55,32 @@ void GPUScene::updateBufferState(std::shared_ptr<Scene> &scene) {
 
     bufferState.primitiveBuffer = newPrimitiveBuffer;
   }
+}
+
+void GPUScene::upload(std::shared_ptr<Scene> &scene) {
+  UploadBuffer primitiveUploader;
+
+    primitiveUploader.begin(bufferState.primitiveBuffer, m_primitivesToUpdate.size(), sizeof(PrimitiveSceneData::data));
+
+    // prepare data
+    {
+      std::for_each(std::execution::par, m_primitivesToUpdate.begin(),
+                    m_primitivesToUpdate.end(),
+                    [&scene, &primitiveUploader](uint32_t index) {
+                      const auto *primitiveSceneProxy =
+                          scene->primitiveSceneProxies[index];
+                      PrimitiveSceneData sceneData{primitiveSceneProxy, index};
+                      Vector4 *dstData = reinterpret_cast<Vector4 *>(
+                          primitiveUploader.getMappedVector4(index));
+                      for (int i = 0;
+                           i < PrimitiveSceneData::DataStrideInFloat4s; ++i) {
+                        dstData[i] = sceneData.data[i];
+                      }
+                    });
+    }
+
+    primitiveUploader.end<PrimitiveSceneCS::Parameters>(
+        bufferState.primitiveBuffer);
 }
 
 }  // namespace GEngine

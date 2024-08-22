@@ -15,9 +15,9 @@ CLASS(ActorComponent) : public GObject {
 public:
   virtual ~ActorComponent() = default;
 
-  virtual void tick(float deltaTime) {}
-  virtual void postLoad(std::weak_ptr<GObject> parentObject) override;
   virtual void onSerializeRead() override;
+  virtual void postLoad(std::weak_ptr<GObject> parentObject) override;
+  virtual void tick(float deltaTime) {}
 
 private:
   std::weak_ptr<Actor> m_owner;

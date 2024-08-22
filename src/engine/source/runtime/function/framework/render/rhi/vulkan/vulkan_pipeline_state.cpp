@@ -1,6 +1,8 @@
 #include "vulkan_pipeline_state.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <cstring>
 #include <memory>
 #include <vector>
@@ -15,7 +17,6 @@
 #include "function/framework/render/rhi/vulkan/vulkan_rhi_resource.h"
 #include "function/framework/render/rhi/vulkan/vulkan_utils.h"
 #include "vulkan/vulkan_core.h"
-
 
 namespace GEngine {
 
@@ -176,23 +177,23 @@ VulkanComputePipelineDescriptorState::VulkanComputePipelineDescriptorState(
 
 VulkanComputePipelineDescriptorState::~VulkanComputePipelineDescriptorState() {}
 
-void VulkanComputePipelineDescriptorState::updateDescriptorSets(const void *parametersData) {
+void VulkanComputePipelineDescriptorState::updateDescriptorSets(
+    const void *parametersData) {
   m_descriptorSet = m_device->getDescriptorPoolManager().allocateDescriptorSet(
       m_computePipelineState->getLayout());
-  if (parametersData == nullptr)
-    return;
+  if (parametersData == nullptr) return;
 
   auto &members = m_computePipelineState->getComputeShader()->getMembers();
   int uniformIndex = 0;
   int storageIndex = 0;
   int memberIndex = 0;
   for (auto &descriptorWrite : m_descriptorWrites) {
-    auto& member = members[memberIndex];
+    auto &member = members[memberIndex];
     switch (descriptorWrite.descriptorType) {
       case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER: {
         auto &uniformBuffer = m_uniformBuffers[uniformIndex++];
         memcpy(uniformBuffer->getMapped(),
-                 (uint8_t *)parametersData + member.offset, member.size);
+               (uint8_t *)parametersData + member.offset, member.size);
       } break;
       case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER: {
         RHIBuffer *rhiBuffer =
@@ -200,12 +201,112 @@ void VulkanComputePipelineDescriptorState::updateDescriptorSets(const void *para
         auto &bufferInfo = m_storageBufferInfos[storageIndex++];
         bufferInfo.buffer = (VkBuffer)rhiBuffer->getHandle();
         bufferInfo.range = rhiBuffer->size();
-        }
-      break;
-    default:
-      break;
+      } break;
+      default:
+        break;
     }
   }
+
+  vkUpdateDescriptorSets(m_device->getDevice(), m_descriptorWrites.size(),
+                         m_descriptorWrites.data(), 0, nullptr);
+}
+
+VulkanGraphicsPipelineDescriptorState::VulkanGraphicsPipelineDescriptorState(
+    VulkanDevice *device,
+    std::shared_ptr<VulkanRHIGraphicsPipelineState> &graphicsPipelineState,
+    const void *parametersData) {
+  m_descriptorSet = device->getDescriptorPoolManager().allocateDescriptorSet(
+      graphicsPipelineState->getLayout());
+
+  int lastMaxBinding = 0;
+  int maxBinding = 0;
+  for (auto &shader : m_graphicsPipelineState->getShaders()) {
+    auto &members = shader->getMembers();
+    for (auto &member : members) {
+      VkWriteDescriptorSet descriptorWrite;
+      descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      descriptorWrite.dstSet = m_descriptorSet;
+      descriptorWrite.dstBinding = lastMaxBinding + member.binding;
+      maxBinding = std::max((uint32_t)maxBinding, member.binding);
+      descriptorWrite.dstArrayElement = member.elements;
+      descriptorWrite.descriptorCount = 1;
+      switch (member.type) {
+        case ShaderParametersType::UniformBuffer:
+          descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+          {
+            std::shared_ptr<VulkanRHIUniformBuffer> uniformBuffer =
+                std::static_pointer_cast<VulkanRHIUniformBuffer>(
+                    GlobalRHI->createUniformBuffer(member.size));
+            m_uniformBuffers.emplace_back(uniformBuffer);
+
+            VkDescriptorBufferInfo bufferInfo;
+            bufferInfo.buffer = uniformBuffer->getUniformBuffer();
+            bufferInfo.offset = 0;
+            bufferInfo.range = member.size;
+            m_uniformBufferInfos.emplace_back(bufferInfo);
+            descriptorWrite.pBufferInfo = &m_uniformBufferInfos.back();
+            memcpy(uniformBuffer->getMapped(),
+                   (uint8_t *)parametersData + member.offset, member.size);
+          }
+          break;
+        case ShaderParametersType::StorageBuffer:
+          descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+          {
+            RHIBuffer *rhiBuffer =
+                (RHIBuffer *)((uint8_t *)parametersData + member.offset);
+            VkDescriptorBufferInfo bufferInfo;
+            bufferInfo.buffer = (VkBuffer)rhiBuffer->getHandle();
+            bufferInfo.offset = 0;
+            bufferInfo.range = rhiBuffer->size();
+            m_storageBufferInfos.emplace_back(bufferInfo);
+            descriptorWrite.pBufferInfo = &m_storageBufferInfos.back();
+          }
+          break;
+        default:
+          break;
+      }
+      m_descriptorWrites.emplace_back(descriptorWrite);
+    }
+    lastMaxBinding = maxBinding;
+  }
+
+  vkUpdateDescriptorSets(device->getDevice(), m_descriptorWrites.size(),
+                         m_descriptorWrites.data(), 0, nullptr);
+}
+
+void VulkanGraphicsPipelineDescriptorState::updateDescriptorSets(
+    const void *parametersData) {
+  m_descriptorSet = m_device->getDescriptorPoolManager().allocateDescriptorSet(
+      m_graphicsPipelineState->getLayout());
+  if (parametersData == nullptr) return;
+
+  int uniformIndex = 0;
+  int storageIndex = 0;
+
+  for (auto &shader : m_graphicsPipelineState->getShaders()) {
+    auto &members = shader->getMembers();
+    int memberIndex = 0;
+    for (auto &descriptorWrite : m_descriptorWrites) {
+      auto &member = members[memberIndex];
+      switch (descriptorWrite.descriptorType) {
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER: {
+          auto &uniformBuffer = m_uniformBuffers[uniformIndex++];
+          memcpy(uniformBuffer->getMapped(),
+                 (uint8_t *)parametersData + member.offset, member.size);
+        } break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER: {
+          RHIBuffer *rhiBuffer =
+              (RHIBuffer *)((uint8_t *)parametersData + member.offset);
+          auto &bufferInfo = m_storageBufferInfos[storageIndex++];
+          bufferInfo.buffer = (VkBuffer)rhiBuffer->getHandle();
+          bufferInfo.range = rhiBuffer->size();
+        } break;
+        default:
+          break;
+      }
+    }
+  }
+  
 
   vkUpdateDescriptorSets(m_device->getDevice(), m_descriptorWrites.size(),
                          m_descriptorWrites.data(), 0, nullptr);

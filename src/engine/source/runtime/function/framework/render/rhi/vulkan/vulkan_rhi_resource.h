@@ -1,6 +1,9 @@
 #pragma once
 
+#include "SDL2/SDL_vulkan.h"
 #include "function/framework/render/rhi/rhi_resource.h"
+#include "function/framework/render/rhi/vulkan/vulkan_sync.h"
+#include "function/framework/ui/window.h"
 #include "vulkan/vulkan_core.h"
 #include <memory>
 #include <vector>
@@ -156,13 +159,71 @@ struct VulkanRHIBlendState : public RHIBlendState {
 class VulkanRHIGraphicsPipelineState : public RHIGraphicsPipelineState {
 public:
  VulkanRHIGraphicsPipelineState(VulkanDevice *device, VkPipeline pipeline,
-                                std::shared_ptr<VulkanLayout> &layout)
-     : m_device(device), m_pipeline(pipeline), m_vulkanLayout(layout) {}
+                                std::shared_ptr<VulkanLayout> &layout,
+                                std::shared_ptr<RHIVertexShader> &vertexShader,
+                                std::shared_ptr<RHIPixelShader> &pixelShader)
+     : m_device(device),
+       m_pipeline(pipeline),
+       m_vulkanLayout(layout),
+       m_shaders(2) {
+   m_shaders[0] = std::static_pointer_cast<RHIShader>(vertexShader);
+   m_shaders[1] = std::static_pointer_cast<RHIShader>(pixelShader);
+ }
+
+ std::shared_ptr<VulkanLayout> &getLayout() { return m_vulkanLayout; }
+ VkPipeline getPipeline() { return m_pipeline; }
+ VkPipelineLayout getPipelineLayout();
+ std::vector<std::shared_ptr<RHIShader>>& getShaders() { return m_shaders; }
 
 private:
   VulkanDevice *m_device;
   VkPipeline m_pipeline;
   std::shared_ptr<VulkanLayout> m_vulkanLayout;
+  // [0] is vertex shader, [1] is pixel shader
+  std::vector<std::shared_ptr<RHIShader>> m_shaders;
+};
+
+class VulkanSwapChain {
+public:
+  VulkanSwapChain(Window* window, VkInstance instance,
+                  std::shared_ptr<VulkanDevice> vulkanDevice);
+  ~VulkanSwapChain();
+
+private:
+  VulkanDevice& m_device;
+  VkSurfaceKHR m_surface;
+
+  struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+  };
+
+  SwapChainSupportDetails swapChainSupport;
+  VkSurfaceFormatKHR m_surfaceFormat;
+  VkPresentModeKHR m_presentMode;
+  VkExtent2D m_extent;
+  VkSwapchainKHR m_swapChain;
+  std::vector<VkImage> m_swapChainImages;
+  std::vector<VkImageView> m_swapChainImageViews;
+  std::vector<std::shared_ptr<VulkanSemaphore>> m_imageAcquiredSemaphore;
+
+private:
+  SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+  VkSurfaceFormatKHR chooseSwapSurfaceFormat(
+      const std::vector<VkSurfaceFormatKHR> &availableFormats);
+  VkPresentModeKHR chooseSwapPresentMode(
+      const std::vector<VkPresentModeKHR> &availablePresentModes);
+  VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, Window* window);
+      
+};
+
+class VulkanRHIViewport : public RHIViewport {
+public:
+  VulkanRHIViewport(Window* window);
+
+private:
+  std::shared_ptr<VulkanSwapChain> m_swapChain;
 };
 
 }

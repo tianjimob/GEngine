@@ -118,4 +118,13 @@ class MemcpyCS : public Shader {
   END_SHADER_PARAMETER_STRUCT()
 };
 
+class PrimitiveSceneCS : public Shader {
+public:
+  BEGIN_SHADER_PARAMETER_STRUCT()
+  SHADER_PARAMETER_UNIFORM_BUFFER(uint32_t, updateSize)
+  SHADER_PARAMETER_STORAGE_BUFFER(RHIBuffer*, ssboSrc)
+  SHADER_PARAMETER_STORAGE_BUFFER(RHIBuffer*, ssboDst)
+  END_SHADER_PARAMETER_STRUCT()
+};
+
 }  // namespace GEngine

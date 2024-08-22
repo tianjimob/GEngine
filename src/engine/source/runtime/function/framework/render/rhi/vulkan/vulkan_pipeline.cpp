@@ -253,8 +253,9 @@ VulkanPipelineStateCacheManager::createGraphicsPipeline(
   }
 
   std::shared_ptr<VulkanRHIGraphicsPipelineState> vulkanPipeline =
-      std::make_shared<VulkanRHIGraphicsPipelineState>(m_device, pipeline,
-                                                       layout);
+      std::make_shared<VulkanRHIGraphicsPipelineState>(
+          m_device, pipeline, layout, initializer.shaderState.vertexShader,
+          initializer.shaderState.pixelShader);
   return vulkanPipeline;
 }
 

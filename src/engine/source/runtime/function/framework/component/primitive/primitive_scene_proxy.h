@@ -51,7 +51,7 @@ class PrimitiveSceneProxy {
 
  private:
   uint32_t m_primitiveComponentId;
-  std::shared_ptr<PrimitiveSceneInfo> m_sceneInfo;
+  std::weak_ptr<PrimitiveSceneInfo> m_sceneInfo;
 
   /** The primitive's local to world transform. */
   Matrix4x4 m_localToWorld;
