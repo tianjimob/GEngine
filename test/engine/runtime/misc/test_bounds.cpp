@@ -26,12 +26,14 @@ TEST_CASE("Bounds", "[Bounds]") {
   BENCHMARK("Bounds Time SIMD") {
     for (int i = 0; i < 1000000; ++i) {
       GEngine::Bounds c = a + b;
+      Catch::Benchmark::deoptimize_value(c);
     }
   };
 
   BENCHMARK("Bounds Time Non SIMD") {
     for (int i = 0; i < 1000000; ++i) {
       GEngine::Bounds c = BoundPlus(a, b);
+      Catch::Benchmark::deoptimize_value(c);
     }
   };
 }
