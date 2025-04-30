@@ -21,10 +21,10 @@ public:
   void add(const Bounds &bounds, uint32_t index);
   bool check();
 
- private:
-   static constexpr uint32_t IndexShift = constLog2(MaxChildren);
-   static constexpr uint32_t ChildMask = MaxChildren - 1;
-   
+private:
+  static constexpr uint32_t IndexShift = constLog2(MaxChildren);
+  static constexpr uint32_t ChildMask = MaxChildren - 1;
+
   struct Node {
     /* Index: low bits index child, high bits index node */
 
@@ -34,7 +34,8 @@ public:
     // child num
     uint32_t numChildren;
 
-    // if childIsLeaf[i] is true, m_leaves[childIndices[i] >> IndexShift] = currNodeIndex
+    // if childIsLeaf[i] is true, m_leaves[childIndices[i] >> IndexShift] =
+    // currNodeIndex
     uint32_t childIndices[MaxChildren];
     bool childIsLeaf[MaxChildren];
 
@@ -45,11 +46,11 @@ public:
     uint32_t getChildIndex(uint32_t nodeIndex) {
       return childIndices[nodeIndex & ChildMask];
     }
- };
- uint32_t m_root = ~0u;
- Bounds m_rootBounds;
- std::vector<Node> m_nodes;
- std::vector<uint32_t> m_leaves;
+  };
+  uint32_t m_root = ~0u;
+  Bounds m_rootBounds;
+  std::vector<Node> m_nodes;
+  std::vector<uint32_t> m_leaves;
 
 private:
   uint32_t allocNode();
@@ -126,7 +127,8 @@ void DynamicBVH<MaxChildren>::add(const Bounds &bounds, uint32_t index) {
     else
       getNode(newNode.childIndices[0]).parentIndex = newNodeIndex;
 
-    getNode(bestIndex).childIndices[bestIndex & ChildMask] = newNodeIndex | (bestIndex & ChildMask);
+    getNode(bestIndex).childIndices[bestIndex & ChildMask] =
+        newNodeIndex | (bestIndex & ChildMask);
     getNode(bestIndex).childIsLeaf[bestIndex & ChildMask] = false;
 
     bestIndex = newNodeIndex;
@@ -172,7 +174,7 @@ void DynamicBVH<MaxChildren>::add(const Bounds &bounds, uint32_t index) {
             costSurfArea(parentNode.childBounds[node.parentIndex & ChildMask]);
 
         uint32_t bestIndex = ~0u;
-        
+
         for (int i = 0; i < parentNode.numChildren; ++i) {
           if (i != (node.parentIndex & ChildMask)) {
             float cost =
@@ -199,7 +201,8 @@ void DynamicBVH<MaxChildren>::add(const Bounds &bounds, uint32_t index) {
           if (node.childIsLeaf[pathIndex & ChildMask]) {
             m_leaves[node.childIndices[pathIndex & ChildMask]] = pathIndex;
           } else {
-            getNode(node.childIndices[pathIndex & ChildMask]).parentIndex = pathIndex;
+            getNode(node.childIndices[pathIndex & ChildMask]).parentIndex =
+                pathIndex;
           }
 
           parentNode.childBounds[bestIndex & ChildMask] = tempBounds;
@@ -227,7 +230,8 @@ template <uint32_t MaxChildren> bool DynamicBVH<MaxChildren>::check() {
   for (int i = 0; i < m_nodes.size(); ++i) {
     for (int j = 0; j < m_nodes[i].numChildren; ++j) {
       auto check = checkNode((i << IndexShift) | j);
-      if(!check) return false;
+      if (!check)
+        return false;
     }
   }
   return true;
@@ -238,15 +242,12 @@ bool DynamicBVH<MaxChildren>::checkNode(uint32_t nodeIndex) {
   const auto &node = getNode(nodeIndex);
 
   if (!((nodeIndex & ChildMask) < node.numChildren)) {
-    __debugbreak();
     return false;
   }
 
   if (!node.isRoot()) {
-    if (!(getNode(node.parentIndex)
-               .childIndices[node.parentIndex & ChildMask] &
-           ~ChildMask) == (nodeIndex & ~ChildMask)) {
-      __debugbreak();
+    if (!(getNode(node.parentIndex).childIndices[node.parentIndex & ChildMask] &
+          ~ChildMask) == (nodeIndex & ~ChildMask)) {
       return false;
     }
   }
@@ -254,13 +255,11 @@ bool DynamicBVH<MaxChildren>::checkNode(uint32_t nodeIndex) {
   uint32_t childIndex = node.childIndices[nodeIndex & ChildMask];
   if (node.childIsLeaf[nodeIndex & ChildMask]) {
     if (!(m_leaves[childIndex] == nodeIndex)) {
-      __debugbreak();
       return false;
     }
   } else {
     const auto &children = getNode(childIndex);
     if (!(children.parentIndex == nodeIndex)) {
-      __debugbreak();
       return false;
     }
   }
@@ -278,7 +277,8 @@ template <uint32_t MaxChildren> uint32_t DynamicBVH<MaxChildren>::allocNode() {
 }
 
 template <uint32_t MaxChildren>
-std::pair<uint32_t, bool> DynamicBVH<MaxChildren>::findBestIndex(const Bounds &bounds) {
+std::pair<uint32_t, bool>
+DynamicBVH<MaxChildren>::findBestIndex(const Bounds &bounds) {
   uint32_t nodeIndex = m_root;
 
   float bestCost = FLT_MAX;
@@ -293,7 +293,7 @@ std::pair<uint32_t, bool> DynamicBVH<MaxChildren>::findBestIndex(const Bounds &b
       uint32_t bestChildIndex = 0;
 
       for (int i = 0; i < node.numChildren; ++i) {
-        Bounds& nodeBounds = node.childBounds[i];
+        Bounds &nodeBounds = node.childBounds[i];
         Vector4 delta =
             (bounds.min - nodeBounds.min) + (bounds.max - nodeBounds.max);
         float dist = std::abs(delta.x) + std::abs(delta.y) + std::abs(delta.z);
@@ -331,4 +331,4 @@ std::pair<uint32_t, bool> DynamicBVH<MaxChildren>::findBestIndex(const Bounds &b
 
   return {bestIndex, isLeaf};
 }
-}
+} // namespace GEngine
