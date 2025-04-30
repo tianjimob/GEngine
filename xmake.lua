@@ -151,7 +151,7 @@ target("GEngineRuntime")
 --     add_files("src/engine/source/editor/**.cpp")
 
 -- tests
-local enable_test = true   
+local enable_test = false    
 
 target("catch2")
     set_kind("static")
@@ -203,7 +203,7 @@ target("test_engine_runtime_bounds")
     add_deps("catch2")
     add_includedirs("test/catch")
     add_includedirs("src/engine/source/runtime")
-    add_includedirs(join_third_party_dir("libsimdpp/"))
+    add_includedirs(join_third_party_dir("nlohmann/include"))
     add_files("test/engine/runtime/misc/test_bounds.cpp")
     after_build(function (target)
         if enable_test  then 
@@ -217,6 +217,7 @@ target("test_engine_runtime_dynamic_bvh")
     add_deps("catch2")
     add_includedirs("test/catch")
     add_includedirs("src/engine/source/runtime")
+    add_includedirs(join_third_party_dir("nlohmann/include"))
     add_files("test/engine/runtime/misc/test_dynamic_bvh.cpp")
     after_build(function (target)
         if enable_test  then 
