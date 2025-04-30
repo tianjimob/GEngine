@@ -2,8 +2,10 @@
 
 #include <cstdint>
 #include <emmintrin.h>
+#if defined(_MSC_VER)
 #include <excpt.h>
 #include <intrin.h>
+#endif
 #include <xmmintrin.h>
 
 namespace GEngine {

@@ -6,7 +6,6 @@
 #include "core/math/vector3.h"
 #include "core/math/vector4.h"
 
-
 namespace GEngine {
 
 struct Bounds {

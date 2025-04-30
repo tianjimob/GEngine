@@ -4,7 +4,6 @@
 
 #include "core/math/math.h"
 #include "core/math/quaternion.h"
-#include "core/reflection/reflection.h"
 
 namespace GEngine {
 
