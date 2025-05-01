@@ -126,7 +126,6 @@ target("GEngineRuntime")
                     join_third_party_dir("VulkanSDK/include"), 
                     join_third_party_dir("glad/include"),
                     join_third_party_dir("nlohmann/include"),
-                    join_third_party_dir("libsimdpp/"),
                     join_third_party_dir("tinyobjloader"),
                     join_third_party_dir("ufbx"),
                     join_third_party_dir("CRCpp/inc"),
